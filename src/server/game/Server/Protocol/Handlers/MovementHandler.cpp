@@ -31,6 +31,10 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 
+/********* AVALON ********/
+#include "AnticheatMgr.h"
+/********* AVALON ********/
+
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
@@ -336,6 +340,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         // now client not include swimming flag in case jumping under water
         plMover->SetInWater(!plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
+	
+	if (plMover)
+		sAnticheatMgr->StartHackDetection(plMover, movementInfo, opcode);
 
     /*----------------------*/
 

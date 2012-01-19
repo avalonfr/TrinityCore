@@ -465,6 +465,7 @@ enum DeathState
     CORPSE      = 2,
     DEAD        = 3,
     JUST_ALIVED = 4,
+	DEAD_FALLING= 5
 };
 
 enum UnitState
