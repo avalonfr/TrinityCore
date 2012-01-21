@@ -346,6 +346,11 @@ class ChatHandler
         bool HandleQuestRemove(const char * args);
         bool HandleQuestComplete(const char * args);*/
 
+		// Quete bug patch
+		bool HandlePlayerQuestCompleteCommand(const char *args);
+		bool HandleQuestBugAddCommand(const char *args);
+		bool HandleQuestBugRemoveCommand(const char *args);
+
         //bool HandleSet32Bit(const char* args);
         bool HandleSaveAllCommand(const char* args);
 

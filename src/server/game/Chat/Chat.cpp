@@ -329,6 +329,13 @@ ChatCommand* ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                                "", NULL }
     };
 
+	static ChatCommand questBugTable[] =
+	{
+	{ "add", SEC_GAMEMASTER, false, OldHandler<&ChatHandler::HandleQuestBugAddCommand>, "", NULL },
+	{ "remove", SEC_GAMEMASTER, false, OldHandler<&ChatHandler::HandleQuestBugRemoveCommand>, "", NULL },
+	{ NULL, 0, false, NULL, "", NULL }
+	};
+
     static ChatCommand commandTable[] =
     {
         { "character",      SEC_GAMEMASTER,     true,  NULL,                                           "", characterCommandTable},
