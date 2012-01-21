@@ -6849,6 +6849,9 @@ void Player::CheckAreaExploreAndOutdoor()
                     XP = uint32(sObjectMgr->GetBaseXP(p->area_level)*sWorld->getRate(RATE_XP_EXPLORE));
                 }
 
+				if(GetSession()->IsVIP())
+                XP *= sWorld->getRate(RATE_XP_EXPLORE_VIP);
+
                 GiveXP(XP, NULL);
                 SendExplorationExperience(area, XP);
             }
