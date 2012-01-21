@@ -84,6 +84,20 @@ ChatCommand* ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+static ChatCommand boutiqueCommandTable[] =
+    {
+		{ "infos",		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueInfos>, 					"", NULL },
+		{ "item", 		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueAdditem>, 					"", NULL },
+		{ "level", 		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueLevel>, 					"", NULL },
+		{ "rename", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueRename>, 					"", NULL },
+		{ "custom", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueCustomize>, 				"", NULL },
+		{ "race", 		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueRace>, 					"", NULL },
+		{ "faction", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueFaction>, 					"", NULL },
+		{ NULL, 		0, 						false, 	NULL, 											"", NULL }
+    };
+	
+
+
     static ChatCommand banlistCommandTable[] =
     {
         { "account",        SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleBanListAccountCommand>,      "", NULL },
@@ -421,6 +435,12 @@ ChatCommand* ChatHandler::getCommandTable()
         { "bindsight",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleBindSightCommand>,           "", NULL },
         { "unbindsight",    SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleUnbindSightCommand>,         "", NULL },
         { "playall",        SEC_GAMEMASTER,  false, OldHandler<&ChatHandler::HandlePlayAllCommand>,             "", NULL },
+		{ "boutique",       SEC_PLAYER,         true,  NULL,                                           "", boutiqueCommandTable  },
+		{ "valide", SEC_PLAYER, false, OldHandler<&ChatHandler::HandlePlayerQuestCompleteCommand>, "", NULL },
+		{ "questbug", SEC_GAMEMASTER, false, NULL, "", questBugTable },
+		{ "boutique",       SEC_PLAYER,         true,  NULL,                                           "", boutiqueCommandTable  },
+		{ "valide", SEC_PLAYER, false, OldHandler<&ChatHandler::HandlePlayerQuestCompleteCommand>, "", NULL },
+		{ "questbug", SEC_GAMEMASTER, false, NULL, "", questBugTable },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
