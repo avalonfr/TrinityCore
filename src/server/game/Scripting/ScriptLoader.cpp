@@ -87,6 +87,7 @@ void AddSC_boss_vanndar();
 void AddSC_blackrock_depths();               //Blackrock Depths
 void AddSC_boss_ambassador_flamelash();
 void AddSC_boss_anubshiah();
+void AddSC_boss_coren_direbrew();
 void AddSC_boss_draganthaurissan();
 void AddSC_boss_general_angerforge();
 void AddSC_boss_gorosh_the_dervish();
@@ -467,10 +468,10 @@ void AddSC_pit_of_saron();
 void AddSC_boss_garfrost();
 void AddSC_boss_ick();
 void AddSC_boss_tyrannus();
-void AddSC_instance_halls_of_reflection();   // Halls of Reflection
+/*void AddSC_instance_halls_of_reflection();   // Halls of Reflection
 void AddSC_halls_of_reflection();
 void AddSC_boss_falric();
-void AddSC_boss_marwyn();
+void AddSC_boss_marwyn();*/
 void AddSC_boss_lord_marrowgar();       // Icecrown Citadel
 void AddSC_boss_lady_deathwhisper();
 void AddSC_boss_deathbringer_saurfang();
@@ -700,6 +701,7 @@ void AddEasternKingdomsScripts()
     AddSC_blackrock_depths();               //Blackrock Depths
     AddSC_boss_ambassador_flamelash();
     AddSC_boss_anubshiah();
+	AddSC_boss_coren_direbrew();
     AddSC_boss_draganthaurissan();
     AddSC_boss_general_angerforge();
     AddSC_boss_gorosh_the_dervish();
@@ -1175,10 +1177,10 @@ void AddNorthrendScripts()
     AddSC_boss_garfrost();
     AddSC_boss_ick();
     AddSC_boss_tyrannus();
-    AddSC_instance_halls_of_reflection();   // Halls of Reflection
+    /*AddSC_instance_halls_of_reflection();   // Halls of Reflection
     AddSC_halls_of_reflection();
     AddSC_boss_falric();
-    AddSC_boss_marwyn();
+    AddSC_boss_marwyn();*/
     AddSC_boss_lord_marrowgar();        // Icecrown Citadel
     AddSC_boss_lady_deathwhisper();
     AddSC_boss_deathbringer_saurfang();
