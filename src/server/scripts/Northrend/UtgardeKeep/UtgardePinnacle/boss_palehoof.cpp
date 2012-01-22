@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /* Script Data Start
 SDName: Boss palehoof
@@ -28,33 +28,33 @@ Script Data End */
 
 enum Spells
 {
-    SPELL_ARCING_SMASH                          = 48260,
-    SPELL_IMPALE                                = 48261,
-    H_SPELL_IMPALE                              = 59268,
-    SPELL_WITHERING_ROAR                        = 48256,
-    H_SPELL_WITHERING_ROAR                      = 59267,
-    SPELL_FREEZE                                = 16245
+    SPELL_ARCING_SMASH = 48260,
+    SPELL_IMPALE = 48261,
+    H_SPELL_IMPALE = 59268,
+    SPELL_WITHERING_ROAR = 48256,
+    H_SPELL_WITHERING_ROAR = 59267,
+    SPELL_FREEZE = 16245
 };
 
 //Orb spells
 enum OrbSpells
 {
-    SPELL_ORB_VISUAL                            = 48044,
-    SPELL_ORB_CHANNEL                           = 48048
+    SPELL_ORB_VISUAL = 48044,
+    SPELL_ORB_CHANNEL = 48048
 };
 
 //not in db
 enum Yells
 {
-    SAY_AGGRO                                = -1575000,
-    SAY_SLAY_1                               = -1575001,
-    SAY_SLAY_2                               = -1575002,
-    SAY_DEATH                                = -1575003
+    SAY_AGGRO = -1575000,
+    SAY_SLAY_1 = -1575001,
+    SAY_SLAY_2 = -1575002,
+    SAY_DEATH = -1575003
 };
 
 enum Creatures
 {
-    MOB_STASIS_CONTROLLER                       = 26688
+    MOB_STASIS_CONTROLLER = 26688
 };
 
 struct Locations
@@ -152,8 +152,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* who)
         {
+            me->GetMotionMaster()->MoveChase(who);
             DoScriptText(SAY_AGGRO, me);
         }
 
@@ -279,10 +280,10 @@ public:
 //ravenous furbolg's spells
 enum RavenousSpells
 {
-    SPELL_CHAIN_LIGHTING                        = 48140,
-    H_SPELL_CHAIN_LIGHTING                      = 59273,
-    SPELL_CRAZED                                = 48139,
-    SPELL_TERRIFYING_ROAR                       = 48144
+    SPELL_CHAIN_LIGHTING = 48140,
+    H_SPELL_CHAIN_LIGHTING = 59273,
+    SPELL_CRAZED = 48139,
+    SPELL_TERRIFYING_ROAR = 48144
 };
 
 class mob_ravenous_furbolg : public CreatureScript
@@ -325,6 +326,11 @@ public:
                 }
         }
 
+        void EnterCombat(Unit* who)
+        {
+            me->GetMotionMaster()->MoveChase(who);
+        }
+
         void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
@@ -335,19 +341,19 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CHAIN_LIGHTING);
                 uiChainLightingTimer = 5000 + rand() % 5000;
-            } else uiChainLightingTimer -=  diff;
+            } else uiChainLightingTimer -= diff;
 
             if (uiCrazedTimer <= diff)
             {
                 DoCast(me, SPELL_CRAZED);
                 uiCrazedTimer = 8000 + rand() % 4000;
-            } else uiCrazedTimer -=  diff;
+            } else uiCrazedTimer -= diff;
 
             if (uiTerrifyingRoarTimer <= diff)
             {
                 DoCast(me, SPELL_TERRIFYING_ROAR);
                 uiTerrifyingRoarTimer = 10000 + rand() % 10000;
-            } else uiTerrifyingRoarTimer -=  diff;
+            } else uiTerrifyingRoarTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -392,10 +398,10 @@ public:
 //frenzied worgen's spells
 enum FrenziedSpells
 {
-    SPELL_MORTAL_WOUND                          = 48137,
-    H_SPELL_MORTAL_WOUND                        = 59265,
-    SPELL_ENRAGE_1                              = 48138,
-    SPELL_ENRAGE_2                              = 48142
+    SPELL_MORTAL_WOUND = 48137,
+    H_SPELL_MORTAL_WOUND = 59265,
+    SPELL_ENRAGE_1 = 48138,
+    SPELL_ENRAGE_2 = 48142
 };
 
 class mob_frenzied_worgen : public CreatureScript
@@ -436,6 +442,11 @@ public:
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            me->GetMotionMaster()->MoveChase(who);
         }
 
         void UpdateAI(const uint32 diff)
@@ -507,11 +518,11 @@ public:
 //ferocious rhino's spells
 enum FerociousSpells
 {
-    SPELL_GORE                                  = 48130,
-    H_SPELL_GORE                                = 59264,
-    SPELL_GRIEVOUS_WOUND                        = 48105,
-    H_SPELL_GRIEVOUS_WOUND                      = 59263,
-    SPELL_STOMP                                 = 48131
+    SPELL_GORE = 48130,
+    H_SPELL_GORE = 59264,
+    SPELL_GRIEVOUS_WOUND = 48105,
+    H_SPELL_GRIEVOUS_WOUND = 59263,
+    SPELL_STOMP = 48131
 };
 
 class mob_ferocious_rhino : public CreatureScript
@@ -552,6 +563,11 @@ public:
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            me->GetMotionMaster()->MoveChase(who);
         }
 
         void UpdateAI(const uint32 diff)
@@ -622,16 +638,16 @@ public:
 //massive jormungar's spells
 enum MassiveSpells
 {
-    SPELL_ACID_SPIT                             = 48132,
-    SPELL_ACID_SPLATTER                         = 48136,
-    H_SPELL_ACID_SPLATTER                       = 59272,
-    SPELL_POISON_BREATH                         = 48133,
-    H_SPELL_POISON_BREATH                       = 59271
+    SPELL_ACID_SPIT = 48132,
+    SPELL_ACID_SPLATTER = 48136,
+    H_SPELL_ACID_SPLATTER = 59272,
+    SPELL_POISON_BREATH = 48133,
+    H_SPELL_POISON_BREATH = 59271
 };
 
 enum MassiveAdds
 {
-  CREATURE_JORMUNGAR_WORM                     = 27228
+  CREATURE_JORMUNGAR_WORM = 27228
 };
 
 class mob_massive_jormungar : public CreatureScript
@@ -672,6 +688,11 @@ public:
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            me->GetMotionMaster()->MoveChase(who);
         }
 
         void UpdateAI(const uint32 diff)
@@ -844,6 +865,10 @@ public:
             pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             pGO->SetGoState(GO_STATE_ACTIVE);
 
+            if(InstanceScript* instance = pGO->GetInstanceScript())
+                if(instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
+                    return true;
+
             CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }
         return true;
@@ -861,3 +886,4 @@ void AddSC_boss_palehoof()
     new mob_palehoof_orb();
     new go_palehoof_sphere();
 }
+
