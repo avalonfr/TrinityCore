@@ -56,6 +56,12 @@ set(scripts_STAT_SRCS
   Northrend/FrozenHalls/PitOfSaron/boss_scourgelord_tyrannus.cpp
   Northrend/FrozenHalls/PitOfSaron/pit_of_saron.h
   Northrend/FrozenHalls/PitOfSaron/instance_pit_of_saron.cpp
+   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.h
+  Northrend/FrozenHalls/HallsOfReflection/boss_falric.cpp
+  Northrend/FrozenHalls/HallsOfReflection/instance_halls_of_reflection.cpp
+  Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.cpp
+  Northrend/FrozenHalls/HallsOfReflection/boss_marwyn.cpp
+  Northrend/FrozenHalls/HallsOfReflection/boss_the_lich_king_hor.cpp
   Northrend/FrozenHalls/ForgeOfSouls/forge_of_souls.cpp
   Northrend/FrozenHalls/ForgeOfSouls/boss_bronjahm.cpp
   Northrend/FrozenHalls/ForgeOfSouls/instance_forge_of_souls.cpp
