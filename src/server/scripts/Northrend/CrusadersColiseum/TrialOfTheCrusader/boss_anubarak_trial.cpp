@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -68,8 +68,8 @@ enum BossSpells
     SPELL_SUBMERGE_ANUBARAK = 65981,
     SPELL_CLEAR_ALL_DEBUFFS = 34098,
     SPELL_EMERGE_ANUBARAK   = 65982,
-    SPELL_SUMMON_BEATLES    = 66339,
-    SPELL_SUMMON_BURROWER   = 66332,
+    SPELL_SUMMON_BEATLES    = 66340,
+    SPELL_SUMMON_BURROWER   = 66333,
 
     // Burrow
     SPELL_CHURNING_GROUND   = 66969,
@@ -104,7 +104,7 @@ enum BossSpells
     SPELL_SPIKE_TELE        = 66170,
 };
 
-#define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193, 67856, 67855, 67857)
+#define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193,67856,67855,67857)
 
 enum SummonActions
 {
@@ -122,29 +122,24 @@ const Position SphereSpawn[6] =
     { 706.6383f, 161.5266f, 155.6701f, 0 },
 };
 
-enum MovementPoints
-{
-    POINT_FALL_GROUND           = 1
-};
-
 class boss_anubarak_trial : public CreatureScript
 {
 public:
     boss_anubarak_trial() : CreatureScript("boss_anubarak_trial") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_anubarak_trialAI(creature);
+        return new boss_anubarak_trialAI(pCreature);
     };
 
     struct boss_anubarak_trialAI : public ScriptedAI
     {
-        boss_anubarak_trialAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        boss_anubarak_trialAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* m_pInstance;
 
         SummonList Summons;
         std::list<uint64> m_vBurrowGUID;
@@ -159,6 +154,7 @@ public:
         uint32 m_uiSummonScarabTimer;
         uint32 m_uiSummonFrostSphereTimer;
         uint32 m_uiBerserkTimer;
+		uint32 m_uitargetflag;
 
         uint8  m_uiStage;
         bool   m_bIntro;
@@ -172,13 +168,13 @@ public:
             m_uiPenetratingColdTimer = 20*IN_MILLISECONDS;
             m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
             m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
-            m_uiSubmergeTimer = 80*IN_MILLISECONDS;
+            m_uiSubmergeTimer = 60*IN_MILLISECONDS;
 
             m_uiPursuingSpikeTimer = 2*IN_MILLISECONDS;
             m_uiSummonScarabTimer = 2*IN_MILLISECONDS;
 
             m_uiSummonFrostSphereTimer = 20*IN_MILLISECONDS;
-
+			m_uitargetflag = 3600 * 24 * IN_MILLISECONDS;
             m_uiBerserkTimer = 10*MINUTE*IN_MILLISECONDS;
             m_uiStage = 0;
             m_uiScarabSummoned = 0;
@@ -190,17 +186,17 @@ public:
             m_vBurrowGUID.clear();
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* pWho)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (pWho->GetTypeId() == TYPEID_PLAYER)
             {
                 DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
-                if (m_instance)
-                    m_instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/)
+        void MoveInLineOfSight(Unit* /*pWho*/)
         {
             if (!m_bIntro)
             {
@@ -211,43 +207,43 @@ public:
 
         void JustReachedHome()
         {
-            if (m_instance)
-                m_instance->SetData(TYPE_ANUBARAK, FAIL);
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_ANUBARAK, FAIL);
             //Summon Scarab Swarms neutral at random places
             for (int i=0; i < 10; i++)
-                if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
-                    temp->setFaction(31);
+                if (Creature* pTemp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
+                    pTemp->setFaction(31);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*pKiller*/)
         {
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH, me);
-            if (m_instance)
-                m_instance->SetData(TYPE_ANUBARAK, DONE);
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_ANUBARAK, DONE);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* pSummoned)
         {
-            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
-            switch (summoned->GetEntry())
+            Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
+            switch (pSummoned->GetEntry())
             {
                 case NPC_BURROW:
-                    m_vBurrowGUID.push_back(summoned->GetGUID());
-                    summoned->SetReactState(REACT_PASSIVE);
-                    summoned->CastSpell(summoned, SPELL_CHURNING_GROUND, false);
+                    m_vBurrowGUID.push_back(pSummoned->GetGUID());
+                    pSummoned->SetReactState(REACT_PASSIVE);
+                    pSummoned->CastSpell(pSummoned, SPELL_CHURNING_GROUND, false);
                     break;
                 case NPC_SPIKE:
-                    summoned->CombatStart(target);
-                    DoScriptText(EMOTE_SPIKE, me, target);
+                    pSummoned->CombatStart(pTarget);
+                    DoScriptText(EMOTE_SPIKE, me, pTarget);
                     break;
             }
-            Summons.Summon(summoned);
+            Summons.Summon(pSummoned);
         }
 
-        void SummonedCreatureDespawn(Creature* summoned)
+        void SummonedCreatureDespawn(Creature* pSummoned)
         {
-            switch (summoned->GetEntry())
+            switch (pSummoned->GetEntry())
             {
                 case NPC_SPIKE:
                     m_uiPursuingSpikeTimer = 2*IN_MILLISECONDS;
@@ -255,13 +251,13 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*pWho*/)
         {
             DoScriptText(SAY_AGGRO, me);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetInCombatWithZone();
-            if (m_instance)
-                m_instance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
             //Despawn Scarab Swarms neutral
             Summons.DoAction(NPC_SCARAB, ACTION_SCARAB_SUBMERGE);
             //Spawn Burrow
@@ -269,8 +265,8 @@ public:
                 me->SummonCreature(NPC_BURROW, AnubarakLoc[i+2]);
             //Spawn Frost Spheres
             for (int i=0; i < 6; i++)
-                if (Unit* summoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
-                    m_aSphereGUID[i] = summoned->GetGUID();
+                if (Unit* pSummoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
+                    m_aSphereGUID[i] = pSummoned->GetGUID();
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -382,8 +378,8 @@ public:
                         {
                             if (!pSphere->HasAura(SPELL_FROST_SPHERE))
                             {
-                                if (Creature* summon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
-                                    m_aSphereGUID[i] = summon->GetGUID();
+                                if (Creature* pSummon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
+                                    m_aSphereGUID[i] = pSummon->GetGUID();
                                 break;
                             }
                         }
@@ -395,11 +391,20 @@ public:
 
             if (HealthBelowPct(30) && m_uiStage == 0 && !m_bReachedPhase3)
             {
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 m_bReachedPhase3 = true;
                 DoCastAOE(SPELL_LEECHING_SWARM);
                 DoScriptText(EMOTE_LEECHING_SWARM, me);
                 DoScriptText(SAY_LEECHING_SWARM, me);
+				m_uitargetflag = 4000;
             }
+
+			if (m_uitargetflag <= uiDiff)
+			{
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+				m_uitargetflag = 3600 * 1000 *24;
+			} else m_uitargetflag -= uiDiff;
+
 
             if (m_uiBerserkTimer <= uiDiff && !me->HasAura(SPELL_BERSERK))
             {
@@ -417,19 +422,19 @@ class mob_swarm_scarab : public CreatureScript
 public:
     mob_swarm_scarab() : CreatureScript("mob_swarm_scarab") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_swarm_scarabAI(creature);
+        return new mob_swarm_scarabAI(pCreature);
     };
 
     struct mob_swarm_scarabAI : public ScriptedAI
     {
-        mob_swarm_scarabAI(Creature* creature) : ScriptedAI(creature)
+        mob_swarm_scarabAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* m_pInstance;
 
         uint32 m_uiDeterminationTimer;
 
@@ -439,8 +444,8 @@ public:
             m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             DoCast(me, SPELL_ACID_MANDIBLE);
             me->SetInCombatWithZone();
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                me->AddThreat(target, 20000.0f);
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                me->AddThreat(pTarget, 20000.0f);
             if (!me->isInCombat())
                 me->DisappearAndDie();
         }
@@ -456,9 +461,9 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* pKiller)
         {
-            DoCast(killer, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
+            DoCast(pKiller, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -484,19 +489,19 @@ class mob_nerubian_burrower : public CreatureScript
 public:
     mob_nerubian_burrower() : CreatureScript("mob_nerubian_burrower") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_nerubian_burrowerAI(creature);
+        return new mob_nerubian_burrowerAI(pCreature);
     };
 
     struct mob_nerubian_burrowerAI : public ScriptedAI
     {
-        mob_nerubian_burrowerAI(Creature* creature) : ScriptedAI(creature)
+        mob_nerubian_burrowerAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* m_pInstance;
 
         uint32 m_uiSpiderFrenzyTimer;
         uint32 m_uiSubmergeTimer;
@@ -518,8 +523,8 @@ public:
             switch (actionId)
             {
                 case ACTION_SHADOW_STRIKE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_SHADOW_STRIKE);
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, SPELL_SHADOW_STRIKE);
                     break;
             }
         }
@@ -558,68 +563,82 @@ public:
 
 class mob_frost_sphere : public CreatureScript
 {
-    public:
-        mob_frost_sphere() : CreatureScript("mob_frost_sphere") { }
+public:
+    mob_frost_sphere() : CreatureScript("mob_frost_sphere") { }
 
-        struct mob_frost_sphereAI : public ScriptedAI
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_frost_sphereAI(pCreature);
+    };
+
+    struct mob_frost_sphereAI : public ScriptedAI
+    {
+        mob_frost_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            mob_frost_sphereAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+        }
 
-            void Reset()
-            {
-                _isFalling = false;
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlying(true);
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
-                me->SetSpeed(MOVE_RUN, 0.5f, false);
-                me->GetMotionMaster()->MoveRandom(20.0f);
-                DoCast(SPELL_FROST_SPHERE);
-            }
+        bool   m_bFall;
+        uint32 m_uiPermafrostTimer;
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+        void Reset()
+        {
+            m_bFall = false;
+            m_uiPermafrostTimer = 0;
+            me->SetReactState(REACT_PASSIVE);
+            me->SetFlying(true);
+            me->SetDisplayId(25144);
+            me->SetSpeed(MOVE_RUN, 0.5, false);
+            me->GetMotionMaster()->MoveRandom(20.0f);
+            DoCast(SPELL_FROST_SPHERE);
+        }
+
+        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
+        {
+            if (me->GetHealth() < uiDamage)
             {
-                if (me->GetHealth() <= damage)
+                uiDamage = 0;
+                if (!m_bFall)
                 {
-                    damage = 0;
-                    if (!_isFalling)
-                    {
-                        _isFalling = true;
-                        me->GetMotionMaster()->MoveIdle();
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        //At hit the ground
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
-                        me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
-                    }
+                    m_bFall = true;
+                    me->SetFlying(false);
+                    me->GetMotionMaster()->MoveIdle();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    //At hit the ground
+                    me->GetMotionMaster()->MoveFall(142.2f);
+                    //me->FallGround(); //need correct vmap use (i believe it isn't working properly right now)
                 }
             }
+        }
 
-            void MovementInform(uint32 type, uint32 pointId)
-            {
-                if (type != EFFECT_MOTION_TYPE)
-                    return;
-
-                switch (pointId)
-                {
-                    case POINT_FALL_GROUND:
-                        me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
-                        me->SetDisplayId(me->GetCreatureInfo()->Modelid1);
-                        DoCast(SPELL_PERMAFROST_VISUAL);
-                        DoCast(SPELL_PERMAFROST);
-                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
-                        break;
-                }
-            }
-
-        private:
-            bool _isFalling;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
+        void MovementInform(uint32 uiType, uint32 uiId)
         {
-            return new mob_frost_sphereAI(creature);
-        };
+            if (uiType != POINT_MOTION_TYPE) return;
+
+            switch (uiId)
+            {
+                case 0:
+                    m_uiPermafrostTimer = IN_MILLISECONDS;
+                    break;
+            }
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (m_uiPermafrostTimer)
+            {
+                if (m_uiPermafrostTimer <= uiDiff)
+                {
+                    m_uiPermafrostTimer = 0;
+                    me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
+                    me->SetDisplayId(11686);
+                    me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                    DoCast(SPELL_PERMAFROST_VISUAL);
+                    DoCast(SPELL_PERMAFROST);
+                } else m_uiPermafrostTimer -= uiDiff;
+            }
+        }
+    };
+
 };
 
 class mob_anubarak_spike : public CreatureScript
@@ -627,19 +646,19 @@ class mob_anubarak_spike : public CreatureScript
 public:
     mob_anubarak_spike() : CreatureScript("mob_anubarak_spike") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_anubarak_spikeAI(creature);
+        return new mob_anubarak_spikeAI(pCreature);
     };
 
     struct mob_anubarak_spikeAI : public ScriptedAI
     {
-        mob_anubarak_spikeAI(Creature* creature) : ScriptedAI(creature)
+        mob_anubarak_spikeAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* m_pInstance;
         uint32 m_uiIncreaseSpeedTimer;
         uint8  m_uiSpeed;
         uint64 m_uiTargetGUID;
@@ -651,27 +670,27 @@ public:
             m_uiTargetGUID = 0;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* pWho)
         {
-            m_uiTargetGUID = who->GetGUID();
-            DoCast(who, SPELL_MARK);
+            m_uiTargetGUID = pWho->GetGUID();
+            DoCast(pWho, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
             m_uiSpeed = 0;
             m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-            me->TauntApply(who);
+            me->TauntApply(pWho);
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& uiDamage)
+        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
         {
             uiDamage = 0;
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
-            Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
-            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK))
+            Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
+            if (!pTarget || !pTarget->isAlive() || !pTarget->HasAura(SPELL_MARK))
             {
-                if (Creature* pAnubarak = Unit::GetCreature((*me), m_instance->GetData64(NPC_ANUBARAK)))
+                if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
                 return;
