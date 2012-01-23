@@ -22,6 +22,8 @@ set(scripts_STAT_SRCS
   OutdoorPvP/OutdoorPvPHP.h
   OutdoorPvP/OutdoorPvPZM.h
   OutdoorPvP/OutdoorPvPNA.h
+  OutdoorPvP/OutdoorPvPGH.cpp
+  OutdoorPvP/OutdoorPvPGH.h
 )
 SOURCE_GROUP(OutdoorPvP REGULAR_EXPRESSION .*/OutdoorPvP/.*)
 message("  -> Prepared: Outdoor PVP Zones")
