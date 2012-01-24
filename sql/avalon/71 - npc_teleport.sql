@@ -131,13 +131,8 @@ INSERT INTO `custom_npc_tele_destination` VALUES ('87', '4. Silvermoon City', '9
 INSERT INTO `custom_npc_tele_destination` VALUES ('88', '5. Shattrath City', '-1850.21', '5435.82', '-10.9614', '530', '3.40391', '0', '0');
 INSERT INTO `custom_npc_tele_destination` VALUES ('89', '6. Isle of Quel\'Danas', '12947.4', '-6893.31', '5.68398', '530', '3.09154', '0', '0');
 INSERT INTO `custom_npc_tele_destination` VALUES ('90', '7. Dalaran', '5807.67', '588.207', '660.93', '571', '1.70185', '0', '0');
-INSERT INTO `custom_npc_tele_destination` VALUES ('91', '5. Shattrath City', '-1850.21', '5435.82', '-10.9614', '530', '3.40391', '0', '0');
-INSERT INTO `custom_npc_tele_destination` VALUES ('92', '6. Isle of Quel\'Danas', '12947.4', '-6893.31', '5.68398', '530', '3.09154', '0', '0');
-INSERT INTO `custom_npc_tele_destination` VALUES ('93', '7. Dalaran', '5807.67', '588.207', '660.93', '571', '1.70185', '0', '0');
-INSERT INTO `custom_npc_tele_destination` VALUES ('94', '1. Gurubashi', '-13261.3', '168.294', '35.0792', '0', '1.00688', '0', '0');
-INSERT INTO `custom_npc_tele_destination` VALUES ('95', '2. Circle of Blood', '2839.44', '5930.17', '11.1002', '530', '3.16284', '0', '0');
-INSERT INTO `custom_npc_tele_destination` VALUES ('96', '3. Ring of Trials', '-1999.94', '6581.71', '11.32', '530', '2.3', '0', '0');
-INSERT INTO `custom_npc_tele_destination` VALUES ('97', '4. The Maul', '-3739.86', '1093.8', '131.968', '1', '0.155619', '0', '0');
+INSERT INTO `custom_npc_tele_destination` VALUES ('91', '1. Gurubashi', '-13261.3', '168.294', '35.0792', '0', '1.00688', '0', '0');
+INSERT INTO `custom_npc_tele_destination` VALUES ('92', '3. L\'Arenes des Epreuves', '-1999.94', '6581.71', '11.32', '530', '2.3', '0', '0');
 
 DROP TABLE IF EXISTS `custom_npc_tele_association`;
 -- ----------------------------
@@ -163,9 +158,6 @@ INSERT INTO `custom_npc_tele_association` VALUES ('2', '84');
 INSERT INTO `custom_npc_tele_association` VALUES ('2', '85');
 INSERT INTO `custom_npc_tele_association` VALUES ('2', '86');
 INSERT INTO `custom_npc_tele_association` VALUES ('2', '87');
-INSERT INTO `custom_npc_tele_association` VALUES ('2', '91');
-INSERT INTO `custom_npc_tele_association` VALUES ('2', '92');
-INSERT INTO `custom_npc_tele_association` VALUES ('2', '93');
 INSERT INTO `custom_npc_tele_association` VALUES ('3', '1');
 INSERT INTO `custom_npc_tele_association` VALUES ('3', '2');
 INSERT INTO `custom_npc_tele_association` VALUES ('3', '3');
@@ -244,10 +236,8 @@ INSERT INTO `custom_npc_tele_association` VALUES ('6', '76');
 INSERT INTO `custom_npc_tele_association` VALUES ('6', '77');
 INSERT INTO `custom_npc_tele_association` VALUES ('6', '78');
 INSERT INTO `custom_npc_tele_association` VALUES ('6', '79');
-INSERT INTO `custom_npc_tele_association` VALUES ('7', '95');
-INSERT INTO `custom_npc_tele_association` VALUES ('7', '96');
-INSERT INTO `custom_npc_tele_association` VALUES ('7', '97');
-INSERT INTO `custom_npc_tele_association` VALUES ('7', '98');
+INSERT INTO `custom_npc_tele_association` VALUES ('7', '91');
+INSERT INTO `custom_npc_tele_association` VALUES ('7', '92');
 
 INSERT INTO `npc_text` (`ID`, `text0_0`) VALUES
    (100000, 'Choisissez votre categorie.'),
