@@ -1965,6 +1965,75 @@ class spell_gen_elunes_blessing : public SpellScriptLoader
         }
 };
 
+enum EluneCandle
+{
+    NPC_OMEN = 15467,
+
+    SPELL_ELUNE_CANDLE_OMEN_HEAD = 26622,
+    SPELL_ELUNE_CANDLE_OMEN_CHEST = 26624,
+    SPELL_ELUNE_CANDLE_OMEN_HAND_R = 26625,
+    SPELL_ELUNE_CANDLE_OMEN_HAND_L = 26649,
+    SPELL_ELUNE_CANDLE_NORMAL = 26636,
+};
+
+class spell_gen_elune_candle : public SpellScriptLoader
+{
+    public:
+        spell_gen_elune_candle() : SpellScriptLoader("spell_gen_elune_candle") {}
+
+        class spell_gen_elune_candle_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_elune_candle_SpellScript);
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HEAD))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_CHEST))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HAND_R))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HAND_L))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_NORMAL))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    uint32 spellId = 0;
+
+                    if (target->GetEntry() == NPC_OMEN)
+                    {
+                        switch (urand(0, 3))
+                        {
+                            case 0: spellId = SPELL_ELUNE_CANDLE_OMEN_HEAD; break;
+                            case 1: spellId = SPELL_ELUNE_CANDLE_OMEN_CHEST; break;
+                            case 2: spellId = SPELL_ELUNE_CANDLE_OMEN_HAND_R; break;
+                            case 3: spellId = SPELL_ELUNE_CANDLE_OMEN_HAND_L; break;
+                        }
+                    }
+                    else
+                        spellId = SPELL_ELUNE_CANDLE_NORMAL;
+
+                    GetCaster()->CastSpell(target, spellId, true, NULL);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_elune_candle_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_elune_candle_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2019,4 +2088,5 @@ void AddSC_generic_spell_scripts()
     new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
 	new spell_gen_elunes_blessing();
+	new spell_gen_elune_candle();
 }

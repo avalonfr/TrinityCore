@@ -573,8 +573,155 @@ public:
 };
 
 /*####
-#
+# npc_omen
 ####*/
+
+enum Omen
+{
+    SPELL_OMEN_CLEAVE = 15284,
+    SPELL_OMEN_STARFALL = 26540,
+    SPELL_OMEN_SUMMON_SPOTLIGHT = 26392,
+    SPELL_ELUNE_CANDLE = 26374,
+
+    GO_ELUNE_TRAP_1 = 180876,
+    GO_ELUNE_TRAP_2 = 180877,
+
+    EVENT_CAST_CLEAVE = 1,
+    EVENT_CAST_STARFALL = 2,
+    EVENT_DESPAWN = 3,
+
+    DESPAWN_TIME = 5*MINUTE*IN_MILLISECONDS,
+};
+
+class npc_omen : public CreatureScript
+{
+public:
+    npc_omen() : CreatureScript("npc_omen") { }
+
+    struct npc_omenAI : public ScriptedAI
+    {
+        npc_omenAI(Creature* creature) : ScriptedAI(creature) {}
+
+        EventMap events;
+
+        void Reset()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
+        }
+
+        void EnterEvadeMode()
+        {
+            me->DespawnOrUnsummon();
+        }
+
+        void MovementInform(uint32 type, uint32 pointId)
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            if (pointId == 1)
+            {
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                if (Player* player = me->SelectNearestPlayer(40.0f))
+                    AttackStart(player);
+            }
+        }
+
+        void EnterCombat(Unit* /*attacker*/)
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(3000, 5000));
+            events.ScheduleEvent(EVENT_CAST_STARFALL, urand(8000, 10000));
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
+        }
+
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+        {
+            if (spell->Id == SPELL_ELUNE_CANDLE)
+            {
+                if (me->HasAura(SPELL_OMEN_STARFALL))
+                    me->RemoveAurasDueToSpell(SPELL_OMEN_STARFALL);
+
+                events.RescheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_CAST_CLEAVE:
+                    DoCastVictim(SPELL_OMEN_CLEAVE);
+                    events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(8000, 10000));
+                    break;
+                case EVENT_CAST_STARFALL:
+                    DoCast(SPELL_OMEN_STARFALL);
+                    events.ScheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+                    break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_omenAI(creature);
+    }
+};
+
+class npc_gigant_spotlight : public CreatureScript
+{
+public:
+    npc_gigant_spotlight() : CreatureScript("npc_gigant_spotlight") { }
+
+    struct npc_gigant_spotlightAI : public ScriptedAI
+    {
+        npc_gigant_spotlightAI(Creature* creature) : ScriptedAI(creature) {}
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_DESPAWN, DESPAWN_TIME);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_DESPAWN:
+                    if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_1, 5.0f))
+                        trap->RemoveFromWorld();
+
+                    if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_2, 5.0f))
+                        trap->RemoveFromWorld();
+
+                    me->DespawnOrUnsummon();
+                    break;
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_gigant_spotlightAI(creature);
+    }
+};
 
 void AddSC_moonglade()
 {
@@ -583,4 +730,6 @@ void AddSC_moonglade()
     new npc_silva_filnaveth();
     new npc_clintar_dreamwalker();
     new npc_clintar_spirit();
+	new npc_omen();
+    new npc_gigant_spotlight();
 }

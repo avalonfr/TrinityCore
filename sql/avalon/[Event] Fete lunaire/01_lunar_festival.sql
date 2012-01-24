@@ -1,5 +1,5 @@
 SET @ENTRY := 15467; -- Omen
-SET @GUID := 5261515; -- Need 1
+SET @GUID := XXX; -- Need 1
 SET @EVENT := 7;
 
 DELETE FROM `creature` WHERE `id`=@ENTRY;
@@ -10,22 +10,27 @@ DELETE FROM `game_event_creature` WHERE `eventEntry` = @EVENT AND `guid` = @GUID
 INSERT INTO `game_event_creature` (`eventEntry`,`guid`) VALUES
 (@EVENT,@GUID);
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
-(@ENTRY,0,0,0,0,0,100,0,6000,8000,6000,8000,11,40504,2,0,0,0,0,2,0,0,0,0.0,0.0,0.0,0.0,"Omen - Cast Cleave"),
-(@ENTRY,0,1,0,0,0,100,0,12500,15000,20000,22500,11,37124,2,0,0,0,0,1,0,0,0,0.0,0.0,0.0,0.0,"Omen - Cast Starfall"),
-(@ENTRY,0,2,0,6,0,100,0,0,0,0,0,11,26392,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,"Omen - Death - Cast Omen's Moonlight");
 
-SET @ENTRY := 15902;
-SET @SPELL := 26393;
 
-UPDATE `creature_template` SET `spell1` = @SPELL WHERE `entry` =@ENTRY;
 
-DELETE FROM `creature_template_addon` WHERE `entry` = @ENTRY;
-INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
-(@ENTRY,0,0,0,0,0,'50236');
+UPDATE `creature_template` SET `spell1` = 26393 WHERE `entry` =15902;
 
-DELETE FROM `spell_script_names` WHERE `spell_id` = @SPELL;
+DELETE FROM `spell_script_names` WHERE `spell_id` = 26393;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(@SPELL,'spell_gen_elunes_blessing');
+(26393,'spell_gen_elunes_blessing');
+
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (26374);
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES
+(26374,'spell_gen_elune_candle');
+
+-- Set Gigant Spotlight as invisible trigger
+UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry`=15902;
+
+DELETE FROM `creature_template_addon` WHERE (`entry`IN(15902,15466));
+INSERT INTO `creature_template_addon`(`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(15466,0,0,0,0,0,17327), -- Add spirit particles to Omen minions
+(15902,0,0,0,0,0,50236); -- Add Spotlight aura to Gigant Spotlight (ummoned by 26392 on Omen's death)
+
+UPDATE `creature_template` SET `ScriptName` = 'npc_gigant_spotlight' WHERE `entry` = 15902;
+UPDATE `creature_template` SET `ScriptName` = 'npc_omen' WHERE `entry` = 15467;
