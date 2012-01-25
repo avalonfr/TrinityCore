@@ -1559,6 +1559,594 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
         }
 };
 
+enum BreakShieldSpells
+{
+    SPELL_BREAK_SHIELD_DAMAGE_2K = 62626,
+    SPELL_BREAK_SHIELD_DAMAGE_10K = 64590,
+
+    SPELL_BREAK_SHIELD_TRIGGER_FACTION_MOUNTS = 62575, // Also on ToC5 mounts
+    SPELL_BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE = 64595,
+    SPELL_BREAK_SHIELD_TRIGGER_UNK = 66480,
+};
+
+class spell_gen_break_shield: public SpellScriptLoader
+{
+public:
+    spell_gen_break_shield() : SpellScriptLoader("spell_gen_break_shield") { }
+
+    class spell_gen_break_shield_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_break_shield_SpellScript)
+
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetTargetUnit();
+
+            if (!caster || !target)
+                return;
+
+            switch (effIndex)
+            {
+                case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
+                    uint32 spellId;
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case SPELL_BREAK_SHIELD_TRIGGER_UNK:
+                        case SPELL_BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE:
+                            spellId = SPELL_BREAK_SHIELD_DAMAGE_10K;
+                            break;
+                        case SPELL_BREAK_SHIELD_TRIGGER_FACTION_MOUNTS:
+                            spellId = SPELL_BREAK_SHIELD_DAMAGE_2K;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    if (Unit* rider = caster->GetCharmer())
+                        rider->CastSpell(target, spellId, false);
+                    else
+                        caster->CastSpell(target, spellId, false);
+                    break;
+                case EFFECT_1: // On damaging spells, for removing the a defend layer
+                    Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
+                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    {
+                        Aura* aura = itr->second->GetBase();
+                        SpellInfo const* auraInfo = aura->GetSpellInfo();
+                        if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                            aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                    }
+                    break;
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHit += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_break_shield_SpellScript();
+    }
+};
+
+enum ChargeSpells
+{
+    SPELL_CHARGE_DAMAGE_8K5 = 62874,
+    SPELL_CHARGE_DAMAGE_20K = 68498,
+    SPELL_CHARGE_DAMAGE_45K = 64591,
+
+    SPELL_CHARGE_CHARGING_EFFECT_8K5 = 63661,
+    SPELL_CHARGE_CHARGING_EFFECT_20K_1 = 68284,
+    SPELL_CHARGE_CHARGING_EFFECT_20K_2 = 68501,
+    SPELL_CHARGE_CHARGING_EFFECT_45K_1 = 62563,
+    SPELL_CHARGE_CHARGING_EFFECT_45K_2 = 66481,
+
+    SPELL_CHARGE_TRIGGER_FACTION_MOUNTS = 62960,
+    SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION = 68282,
+
+    SPELL_CHARGE_MISS_EFFECT = 62977,
+};
+
+class spell_gen_mounted_charge: public SpellScriptLoader
+{
+public:
+    spell_gen_mounted_charge() : SpellScriptLoader("spell_gen_mounted_charge") { }
+
+    class spell_gen_mounted_charge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_mounted_charge_SpellScript)
+
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetTargetUnit();
+
+            if (!caster || !target)
+                return;
+
+            switch (effIndex)
+            {
+                case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
+                    uint32 spellId;
+
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION:
+                            spellId = SPELL_CHARGE_CHARGING_EFFECT_20K_1;
+                        case SPELL_CHARGE_TRIGGER_FACTION_MOUNTS:
+                            spellId = SPELL_CHARGE_CHARGING_EFFECT_8K5;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    if (Unit* vehicle = caster->GetVehicleBase())
+                        vehicle->CastSpell(target, spellId, false);
+                    else
+                        caster->CastSpell(target, spellId, false);
+                    break;
+                case EFFECT_1: // On damaging spells, for removing the a defend layer
+                case EFFECT_2:
+                    Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
+                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    {
+                        Aura* aura = itr->second->GetBase();
+                        SpellInfo const* auraInfo = aura->GetSpellInfo();
+                        if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                            aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                    }
+                    break;
+            }
+        }
+
+        void HandleChargeEffect(SpellEffIndex effIndex)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetTargetUnit();
+
+            if (!caster || !target)
+                return;
+
+            uint32 spellId;
+
+            switch (GetSpellInfo()->Id)
+            {
+                case SPELL_CHARGE_CHARGING_EFFECT_8K5:
+                    spellId = SPELL_CHARGE_DAMAGE_8K5;
+                    break;
+                case SPELL_CHARGE_CHARGING_EFFECT_20K_1:
+                case SPELL_CHARGE_CHARGING_EFFECT_20K_2:
+                    spellId = SPELL_CHARGE_DAMAGE_20K;
+                    break;
+                case SPELL_CHARGE_CHARGING_EFFECT_45K_1:
+                case SPELL_CHARGE_CHARGING_EFFECT_45K_2:
+                    spellId = SPELL_CHARGE_DAMAGE_45K;
+                    break;
+                default:
+                    return;
+            }
+
+            // If target isn't a training dummy there's a chance of failing the charge
+            if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && urand(0,7) == 0)
+                spellId = SPELL_CHARGE_MISS_EFFECT;
+
+            if (Unit* rider = caster->GetCharmer())
+                rider->CastSpell(target, spellId, false);
+            else
+                caster->CastSpell(target, spellId, false);
+        }
+
+        void Register()
+        {
+            SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
+
+            if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
+                OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+
+            if (spell->Effects[EFFECT_0].Effect == SPELL_EFFECT_CHARGE)
+                OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_mounted_charge_SpellScript();
+    }
+};
+
+enum DefendVisuals
+{
+    SPELL_VISUAL_SHIELD_1 = 63130,
+    SPELL_VISUAL_SHIELD_2 = 63131,
+    SPELL_VISUAL_SHIELD_3 = 63132,
+};
+
+class spell_gen_defend : public SpellScriptLoader
+{
+    public:
+        spell_gen_defend() : SpellScriptLoader("spell_gen_defend") { }
+
+        class spell_gen_defendAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_defendAuraScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_2))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_3))
+                    return false;
+                return true;
+            }
+
+            void RefreshVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+
+                if(!target)
+                    return;
+
+                if (!caster)
+                {
+                    target->RemoveAurasDueToSpell(GetId());
+                    return;
+                }
+
+                for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
+                    target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
+
+                target->CastSpell(target, SPELL_VISUAL_SHIELD_1 + GetAura()->GetStackAmount() - 1);
+            }
+
+            void RemoveVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                if(!target)
+                    return;
+
+                for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
+                    target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
+            }
+
+            void RemoveDummyFromDriver(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster && caster->ToTempSummon())
+                    if (Unit* rider = caster->ToTempSummon()->GetSummoner())
+                        rider->RemoveAurasDueToSpell(GetId());
+            }
+
+            void Register()
+            {
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
+
+                // Defend spells casted by NPCs (add visuals)
+                if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
+                {
+                    AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                }
+
+                // Remove Defend spell from player when he dismounts
+                if (spell->Effects[EFFECT_2].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+
+                // Defend spells casted by players (add/remove visuals)
+                if (spell->Effects[EFFECT_1].ApplyAuraName == SPELL_AURA_DUMMY)
+                {
+                    AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_defendAuraScript();
+        }
+};
+
+enum ArgentMountsSpells
+{
+    SPELL_LANCE_EQUIPPED = 62853,
+};
+
+class spell_gen_summon_tournament_mount : public SpellScriptLoader
+{
+    public:
+        spell_gen_summon_tournament_mount() : SpellScriptLoader("spell_gen_summon_tournament_mount") { }
+
+        class spell_gen_summon_tournament_mount_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_summon_tournament_mount_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_LANCE_EQUIPPED))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckIfLanceEquiped()
+            {
+                Unit* caster = GetCaster();
+
+                if (!caster->HasAura(SPELL_LANCE_EQUIPPED))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_LANCE_EQUIPPED);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_summon_tournament_mount_SpellScript::CheckIfLanceEquiped);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_summon_tournament_mount_SpellScript();
+        }
+};
+
+enum ArgentPennantSpells
+{
+    SPELL_PENNANT_STORMWIND_ASPIRANT = 62595,
+    SPELL_PENNANT_STORMWIND_VALIANT = 62596,
+    SPELL_PENNANT_STORMWIND_CHAMPION = 62594,
+    SPELL_PENNANT_GNOMEREGAN_ASPIRANT = 63394,
+    SPELL_PENNANT_GNOMEREGAN_VALIANT = 63395,
+    SPELL_PENNANT_GNOMEREGAN_CHAMPION = 63396,
+    SPELL_PENNANT_SEN_JIN_ASPIRANT = 63397,
+    SPELL_PENNANT_SEN_JIN_VALIANT = 63398,
+    SPELL_PENNANT_SEN_JIN_CHAMPION = 63399,
+    SPELL_PENNANT_SILVERMOON_ASPIRANT = 63401,
+    SPELL_PENNANT_SILVERMOON_VALIANT = 63402,
+    SPELL_PENNANT_SILVERMOON_CHAMPION = 63403,
+    SPELL_PENNANT_DARNASSUS_ASPIRANT = 63404,
+    SPELL_PENNANT_DARNASSUS_VALIANT = 63405,
+    SPELL_PENNANT_DARNASSUS_CHAMPION = 63406,
+    SPELL_PENNANT_EXODAR_ASPIRANT = 63421,
+    SPELL_PENNANT_EXODAR_VALIANT = 63422,
+    SPELL_PENNANT_EXODAR_CHAMPION = 63423,
+    SPELL_PENNANT_IRONFORGE_ASPIRANT = 63425,
+    SPELL_PENNANT_IRONFORGE_VALIANT = 63426,
+    SPELL_PENNANT_IRONFORGE_CHAMPION = 63427,
+    SPELL_PENNANT_UNDERCITY_ASPIRANT = 63428,
+    SPELL_PENNANT_UNDERCITY_VALIANT = 63429,
+    SPELL_PENNANT_UNDERCITY_CHAMPION = 63430,
+    SPELL_PENNANT_ORGRIMMAR_ASPIRANT = 63431,
+    SPELL_PENNANT_ORGRIMMAR_VALIANT = 63432,
+    SPELL_PENNANT_ORGRIMMAR_CHAMPION = 63433,
+    SPELL_PENNANT_THUNDER_BLUFF_ASPIRANT = 63434,
+    SPELL_PENNANT_THUNDER_BLUFF_VALIANT = 63435,
+    SPELL_PENNANT_THUNDER_BLUFF_CHAMPION = 63436,
+    SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT = 63606,
+    SPELL_PENNANT_ARGENT_CRUSADE_VALIANT = 63500,
+    SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION = 63501,
+    SPELL_PENNANT_EBON_BLADE_ASPIRANT = 63607,
+    SPELL_PENNANT_EBON_BLADE_VALIANT = 63608,
+    SPELL_PENNANT_EBON_BLADE_CHAMPION = 63609,
+};
+
+enum ArgentMounts
+{
+    NPC_STORMWIND_STEED = 33217,
+    NPC_IRONFORGE_RAM = 33316,
+    NPC_GNOMEREGAN_MECHANOSTRIDER = 33317,
+    NPC_EXODAR_ELEKK = 33318,
+    NPC_DARNASSIAN_NIGHTSABER = 33319,
+    NPC_ORGRIMMAR_WOLF = 33320,
+    NPC_DARK_SPEAR_RAPTOR = 33321,
+    NPC_THUNDER_BLUFF_KODO = 33322,
+    NPC_SILVERMOON_HAWKSTRIDER = 33323,
+    NPC_FORSAKEN_WARHORSE = 33324,
+    NPC_ARGENT_WARHORSE = 33782,
+    NPC_ARGENT_STEED_ASPIRANT = 33844,
+    NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33845,
+};
+
+class spell_gen_on_tournament_mount : public SpellScriptLoader
+{
+    public:
+        spell_gen_on_tournament_mount() : SpellScriptLoader("spell_gen_on_tournament_mount") { }
+
+        class spell_gen_on_tournament_mountAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_on_tournament_mountAuraScript);
+
+            uint32 _pennantSpellId;
+
+            bool Load()
+            {
+                _pennantSpellId = 0;
+                return (GetCaster()->GetTypeId() == TYPEID_PLAYER);
+            }
+
+            void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster && caster->GetVehicleBase())
+                {
+                    _pennantSpellId = GetPennatSpellId(caster->ToPlayer(), caster->GetVehicleBase());
+                    caster->CastSpell(caster, _pennantSpellId,true);
+                }
+            }
+
+            void HandleRemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster)
+                    caster->RemoveAurasDueToSpell(_pennantSpellId);
+            }
+
+            uint32 GetPennatSpellId(Player* player, Unit* mount)
+            {
+                switch (mount->GetEntry())
+                {
+                    case NPC_ARGENT_STEED_ASPIRANT:
+                    case NPC_STORMWIND_STEED:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2781)) // Champion of Stormwind
+                            return SPELL_PENNANT_STORMWIND_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13593) || player->GetQuestRewardStatus(13684)) // Valiant of Stormwind
+                            return SPELL_PENNANT_STORMWIND_VALIANT;
+                        else
+                            return SPELL_PENNANT_STORMWIND_ASPIRANT;
+                    }
+                    case NPC_GNOMEREGAN_MECHANOSTRIDER:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2779)) // Champion of Gnomeregan
+                            return SPELL_PENNANT_GNOMEREGAN_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13704) || player->GetQuestRewardStatus(13688)) // Valiant of Gnomeregan
+                            return SPELL_PENNANT_GNOMEREGAN_VALIANT;
+                        else
+                            return SPELL_PENNANT_GNOMEREGAN_ASPIRANT;
+                    }
+                    case NPC_DARK_SPEAR_RAPTOR:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2784)) // Champion of Sen'Jin
+                            return SPELL_PENNANT_SEN_JIN_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13693) || player->GetQuestRewardStatus(13708)) // Valiant of Sen'Jin
+                            return SPELL_PENNANT_SEN_JIN_VALIANT;
+                        else
+                            return SPELL_PENNANT_SEN_JIN_ASPIRANT;
+                    }
+                    case NPC_ARGENT_HAWKSTRIDER_ASPIRANT:
+                    case NPC_SILVERMOON_HAWKSTRIDER:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2785)) // Champion of Silvermoon
+                            return SPELL_PENNANT_SILVERMOON_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13696) || player->GetQuestRewardStatus(13711)) // Valiant of Silvermoon
+                            return SPELL_PENNANT_SILVERMOON_VALIANT;
+                        else
+                            return SPELL_PENNANT_SILVERMOON_ASPIRANT;
+                    }
+                    case NPC_DARNASSIAN_NIGHTSABER:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2777)) // Champion of Darnassus
+                            return SPELL_PENNANT_DARNASSUS_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13689) || player->GetQuestRewardStatus(13706)) // Valiant of Darnassus
+                            return SPELL_PENNANT_DARNASSUS_VALIANT;
+                        else
+                            return SPELL_PENNANT_DARNASSUS_ASPIRANT;
+                    }
+                    case NPC_EXODAR_ELEKK:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2778)) // Champion of Exodar
+                            return SPELL_PENNANT_EXODAR_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13690) || player->GetQuestRewardStatus(13705)) // Valiant of Exodar
+                            return SPELL_PENNANT_EXODAR_VALIANT;
+                        else
+                            return SPELL_PENNANT_EXODAR_ASPIRANT;
+                    }
+                    case NPC_IRONFORGE_RAM:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2780)) // Champion of Ironforge
+                            return SPELL_PENNANT_IRONFORGE_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13685) || player->GetQuestRewardStatus(13703)) // Valiant of Ironforge
+                            return SPELL_PENNANT_IRONFORGE_VALIANT;
+                        else
+                            return SPELL_PENNANT_IRONFORGE_ASPIRANT;
+                    }
+                    case NPC_FORSAKEN_WARHORSE:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2787)) // Champion of Undercity
+                            return SPELL_PENNANT_UNDERCITY_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13695) || player->GetQuestRewardStatus(13710)) // Valiant of Undercity
+                            return SPELL_PENNANT_UNDERCITY_VALIANT;
+                        else
+                            return SPELL_PENNANT_UNDERCITY_ASPIRANT;
+                    }
+                    case NPC_ORGRIMMAR_WOLF:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2783)) // Champion of Orgrimmar
+                            return SPELL_PENNANT_ORGRIMMAR_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13691) || player->GetQuestRewardStatus(13707)) // Valiant of Orgrimmar
+                            return SPELL_PENNANT_ORGRIMMAR_VALIANT;
+                        else
+                            return SPELL_PENNANT_ORGRIMMAR_ASPIRANT;
+                    }
+                    case NPC_THUNDER_BLUFF_KODO:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2786)) // Champion of Thunder Bluff
+                            return SPELL_PENNANT_THUNDER_BLUFF_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13694) || player->GetQuestRewardStatus(13709)) // Valiant of Thunder Bluff
+                            return SPELL_PENNANT_THUNDER_BLUFF_VALIANT;
+                        else
+                            return SPELL_PENNANT_THUNDER_BLUFF_ASPIRANT;
+                    }
+                    case NPC_ARGENT_WARHORSE:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2782) || player->GetAchievementMgr().HasAchieved(2788)) // Champion of the Alliance || Champion of the Horde
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_CHAMPION : SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION;
+                        else if (player->GetAchievementMgr().HasAchieved(2758)) // Argent Valor
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_VALIANT : SPELL_PENNANT_ARGENT_CRUSADE_VALIANT;
+                        else
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_ASPIRANT : SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT;
+                    }
+                    default:
+                        return 0;
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_gen_on_tournament_mountAuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_on_tournament_mountAuraScript::HandleRemoveEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_on_tournament_mountAuraScript();
+        }
+};
+
+class spell_gen_tournament_pennant : public SpellScriptLoader
+{
+    public:
+        spell_gen_tournament_pennant() : SpellScriptLoader("spell_gen_tournament_pennant") { }
+
+        class spell_gen_tournament_pennantAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_tournament_pennantAuraScript);
+
+            void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster && caster->GetTypeId() == TYPEID_PLAYER && !caster->GetVehicleBase())
+                    caster->RemoveAurasDueToSpell(GetId());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_tournament_pennantAuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_tournament_pennantAuraScript();
+        }
+};
+
 // Achievement: The Turkinator
 enum TheTurkinator
 {
@@ -2069,6 +2657,12 @@ void AddSC_generic_spell_scripts()
     new spell_gen_luck_of_the_draw();
     new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
     new spell_gen_dalaran_disguise("spell_gen_silver_covenant_disguise");
+	new spell_gen_break_shield();
+    new spell_gen_mounted_charge();
+    new spell_gen_defend();
+    new spell_gen_summon_tournament_mount();
+    new spell_gen_on_tournament_mount();
+    new spell_gen_tournament_pennant();
 	new spell_gen_turkey_tracker();
     new spell_gen_feast_on();
     new spell_gen_well_fed_pilgrims_bounty("spell_gen_well_fed_pilgrims_bounty_ap", SPELL_A_SERVING_OF_TURKEY, SPELL_WELL_FED_AP);
