@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -218,7 +218,7 @@ class boss_lady_deathwhisper : public CreatureScript
         struct boss_lady_deathwhisperAI : public BossAI
         {
             boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER),
-                _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3)), _introDone(false)
+                _dominateMindCount(RAID_MODE<uint8>(1, 1, 1, 3)), _introDone(false)
             {
             }
 
@@ -264,13 +264,6 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (!instance->CheckRequiredBosses(DATA_LADY_DEATHWHISPER, who->ToPlayer()))
-                {
-                    EnterEvadeMode();
-                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
-                    return;
-                }
-
                 me->setActive(true);
                 DoZoneInCombat();
 
@@ -292,12 +285,15 @@ class boss_lady_deathwhisper : public CreatureScript
                 DoCast(me, SPELL_MANA_BARRIER, true);
 
                 instance->SetBossState(DATA_LADY_DEATHWHISPER, IN_PROGRESS);
+                instance->SetData(DATA_LADY_DEATHWHISPER, IN_PROGRESS); 
             }
 
             void JustDied(Unit* killer)
             {
                 Talk(SAY_DEATH);
 
+                instance->SetBossState(DATA_LADY_DEATHWHISPER, DONE);                
+                instance->SetData(DATA_LADY_DEATHWHISPER, DONE);                
                 std::set<uint32> livingAddEntries;
                 // Full House achievement
                 for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
@@ -339,6 +335,7 @@ class boss_lady_deathwhisper : public CreatureScript
             {
                 _JustReachedHome();
                 instance->SetBossState(DATA_LADY_DEATHWHISPER, FAIL);
+                 instance->SetData(DATA_LADY_DEATHWHISPER, FAIL);
 
                 summons.DespawnAll();
                 if (Creature* darnavan = ObjectAccessor::GetCreature(*me, _darnavanGUID))
@@ -442,8 +439,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             break;
                         case EVENT_DOMINATE_MIND_H:
                             Talk(SAY_DOMINATE_MIND);
-                            for (uint8 i = 0; i < _dominateMindCount; i++)
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_DOMINATE_MIND_H))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                     DoCast(target, SPELL_DOMINATE_MIND_H);
                             events.ScheduleEvent(EVENT_DOMINATE_MIND_H, urand(40000, 45000));
                             break;

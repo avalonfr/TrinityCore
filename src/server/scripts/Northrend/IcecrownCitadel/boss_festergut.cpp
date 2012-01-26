@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -90,6 +90,7 @@ class boss_festergut : public CreatureScript
             void Reset()
             {
                 _Reset();
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INOCULATED);
                 me->SetReactState(REACT_DEFENSIVE);
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
@@ -111,13 +112,13 @@ class boss_festergut : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
+				if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
                 {
                     EnterEvadeMode();
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
-
+				
                 me->setActive(true);
                 Talk(SAY_AGGRO);
                 if (Creature* gasDummy = me->FindNearestCreature(NPC_GAS_DUMMY, 100.0f, true))
@@ -131,6 +132,11 @@ class boss_festergut : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INOCULATED);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GASTRIC_BLOAT);
+                instance->DoRemoveAurasDueToSpellOnPlayers(72144);
+                instance->SetBossState(DATA_FESTERGUT, DONE);
+                instance->SetData(DATA_FESTERGUT, DONE);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
 
@@ -141,6 +147,7 @@ class boss_festergut : public CreatureScript
             {
                 _JustReachedHome();
                 instance->SetBossState(DATA_FESTERGUT, FAIL);
+                instance->SetData(DATA_FESTERGUT, FAIL);
             }
 
             void EnterEvadeMode()
@@ -446,7 +453,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -470,6 +477,54 @@ class achievement_flu_shot_shortage : public AchievementCriteriaScript
         }
 };
 
+class PlagueStenchTargetSelector
+{
+    public:
+        PlagueStenchTargetSelector(Unit* caster) : _caster(caster) { }
+
+        bool operator()(Unit* unit)
+        {
+            return !unit->IsWithinLOSInMap(_caster);
+        }
+    private:
+        Unit* _caster;
+};
+
+class spell_stinky_plague_stench : public SpellScriptLoader
+{
+    public:
+        spell_stinky_plague_stench() : SpellScriptLoader("spell_stinky_plague_stench") { }
+
+        class spell_stinky_plague_stench_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_stinky_plague_stench_SpellScript);
+
+            bool Validate(SpellEntry const* spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(71160))
+                    return false;
+                if (!sSpellStore.LookupEntry(71161))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(PlagueStenchTargetSelector(GetCaster()));
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_stinky_plague_stench_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_stinky_plague_stench_SpellScript();
+        }
+};
+
 void AddSC_boss_festergut()
 {
     new boss_festergut();
@@ -478,4 +533,5 @@ void AddSC_boss_festergut()
     new spell_festergut_gastric_bloat();
     new spell_festergut_blighted_spores();
     new achievement_flu_shot_shortage();
+	new spell_stinky_plague_stench();
 }

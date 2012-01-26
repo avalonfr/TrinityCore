@@ -175,7 +175,9 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_blood_queen_lana_thel.cpp
   Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
   Northrend/IcecrownCitadel/boss_sindragosa.cpp
+  Northrend/IcecrownCitadel/boss_gunship_battle.cpp
   Northrend/IcecrownCitadel/boss_the_lich_king.cpp
+  Northrend/IcecrownCitadel/icc_trashmobs.cpp
   Northrend/zuldrak.cpp
   Northrend/icecrown.cpp
   Northrend/Gundrak/boss_slad_ran.cpp
@@ -207,6 +209,7 @@ SOURCE_GROUP(Northrend FILES
   Northrend/isle_of_conquest.cpp
   Northrend/sholazar_basin.cpp
   Northrend/storm_peaks.cpp
+  Northrend/wintergrasp.cpp
   Northrend/zuldrak.cpp)
 SOURCE_GROUP(Northrend\\AzjolNerub\\Ahnkahet REGULAR_EXPRESSION .*/Northrend/AzjolNerub/Ahnkahet/.*)
 SOURCE_GROUP(Northrend\\AzjolNerub\\AzjolNerub REGULAR_EXPRESSION .*/Northrend/AzjolNerub/AzjolNerub/.*)

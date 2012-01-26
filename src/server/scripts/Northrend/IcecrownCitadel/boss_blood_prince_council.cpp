@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -190,6 +190,7 @@ class boss_blood_council_controller : public CreatureScript
                 _resetCounter = 0;
 
                 instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, NOT_STARTED);
+                instance->SetData(DATA_BLOOD_PRINCE_COUNCIL, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who)
@@ -197,14 +198,8 @@ class boss_blood_council_controller : public CreatureScript
                 if (instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == IN_PROGRESS)
                     return;
 
-                if (!instance->CheckRequiredBosses(DATA_BLOOD_PRINCE_COUNCIL, who->ToPlayer()))
-                {
-                    EnterEvadeMode();
-                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
-                    return;
-                }
-
                 instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, IN_PROGRESS);
+                instance->SetData(DATA_BLOOD_PRINCE_COUNCIL, IN_PROGRESS);
 
                 DoCast(me, SPELL_INVOCATION_OF_BLOOD_VALANAR);
 
@@ -250,6 +245,8 @@ class boss_blood_council_controller : public CreatureScript
 
             void JustReachedHome()
             {
+                instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, FAIL);
+                instance->SetData(DATA_BLOOD_PRINCE_COUNCIL, FAIL);
                 _resetCounter = 0;
                 if (Creature* keleseth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_KELESETH_GUID)))
                     keleseth->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -414,6 +411,19 @@ class boss_prince_keleseth_icc : public CreatureScript
                 Talk(SAY_KELESETH_DEATH);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
             }
+			
+            void AttackStart(Unit* who)
+            {
+                if (!who)
+                    return;
+                if (me->Attack(who, true))                    
+                {
+                    me->SetInCombatWith(who);
+                    who->SetInCombatWith(me);
+                    DoStartMovement(who, 20.0f);
+                    SetCombatMovement(true);
+                }
+            }			
 
             void JustReachedHome()
             {
@@ -1473,7 +1483,7 @@ class spell_taldaram_flame_ball_visual : public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_flame_ball_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_flame_ball_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

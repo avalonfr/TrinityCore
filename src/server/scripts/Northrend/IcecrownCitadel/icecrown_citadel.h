@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,11 +24,10 @@
 
 #define ICCScriptName "instance_icecrown_citadel"
 
-uint32 const EncounterCount = 13;
+uint32 const EncounterCount = 14;
 uint32 const WeeklyNPCs = 9;
 uint32 const MaxHeroicAttempts = 50;
 
-// Defined in boss_valithria_dreamwalker.cpp
 extern Position const ValithriaSpawnPos;
 // Defined in boss_sindragosa.cpp
 extern Position const SindragosaSpawnPos;
@@ -40,18 +39,19 @@ extern Position const SpiritWardenSpawn;
 // Shared spells used by more than one script
 enum SharedSpells
 {
-    SPELL_BERSERK                       = 26662,
-    SPELL_BERSERK2                      = 47008,
+    SPELL_BERSERK               = 26662,
+    SPELL_BERSERK2              = 47008,
 
     // Deathbound Ward
-    SPELL_STONEFORM                     = 70733,
+    SPELL_STONEFORM             = 70733,
 
     // Residue Rendezvous
-    SPELL_ORANGE_BLIGHT_RESIDUE         = 72144,
-    SPELL_GREEN_BLIGHT_RESIDUE          = 72145,
+    SPELL_ORANGE_BLIGHT_RESIDUE = 72144,
+    SPELL_GREEN_BLIGHT_RESIDUE  = 72145,
 
-    // The Lich King
-    SPELL_FROSTMOURNE_TELEPORT_VISUAL   = 73078,
+
+	// The Lich King
+	SPELL_FROSTMOURNE_TELEPORT_VISUAL   = 73078,
 };
 
 enum TeleporterSpells
@@ -70,7 +70,7 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
-    DATA_GUNSHIP_EVENT              = 2,
+    DATA_GUNSHIP_BATTLE_EVENT       = 2,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -107,9 +107,31 @@ enum DataTypes
     DATA_CAPTAIN_RUPERT             = 34,
     DATA_VALITHRIA_TRIGGER          = 35,
     DATA_VALITHRIA_LICH_KING        = 36,
+
+    // Lich King Data
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
-    DATA_ARTHAS_PLATFORM            = 38,
-    DATA_TERENAS_MENETHIL           = 39,
+    DATA_TERENAS_FIGHTER            = 38,
+    DATA_SPIRIT_WARDEN              = 39,
+    DATA_BEEN_WAITING_ACHIEVEMENT   = 40,
+    DATA_NECK_DEEP_ACHIEVEMENT      = 41,
+
+    // Go Data
+    DATA_ICE_SHARD_1                = 42,
+    DATA_ICE_SHARD_2                = 43,
+    DATA_ICE_SHARD_3                = 44,
+    DATA_ICE_SHARD_4                = 45,
+    DATA_FROSTY_EDGE_OUTER          = 46,
+    DATA_FROSTY_EDGE_INNER          = 47,
+    DATA_EDGE_DESTROY_WARNING       = 48,
+    DATA_FROZEN_LAVAMAN             = 49,
+    DATA_LAVAMAN_PILLARS            = 50,
+	DATA_ARTHAS_PLATFORM            = 51,
+	DATA_TERENAS_MENETHIL			= 52,
+
+	//GUNSHIP
+	DATA_GUNSHIP_EVENT              = 53,
+	DATA_NPC_MAURADIN				= 54,		
+	
 };
 
 enum CreaturesIds
@@ -162,6 +184,17 @@ enum CreaturesIds
     NPC_EMPOWERED_ADHERENT                      = 38136,
     NPC_REANIMATED_ADHERENT                     = 38010,
     NPC_VENGEFUL_SHADE                          = 38222,
+
+
+	 //Gunship Battle
+	 NPC_ALLIGSTRIGGER_10            			= 400031,
+	 NPC_HORDEGSTRIGGER_10            			= 400030,
+	 NPC_ALLIGSTRIGGER_25            			= 400036,
+	 NPC_HORDEGSTRIGGER_25            			= 400035,
+	 NPC_CANONTRIGGER              				= 400032,
+	 NPC_FIGHTTRIGGER              				= 400033,
+	 NPC_PORTAL                  				= 400034,
+	
 
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
@@ -258,23 +291,33 @@ enum CreaturesIds
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
-    NPC_HIGHLORD_TIRION_FORDRING_LK             = 38995,
-    NPC_TERENAS_MENETHIL_FROSTMOURNE            = 36823,
-    NPC_SPIRIT_WARDEN                           = 36824,
-    NPC_TERENAS_MENETHIL_FROSTMOURNE_H          = 39217,
-    NPC_SHAMBLING_HORROR                        = 37698,
-    NPC_DRUDGE_GHOUL                            = 37695,
+    NPC_TIRION                                  = 38995,
     NPC_ICE_SPHERE                              = 36633,
-    NPC_RAGING_SPIRIT                           = 36701,
+    NPC_DRUDGE_GHOUL                            = 37695,
+    NPC_SHAMBLING_HORROR                        = 37698,
     NPC_DEFILE                                  = 38757,
-    NPC_VALKYR_SHADOWGUARD                      = 36609,
-    NPC_VILE_SPIRIT                             = 37799,
-    NPC_WICKED_SPIRIT                           = 39190,
-    NPC_STRANGULATE_VEHICLE                     = 36598,
+    NPC_RAGING_SPIRIT                           = 36701,
+    NPC_TRIGGER                                 = 38667,
+     NPC_FROSTMOURNE_TRIGGER                    = 38584,
+    NPC_TERENAS_MENETHIL                        = 38579,
+    NPC_SPIRIT_WARDEN                           = 36824,
+    NPC_PLATFORM_DESTRUCTIBLE_EDGE_STALKER      = 22515,
+	NPC_STRANGULATE_VEHICLE                     = 36598,
     NPC_WORLD_TRIGGER                           = 22515,
-    NPC_WORLD_TRIGGER_INFINITE_AOI              = 36171,
-    NPC_SPIRIT_BOMB                             = 39189,
-    NPC_FROSTMOURNE_TRIGGER                     = 38584,
+	NPC_TERENAS_MENETHIL_FROSTMOURNE			= 36823,
+    NPC_TERENAS_MENETHIL_FROSTMOURNE_H			= 39217,
+	NPC_WORLD_TRIGGER_INFINITE_AOI              = 36171,
+	NPC_VALKYR_SHADOWGUARD						= 36609,
+    NPC_VILE_SPIRIT								= 37799,
+    NPC_WICKED_SPIRIT							= 39190,
+	NPC_SPIRIT_BOMB                             = 39189,
+
+
+	//GUNSHIP BATTLE
+	NPC_SAUFRANG_G								= 36939,
+	NPC_MURADIN_BRONZEBEARD						= 36948,
+
+
 };
 
 enum GameObjectsIds
@@ -293,6 +336,20 @@ enum GameObjectsIds
     // Lady Deathwhisper
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
+
+
+	//Gunship Battle
+	GO_HORDE_GUNSHIP                = 1915002,
+	GO_ALLI_GUNSHIP                 = 1914902,
+	GO_HORDE_GUNSHIP_2              = 1915001,
+	GO_ALLI_GUNSHIP_2               = 1914901,
+	GO_HORDE_GUNSHIP_BATTLE			= 1915003,
+	GO_ALLI_GUNSHIP_BATTLE			= 1914903,
+	GO_GUNSHIP_CACHE_10N			= 201872,
+    GO_GUNSHIP_CACHE_25N			= 201873,
+    GO_GUNSHIP_CACHE_10H			= 201874,
+    GO_GUNSHIP_CACHE_25H			= 201875,
+
 
     // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,
@@ -331,6 +388,10 @@ enum GameObjectsIds
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02   = 201381,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03   = 201382,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04   = 201383,
+    GO_DREAMWALKER_CACHE_10N                = 201959,
+    GO_DREAMWALKER_CACHE_25N                = 202339,
+    GO_DREAMWALKER_CACHE_10H                = 202338,
+    GO_DREAMWALKER_CACHE_25H                = 202340,
 
     // Sindragosa
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
@@ -341,18 +402,24 @@ enum GameObjectsIds
     GO_SIGIL_OF_THE_FROSTWING               = 202181,
 
     // The Lich King
-    GO_ARTHAS_PLATFORM                      = 202161,
-    GO_ARTHAS_PRECIPICE                     = 202078,
-    GO_DOODAD_ICECROWN_THRONEFROSTYWIND01   = 202188,
-    GO_DOODAD_ICECROWN_THRONEFROSTYEDGE01   = 202189,
-    GO_DOODAD_ICESHARD_STANDING02           = 202141,
-    GO_DOODAD_ICESHARD_STANDING01           = 202142,
-    GO_DOODAD_ICESHARD_STANDING03           = 202143,
-    GO_DOODAD_ICESHARD_STANDING04           = 202144,
-    GO_DOODAD_ICECROWN_SNOWEDGEWARNING01    = 202190,
-    GO_FROZEN_LAVAMAN                       = 202436,
-    GO_LAVAMAN_PILLARS_CHAINED              = 202437,
-    GO_LAVAMAN_PILLARS_UNCHAINED            = 202438,
+    GO_ICE_SHARD_1                          = 202141,
+    GO_ICE_SHARD_2                          = 202142,
+    GO_ICE_SHARD_3                          = 202143,
+    GO_ICE_SHARD_4                          = 202144,
+
+	// The Lich King bis
+    GO_ARTHAS_PLATFORM						= 202161,
+    GO_ARTHAS_PRECIPICE = 202078,
+    GO_DOODAD_ICECROWN_THRONEFROSTYWIND01	= 202188,
+    GO_DOODAD_ICECROWN_THRONEFROSTYEDGE01	= 202189,
+    GO_DOODAD_ICESHARD_STANDING02			= 202141,
+    GO_DOODAD_ICESHARD_STANDING01			= 202142,
+    GO_DOODAD_ICESHARD_STANDING03			= 202143,
+    GO_DOODAD_ICESHARD_STANDING04			= 202144,
+    GO_DOODAD_ICECROWN_SNOWEDGEWARNING01	= 202190,
+    GO_FROZEN_LAVAMAN						= 202436,
+    GO_LAVAMAN_PILLARS_CHAINED				= 202437,
+    GO_LAVAMAN_PILLARS_UNCHAINED			= 202438,
 };
 
 enum AchievementCriteriaIds
@@ -392,6 +459,9 @@ enum AchievementCriteriaIds
 
 enum SharedActions
 {
+    // Coldflame Traps
+    ACTION_STOP_TRAPS           = -377440,
+
     // Festergut
     ACTION_FESTERGUT_COMBAT     = -366260,
     ACTION_FESTERGUT_GAS        = -366261,
@@ -412,10 +482,16 @@ enum SharedActions
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
     ACTION_TRIGGER_ASPHYXIATION = -368531,
+    ACTION_BOMB_LANDED          = -368532,
 
-    // The Lich King
-    ACTION_RESTORE_LIGHT        = -72262,
-    ACTION_FROSTMOURNE_INTRO    = -36823,
+	// The Lich King
+    ACTION_RESTORE_LIGHT		= -72262,
+    ACTION_FROSTMOURNE_INTRO	= -36823,
+};
+
+enum AreaIds
+{
+    AREA_THE_FROZEN_THRONE = 4859,
 };
 
 enum WeekliesICC
@@ -439,11 +515,6 @@ enum WorldStatesICC
     WORLDSTATE_SHOW_ATTEMPTS        = 4940,
     WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
     WORLDSTATE_ATTEMPTS_MAX         = 4942,
-};
-
-enum AreaIds
-{
-    AREA_THE_FROZEN_THRONE  = 4859,
 };
 
 class spell_trigger_spell_from_caster : public SpellScriptLoader
@@ -487,6 +558,14 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         uint32 _triggerId;
 };
 
+extern Position const SindragosaSpawnPos;
+void UnsummonSpecificCreaturesNearby(Creature* ref, uint32 entry, float radius);
+uint32 GetPhase(const EventMap &em);
+void TeleportPlayerToFrozenThrone(Player* player);
+void LeaveOnlyPlayers(std::list<Unit*> &unitList);
+typedef std::list<Player*> TPlayerList;
+TPlayerList GetPlayersInTheMap(Map* pMap);
+TPlayerList GetAttackablePlayersInTheMap(Map* pMap);
 template<class AI>
 CreatureAI* GetIcecrownCitadelAI(Creature* creature)
 {

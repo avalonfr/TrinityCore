@@ -427,7 +427,10 @@ void AddSC_boss_razorscale();
 void AddSC_boss_xt002();
 void AddSC_boss_kologarn();
 void AddSC_boss_assembly_of_iron();
+void AddSC_boss_thorim();
 void AddSC_boss_general_vezax();
+void AddSC_boss_yoggsaron();
+void AddSC_boss_algalon();
 void AddSC_ulduar_teleporter();
 void AddSC_boss_mimiron();
 void AddSC_boss_hodir();
@@ -487,6 +490,8 @@ void AddSC_boss_blood_queen_lana_thel();
 void AddSC_boss_valithria_dreamwalker();
 void AddSC_boss_sindragosa();
 void AddSC_boss_the_lich_king();
+void AddSC_boss_gunship_battle();
+void AddSC_icc_trashmobs();
 void AddSC_icecrown_citadel_teleport();
 void AddSC_instance_icecrown_citadel();
 void AddSC_icecrown_citadel();
@@ -1141,6 +1146,9 @@ void AddNorthrendScripts()
     AddSC_boss_general_vezax();
     AddSC_boss_assembly_of_iron();
     AddSC_boss_kologarn();
+	AddSC_boss_thorim();
+	AddSC_boss_yoggsaron();
+	AddSC_boss_algalon();
     AddSC_ulduar_teleporter();
     AddSC_boss_mimiron();
     AddSC_boss_hodir();
@@ -1200,6 +1208,8 @@ void AddNorthrendScripts()
     AddSC_boss_valithria_dreamwalker();
     AddSC_boss_sindragosa();
     AddSC_boss_the_lich_king();
+	AddSC_boss_gunship_battle();
+	AddSC_icc_trashmobs();
     AddSC_icecrown_citadel_teleport();
     AddSC_instance_icecrown_citadel();
     AddSC_icecrown_citadel();
@@ -1220,6 +1230,7 @@ void AddNorthrendScripts()
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
+	AddSC_wintergrasp();
 	AddSC_Argent_Tournament();
 #endif
 }

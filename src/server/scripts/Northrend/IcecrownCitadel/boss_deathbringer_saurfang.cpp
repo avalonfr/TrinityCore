@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
+#include "Group.h"
 #include "icecrown_citadel.h"
 
 enum ScriptTexts
@@ -108,7 +109,7 @@ enum Spells
     SPELL_BLOOD_LINK_BEAST              = 72176,
     SPELL_RESISTANT_SKIN                = 72723,
     SPELL_SCENT_OF_BLOOD                = 72769, // Heroic only
-
+	
     SPELL_RIDE_VEHICLE                  = 70640, // Outro
     SPELL_ACHIEVEMENT                   = 72928,
 };
@@ -266,13 +267,6 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (!instance->CheckRequiredBosses(DATA_DEATHBRINGER_SAURFANG, who->ToPlayer()))
-                {
-                    EnterEvadeMode();
-                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
-                    return;
-                }
-
                 // oh just screw intro, enter combat - no exploits please
                 me->setActive(true);
                 DoZoneInCombat();
@@ -299,6 +293,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _fallenChampionCastCount = 0;
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, IN_PROGRESS);
+                instance->SetData(DATA_DEATHBRINGER_SAURFANG, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -310,6 +305,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
                 if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SAURFANG_EVENT_NPC)))
                     creature->AI()->DoAction(ACTION_START_OUTRO);
+                instance->SetData(DATA_DEATHBRINGER_SAURFANG, DONE);
             }
 
             void AttackStart(Unit* victim)
@@ -331,6 +327,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             {
                 _JustReachedHome();
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, FAIL);
+                instance->SetData(DATA_DEATHBRINGER_SAURFANG, FAIL);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
             }
 
@@ -376,8 +373,8 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 instance->HandleGameObject(instance->GetData64(GO_SAURFANG_S_DOOR), false);
             }
-
-            void SpellHitTarget(Unit* target, SpellInfo const* spell)
+			
+            void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
                 switch (spell->Id)
                 {
@@ -433,7 +430,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             break;
                         case EVENT_INTRO_FINISH:
                             events.SetPhase(PHASE_COMBAT);
-                            _introDone = true;
+                            _introDone  = true;
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                             break;
                         case EVENT_SUMMON_BLOOD_BEAST:
@@ -461,9 +458,18 @@ class boss_deathbringer_saurfang : public CreatureScript
                             events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, urand(20000, 25000), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BOILING_BLOOD:
-                            DoCast(me, SPELL_BOILING_BLOOD);
-                            events.ScheduleEvent(EVENT_BOILING_BLOOD, urand(15000, 20000), 0, PHASE_COMBAT);
-                            break;
+							{	//correction boiling blood
+								Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true);
+								if(!target)
+									target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
+								if(target)
+								{
+									DoCast(target, SPELL_BOILING_BLOOD);
+									me->AddAura(SPELL_BOILING_BLOOD,target);
+								}
+								events.ScheduleEvent(EVENT_BOILING_BLOOD,  15000, 0, PHASE_COMBAT);
+								break;
+							}
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK);
                             Talk(SAY_BERSERK);
@@ -527,14 +533,18 @@ class boss_deathbringer_saurfang : public CreatureScript
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-                        {
-                            ++_fallenChampionCastCount;
-                            DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                            me->SetPower(POWER_ENERGY, 0);
-                            if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
-                                bloodPower->RecalculateAmountOfEffects();
-                        }
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION);
+                        if(!target)
+							target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION);
+						if(target)
+						{
+							++_fallenChampionCastCount;
+							DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
+							me->SetPower(POWER_ENERGY, 0);
+							if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
+								bloodPower->RecalculateAmountOfEffects();
+						}
+                        
                         break;
                     }
                     default:
@@ -625,7 +635,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
@@ -740,10 +750,17 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
+            if ((!player->GetGroup() || !player->GetGroup()->IsLeader(player->GetGUID())) && !player->isGameMaster())
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Je ne suis pas chef de raid ...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+                return true;
+            }
+
             InstanceScript* instance = creature->GetInstanceScript();
             if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "We are ready to go, High Overlord. The Lich King must fall!", 631, -ACTION_START_EVENT);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nous sommes prets a attaquer. Le Roi-Liche doit tomber ! TKT Eze est notre DIEU !!!", 631, -ACTION_START_EVENT);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             }
 
@@ -754,6 +771,10 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
         {
             player->PlayerTalkClass->ClearMenus();
             player->CLOSE_GOSSIP_MENU();
+
+            if (action == GOSSIP_ACTION_INFO_DEF+2)
+                creature->MonsterSay("Je vais attendre le chef de raid.", LANG_UNIVERSAL, player->GetGUID());
+
             if (action == -ACTION_START_EVENT)
                 creature->AI()->DoAction(ACTION_START_EVENT);
 
@@ -828,7 +849,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
@@ -889,7 +910,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             InstanceScript* instance = creature->GetInstanceScript();
             if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
             {
-                player->ADD_GOSSIP_ITEM(0, "Let it begin...", 631, -ACTION_START_EVENT + 1);
+                player->ADD_GOSSIP_ITEM(0, "Laissez-le commencer ...", 631, -ACTION_START_EVENT + 1);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             }
 
@@ -930,7 +951,7 @@ class npc_saurfang_event : public CreatureScript
                 _index = data;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
@@ -957,6 +978,69 @@ class npc_saurfang_event : public CreatureScript
         }
 };
 
+
+class npc_bloodbeast : public CreatureScript
+{
+    public:
+        npc_bloodbeast() : CreatureScript("npc_bloodbeast") { }
+
+        struct npc_bloodbeastAI : public ScriptedAI
+        {
+            npc_bloodbeastAI(Creature* pCreature) : ScriptedAI(pCreature)
+            {
+                pInstance = pCreature->GetInstanceScript();
+            }
+
+			uint32 MeleeAttackTimer;
+
+            void Reset()
+            {
+				MeleeAttackTimer = 1000;    //timer for autoaatack to 1s
+                DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
+                DoCast(me, SPELL_RESISTANT_SKIN, true);
+
+                if (IsHeroic())
+                    DoCast(me, SPELL_SCENT_OF_BLOOD);
+            }
+
+            void EnterCombat(Unit* /*pWho*/) { }
+
+            void KilledUnit(Unit* /*pVictim*/)
+            {
+                Creature* Saurfang = me->GetCreature(*me, pInstance->GetData64(DATA_DEATHBRINGER_SAURFANG));
+                if (Saurfang && Saurfang->isAlive())
+                {
+                    Saurfang->ModifyHealth(uint32(Saurfang->GetMaxHealth() * 0.05));
+                }
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                DoMeleeAttackIfReady();
+
+				//bloodbeast increase runicpoweer of saufrang on melee autoattack necessary to be kitting
+				if (MeleeAttackTimer <= uiDiff)
+				{	Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO,0, 0.0f, true);
+				if (target)
+					if ( (me->GetDistance2d(target)) < (me->GetObjectSize()/2)) 
+					{
+						me->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1,(me->GetCreature(*me, pInstance->GetData64(DATA_DEATHBRINGER_SAURFANG))), true);
+						MeleeAttackTimer = 1000;
+					}
+				} else MeleeAttackTimer -= uiDiff;
+            }
+
+            private:
+                InstanceScript* pInstance;
+        };
+
+        CreatureAI* GetAI(Creature* pCreature) const
+        {
+            return new npc_bloodbeastAI(pCreature);
+        }
+};
+
+
 class spell_deathbringer_blood_link : public SpellScriptLoader
 {
     public:
@@ -966,11 +1050,11 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_blood_link_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellEntry const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_POWER))
+                if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_POWER))
                     return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_POWER))
+                if (!sSpellStore.LookupEntry(SPELL_BLOOD_POWER))
                     return false;
                 return true;
             }
@@ -1004,9 +1088,9 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_deathbringer_blood_link_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellEntry const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                if (!sSpellStore.LookupEntry(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                     return false;
                 return true;
             }
@@ -1096,9 +1180,9 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_rune_of_blood_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellEntry const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
+                if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_DUMMY))
                     return false;
                 return true;
             }
@@ -1131,9 +1215,9 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_blood_nova_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellEntry const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
+                if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_DUMMY))
                     return false;
                 return true;
             }
@@ -1189,7 +1273,9 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                 if (targetsAtRange < minTargets)
                     targetsAtRange = std::min<uint32>(unitList.size() - 1, minTargets);
 
-                target = SelectRandomContainerElement(unitList);
+                std::list<Unit*>::iterator itr = unitList.begin();
+                std::advance(itr, urand(0, targetsAtRange));
+                target = *itr;
                 unitList.clear();
                 unitList.push_back(target);
             }
@@ -1239,7 +1325,9 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
                 if (unitList.empty())
                     return;
 
-                Unit* target = SelectRandomContainerElement(unitList);
+                std::list<Unit*>::iterator itr = unitList.begin();
+                std::advance(itr, urand(0, unitList.size() - 1));
+                Unit* target = *itr;
                 unitList.clear();
                 unitList.push_back(target);
             }
@@ -1278,6 +1366,7 @@ void AddSC_boss_deathbringer_saurfang()
     new npc_high_overlord_saurfang_icc();
     new npc_muradin_bronzebeard_icc();
     new npc_saurfang_event();
+	new npc_bloodbeast();
     new spell_deathbringer_blood_link();
     new spell_deathbringer_blood_link_aura();
     new spell_deathbringer_blood_power();

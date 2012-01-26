@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,6 +93,15 @@ class boss_lord_marrowgar : public CreatureScript
                 _coldflameLastPos.Relocate(creature);
                 _introDone = false;
                 _boneSlice = false;
+				me->SetSpeed(MOVE_RUN, _baseSpeed, true);
+                me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
+                me->RemoveAurasDueToSpell(SPELL_BERSERK);
+                events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
+                events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(10000, 15000), EVENT_GROUP_SPECIAL);
+                events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
+                events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45000, 50000));
+                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+
             }
 
             void Reset()
@@ -115,6 +124,7 @@ class boss_lord_marrowgar : public CreatureScript
                 me->setActive(true);
                 DoZoneInCombat();
                 instance->SetBossState(DATA_LORD_MARROWGAR, IN_PROGRESS);
+                instance->SetData(DATA_LORD_MARROWGAR, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -122,12 +132,15 @@ class boss_lord_marrowgar : public CreatureScript
                 Talk(SAY_DEATH);
 
                 _JustDied();
+                instance->SetBossState(DATA_LORD_MARROWGAR, DONE);
+                instance->SetData(DATA_LORD_MARROWGAR, DONE);
             }
 
             void JustReachedHome()
             {
                 _JustReachedHome();
                 instance->SetBossState(DATA_LORD_MARROWGAR, FAIL);
+                instance->SetData(DATA_LORD_MARROWGAR, FAIL);
                 instance->SetData(DATA_BONED_ACHIEVEMENT, uint32(true));    // reset
             }
 
@@ -148,30 +161,35 @@ class boss_lord_marrowgar : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+				
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
-
+				
                 events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
-
+				
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_BONE_SPIKE_GRAVEYARD:
-                            if (IsHeroic() || !me->HasAura(SPELL_BONE_STORM))
+                            if (!me->HasAura(SPELL_BONE_STORM))
                                 DoCast(me, SPELL_BONE_SPIKE_GRAVEYARD);
                             events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(15000, 20000), EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_COLDFLAME:
                             _coldflameLastPos.Relocate(me);
-                            _coldflameTarget = 0LL;
+							_coldflameTarget = 0LL;
                             if (!me->HasAura(SPELL_BONE_STORM))
-                                DoCastAOE(SPELL_COLDFLAME_NORMAL);
+							{
+								DoCastAOE(SPELL_COLDFLAME_NORMAL);
+							}
                             else
+							{
                                 DoCast(me, SPELL_COLDFLAME_BONE_STORM);
+							}
                             events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_WARN_BONE_STORM:
@@ -203,12 +221,12 @@ class boss_lord_marrowgar : public CreatureScript
                         case EVENT_BONE_STORM_END:
                             if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                                 me->GetMotionMaster()->MovementExpired();
+							me->getThreatManager().resetAllAggro();
                             DoStartMovement(me->getVictim());
                             me->SetSpeed(MOVE_RUN, _baseSpeed, true);
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
-                            if (!IsHeroic())
-                                events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(15000, 20000), EVENT_GROUP_SPECIAL);
+                            events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(15000, 20000), EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_ENABLE_BONE_SLICE:
                             _boneSlice = true;
@@ -262,7 +280,7 @@ class boss_lord_marrowgar : public CreatureScript
 
         private:
             Position _coldflameLastPos;
-            uint64 _coldflameTarget;
+			uint64 _coldflameTarget;
             uint32 _boneStormDuration;
             float _baseSpeed;
             bool _introDone;
@@ -288,6 +306,14 @@ class npc_coldflame : public CreatureScript
             {
             }
 
+			int8 AntiCac;
+
+			void reset ()
+			{
+
+				AntiCac = 0;
+			}
+
             void IsSummonedBy(Unit* owner)
             {
                 if (owner->GetTypeId() != TYPEID_UNIT)
@@ -306,6 +332,7 @@ class npc_coldflame : public CreatureScript
                         me->SetOrientation(ang);
                         owner->GetNearPosition(pos, 2.5f, 0.0f);
                     }
+					AntiCac = 2 ;
                 }
                 else
                 {
@@ -317,7 +344,8 @@ class npc_coldflame : public CreatureScript
                     }
 
                     me->SetOrientation(owner->GetAngle(target));
-                    owner->GetNearPosition(pos, owner->GetObjectSize() / 2.0f, 0.0f);
+                    owner->GetNearPosition(pos, owner->GetObjectSize() / 20.0f, 0.0f);
+					AntiCac = 0 ;
                 }
 
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -335,7 +363,7 @@ class npc_coldflame : public CreatureScript
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     DoCast(SPELL_COLDFLAME_SUMMON);
                     _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 450);
-                }
+}
             }
 
         private:
@@ -566,7 +594,12 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
 
             void RecalculateDamage()
             {
-                SetHitDamage(int32(GetHitDamage() / std::max(sqrtf(GetHitUnit()->GetExactDist2d(GetCaster())), 1.0f)));
+                if (Unit* caster = GetCaster())
+                {
+                    const float distance = GetHitUnit()->GetExactDist2d(caster);
+                    const int32 damage   = GetHitDamage();
+                    SetHitDamage(int32(damage - (damage * distance / (distance + caster->GetObjectSize() / 2))));
+                }
             }
 
             void Register()
@@ -587,8 +620,9 @@ void AddSC_boss_lord_marrowgar()
     new npc_coldflame();
     new npc_bone_spike();
     new spell_marrowgar_coldflame();
-    new spell_marrowgar_coldflame_bonestorm();
     new spell_marrowgar_coldflame_damage();
     new spell_marrowgar_bone_spike_graveyard();
     new spell_marrowgar_bone_storm();
+	new spell_marrowgar_coldflame_bonestorm();
 }
+//UPDATE `spell_script_names` SET `ScriptName`='spell_marrowgar_coldflame_bonestorm' WHERE `spell_id`=72705 AND `ScriptName`='spell_marrowgar_coldflame';
