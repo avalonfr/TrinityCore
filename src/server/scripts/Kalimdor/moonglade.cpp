@@ -681,14 +681,14 @@ public:
     }
 };
 
-class npc_gigant_spotlight : public CreatureScript
+class npc_giant_spotlight : public CreatureScript
 {
 public:
-    npc_gigant_spotlight() : CreatureScript("npc_gigant_spotlight") { }
+    npc_giant_spotlight() : CreatureScript("npc_giant_spotlight") { }
 
-    struct npc_gigant_spotlightAI : public ScriptedAI
+    struct npc_giant_spotlightAI : public ScriptedAI
     {
-        npc_gigant_spotlightAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_giant_spotlightAI(Creature* creature) : ScriptedAI(creature) {}
 
         EventMap events;
 
@@ -719,7 +719,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_gigant_spotlightAI(creature);
+        return new npc_giant_spotlightAI(creature);
     }
 };
 
@@ -731,5 +731,5 @@ void AddSC_moonglade()
     new npc_clintar_dreamwalker();
     new npc_clintar_spirit();
 	new npc_omen();
-    new npc_gigant_spotlight();
+    new npc_giant_spotlight();
 }
