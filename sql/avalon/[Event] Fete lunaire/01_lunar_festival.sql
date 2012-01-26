@@ -32,5 +32,5 @@ INSERT INTO `creature_template_addon`(`entry`,`path_id`,`mount`,`bytes1`,`bytes2
 (15466,0,0,0,0,0,17327), -- Add spirit particles to Omen minions
 (15902,0,0,0,0,0,50236); -- Add Spotlight aura to Gigant Spotlight (ummoned by 26392 on Omen's death)
 
-UPDATE `creature_template` SET `ScriptName` = 'npc_gigant_spotlight' WHERE `entry` = 15902;
+UPDATE `creature_template` SET `ScriptName` = 'npc_giant_spotlight' WHERE `entry` = 15902;
 UPDATE `creature_template` SET `ScriptName` = 'npc_omen' WHERE `entry` = 15467;
