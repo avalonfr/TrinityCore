@@ -445,6 +445,7 @@ static ChatCommand boutiqueCommandTable[] =
         { "bindsight",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleBindSightCommand>,           "", NULL },
         { "unbindsight",    SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleUnbindSightCommand>,         "", NULL },
         { "playall",        SEC_GAMEMASTER,  false, OldHandler<&ChatHandler::HandlePlayAllCommand>,             "", NULL },
+        { "wg",             SEC_ADMINISTRATOR,  false, NULL,                                 "", wintergraspCommandTable },
 		{ "boutique",       SEC_PLAYER,         true,  NULL,                                           "", boutiqueCommandTable  },
 		{ "valide", SEC_PLAYER, false, OldHandler<&ChatHandler::HandlePlayerQuestCompleteCommand>, "", NULL },
 		{ "questbug", SEC_GAMEMASTER, false, NULL, "", questBugTable },

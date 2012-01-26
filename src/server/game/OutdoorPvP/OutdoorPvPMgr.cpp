@@ -99,7 +99,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
         if (!pvp->SetupOutdoorPvP())
         {
-            sLog->outError("Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed.", uint32(i));
+            sLog->outError("Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed. ", uint32(i));
             delete pvp;
             continue;
         }
