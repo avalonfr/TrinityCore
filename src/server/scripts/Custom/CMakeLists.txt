@@ -10,6 +10,8 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  #Custom/ArenaWatcher.cpp
+  Custom/npc_teleport.cpp
 )
 
 message("  -> Prepared: Custom")

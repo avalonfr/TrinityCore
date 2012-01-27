@@ -28,6 +28,9 @@ void AddSC_example_commandscript();
 //TeleNPC
 void AddSC_npc_teleport();
 
+//ArenaWatcher
+//void AddSC_ArenaWatcher();
+
 // spells
 void AddSC_deathknight_spell_scripts();
 void AddSC_druid_spell_scripts();
@@ -1266,6 +1269,6 @@ void AddCustomScripts()
     /* This is where custom scripts should be added. */
 	//TeleNPC2
     AddSC_npc_teleport();
-
+	
 #endif
 }
