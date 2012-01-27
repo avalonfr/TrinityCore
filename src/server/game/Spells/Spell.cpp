@@ -951,6 +951,11 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         if (m_spellInfo->CheckTarget(m_caster, target, true) != SPELL_CAST_OK)
             return;
 
+    if (!CheckEffectTarget(target, effectMask))
+        return;
+	// Skip if has aura "Recently Reapaired"
+    if (target->HasAura(62705))
+        return;
     // Check for effect immune skip if immuned
     for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         if (target->IsImmunedToSpellEffect(m_spellInfo, effIndex))
@@ -1338,12 +1343,35 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         caster->DealSpellDamage(&damageInfo, true);
 
+		 // unleashed dark & light
+        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_GENERIC && m_spellInfo->Effects[1].TriggerSpell == 3617 && (m_spellInfo->SpellIconID == 1988 || m_spellInfo->SpellIconID == 1874))
+        {
+            AuraEffect const* pAurEff;
+            if ((pAurEff = unitTarget->GetAuraEffect(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE,SPELLFAMILY_GENERIC,1,0)) && !damageInfo.damage)
+            {
+
+                unitTarget->AddAura(67590,unitTarget);
+                if (unitTarget->GetAura(67590)->GetStackAmount() == 100)
+                {
+                    unitTarget->RemoveAura(67590);
+                    if (SpellSchoolMask(m_spellInfo->SchoolMask) == SPELL_SCHOOL_MASK_FIRE)
+                        unitTarget->AddAura(67218,unitTarget);
+                    else
+                        unitTarget->AddAura(67215,unitTarget);
+                }
+            }
+        }
         // Haunt
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[1] & 0x40000 && m_spellAura && m_spellAura->GetEffect(1))
         {
             AuraEffect* aurEff = m_spellAura->GetEffect(1);
             aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
         }
+	// Cobra Strikes (can't find any other way that may work)
+		if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->SpellFamilyFlags[1] & 0x10000000)
+			if (Unit * owner = caster->GetOwner())
+				if (Aura* pAura = owner->GetAura(53257))
+					pAura->DropCharge();
         m_damage = damageInfo.damage;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
@@ -1436,6 +1464,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
 
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
         {
+		// spell misses if target has Invisibility or Vanish and isn't visible for caster
+            if (m_spellInfo->Speed > 0.0f && unit == m_targets.GetUnitTarget()
+                && ((unit->HasInvisibilityAura() || m_caster->HasInvisibilityAura())
+                || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
+                && !m_caster->canSeeOrDetect(unit))
+            {
+                return SPELL_MISS_MISS;
+            }
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
             //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
             if ((m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
@@ -1541,6 +1577,35 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
                         positive = aurApp->IsPositive();
 
                     duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive, effectMask);
+
+					// Seduction with Improved Succubus talent - fix duration.
+					if (m_spellInfo->Id == 6358 && unit->GetTypeId() == TYPEID_PLAYER && m_originalCaster->GetOwner())
+					{
+					    float mod = 1.0f;
+					    float durationadd = 0.0f;
+					    
+					    if (m_originalCaster->GetOwner()->HasAura(18754))
+					        durationadd += float(1.5*IN_MILLISECONDS*0.22);
+					    else if (m_originalCaster->GetOwner()->HasAura(18755))
+					        durationadd += float(1.5*IN_MILLISECONDS*0.44);
+					    else if (m_originalCaster->GetOwner()->HasAura(18756))
+					        durationadd += float(1.5*IN_MILLISECONDS*0.66);
+
+					    if (durationadd)
+					    {
+					        switch (m_diminishLevel)
+					        {
+					        case DIMINISHING_LEVEL_1: break;
+					        // lol, we lost 1 second here
+					        case DIMINISHING_LEVEL_2: duration += 1000; mod = 0.5f; break;
+					        case DIMINISHING_LEVEL_3: duration += 1000; mod = 0.25f; break;
+					        case DIMINISHING_LEVEL_IMMUNE: { m_spellAura->Remove(); return SPELL_MISS_IMMUNE; }
+					        default: break;
+					        }
+					        durationadd *= mod;
+					        duration += int32(durationadd);
+					    }
+					}
 
                     // Haste modifies duration of channeled spells
                     if (m_spellInfo->IsChanneled())
@@ -2230,10 +2295,19 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             }
 
             Position pos;
-            if (cur.GetTarget() == TARGET_DEST_CASTER_FRONT_LEAP)
-                m_caster->GetFirstCollisionPosition(pos, dist, angle);
-            else
-                m_caster->GetNearPosition(pos, dist, angle);
+            switch (cur.GetTarget())
+            {
+                case TARGET_DEST_CASTER_FRONT_LEAP:
+                case TARGET_DEST_CASTER_FRONT_LEFT:
+                case TARGET_DEST_CASTER_BACK_LEFT:
+                case TARGET_DEST_CASTER_BACK_RIGHT:
+                case TARGET_DEST_CASTER_FRONT_RIGHT:
+                    m_caster->GetFirstCollisionPosition(pos, dist, angle);
+                    break;
+                default:
+                    m_caster->GetNearPosition(pos, dist, angle);
+                    break;
+            }
             m_targets.SetDst(*m_caster);
             m_targets.ModDst(pos);
             break;
@@ -2603,7 +2677,12 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                                 }
                             }
                             break;
-
+						case 62834: // Boom (Boombot)
+                        case 64320: // Rune of Power (Assembly of Iron)
+                        case 28374: // Decimate (Gluth)
+                        case 54426:
+                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ANY);
+                            break;
                         default:
                             sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell (ID: %u) (caster Entry: %u) does not have type CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET record in `conditions` table.", m_spellInfo->Id, m_caster->GetEntry());
 
@@ -2822,6 +2901,24 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     unitList.remove(m_targets.GetUnitTarget());
                 Trinity::RandomResizeList(unitList, maxTargets);
             }
+			 else
+            {
+                switch (m_spellInfo->Id)
+                {
+					                    case 72255: // Mark of the Fallen Champion (Deathbringer Saurfang)
+                    case 72444:
+                    case 72445:
+                    case 72446:
+                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
+                        {
+                            if (!(*itr)->HasAura(72293))
+                                itr = unitList.erase(itr);
+                            else
+                                ++itr;
+                        }
+                        break;
+                }
+			}
 
             CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
 
@@ -5662,6 +5759,9 @@ bool Spell::CanAutoCast(Unit* target)
 
 SpellCastResult Spell::CheckRange(bool strict)
 {
+	// ugly hack for CHOKING_CLOUD
+    if(m_spellInfo->Id == 58963 || m_spellInfo->Id == 60895)
+        return SPELL_CAST_OK;
     // Don't check for instant cast spells
     if (!strict && m_casttime == 0)
         return SPELL_CAST_OK;

@@ -1132,6 +1132,29 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
                 break;
+            case SPELLFAMILY_HUNTER:
+                // Rapid Killing
+                if (GetSpellInfo()->SpellFamilyFlags[1] & 0x01000000)
+                {
+                    if (AuraEffect * auraEff = target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_HUNTER, 3560, 1))
+                    {
+                        uint32 spellId;
+                        switch (auraEff->GetId())
+                        {
+                            case 53228: spellId = 56654; break;
+                            case 53232: spellId = 58882; break;
+                        }
+                        target->CastSpell(target, spellId, true);
+                    }
+                }
+                // Animal Handler
+                else if (GetId() == 68361)
+                {
+                    if (Unit * owner = target->GetOwner())
+                        if (AuraEffect * auraEff = owner->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 2234, 1))
+                            GetEffect(0)->SetAmount(auraEff->GetAmount());
+                }
+                break;
             case SPELLFAMILY_MAGE:
                 if (!caster)
                     break;
@@ -1322,6 +1345,30 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                     caster->CastCustomSpell(caster, 72373, NULL, &remainingDamage, NULL, true);
                             }
                         }
+                        break;
+					case 63830: // Malady of the Mind
+                    case 63881:
+                    {
+                        if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                            break;
+                        // it will attempt to jump to a nearby friend when removed
+                        std::list<Unit*> unitList;
+                        target->GetRaidMember(unitList, 10);
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                        {
+                            Unit* pUnit = *itr;
+                            if (!pUnit || pUnit == target)
+                                continue;
+
+                            pUnit->CastSpell(pUnit, 63881, true, 0, 0);
+                            return;
+                        }
+                        break;
+                    }
+                    case 64465: // Shadow Beacon
+                        if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                            break;
+                        target->CastSpell(target, 64468, true, 0, 0, GetCasterGUID());
                         break;
                 }
                 break;
@@ -1521,7 +1568,15 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 // Remove Vanish on stealth remove
                 if (GetId() == 1784)
                     target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x0000800, 0, 0, target->GetGUID());
-                break;
+                // Remove Savage Combat triggered aura at poisons remove
+				else if (GetSpellInfo()->SpellFamilyFlags[1] & 0x80000 &&
+					caster && (caster->HasAura(51682) || caster->HasAura(58413)))
+				{
+					// this is just temp solution and has some problems
+					target->RemoveAurasDueToSpell(58683, GetCasterGUID());
+					target->RemoveAurasDueToSpell(58684, GetCasterGUID());
+				}
+				break;
             case SPELLFAMILY_PALADIN:
                 // Remove the immunity shield marker on Forbearance removal if AW marker is not present
                 if (GetId() == 25771 && target->HasAura(61988) && !target->HasAura(61987))
@@ -1574,6 +1629,20 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (target->HasAura(70726)) // Item - Druid T10 Feral 4P Bonus
                     if (apply)
                         target->CastSpell(target, 70725, true);
+					if (AuraEffect * auraEff = target->GetAuraEffectOfRankedSpell(1178, 0))
+					{
+						uint32 armorMod;
+						switch (auraEff->GetId())
+						{
+							case 1178: armorMod = 27; break;
+							case 9635: armorMod = 16; break;
+						}
+						armorMod = auraEff->GetAmount() / 100 * armorMod;
+						if (apply)
+							auraEff->ChangeAmount(auraEff->GetAmount() - armorMod);
+						else
+							auraEff->ChangeAmount(auraEff->GetAmount() + armorMod);
+					}
                 break;
             }
             break;

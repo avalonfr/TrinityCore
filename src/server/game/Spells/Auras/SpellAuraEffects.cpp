@@ -592,7 +592,23 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 break;
             // Earth Shield
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[1] & 0x400)
-                amount = caster->SpellHealingBonus(GetBase()->GetUnitOwner(), GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
+                {
+					// return to unmodified by spellmods value
+					amount = m_spellInfo->Effects[m_effIndex].BasePoints;
+					// apply spell healing bonus
+					amount = caster->SpellHealingBonus(GetBase()->GetUnitOwner(), GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
+					// apply spellmods
+					amount = caster->ApplyEffectModifiers(GetSpellInfo(), m_effIndex, float(amount));
+				}
+			break;
+
+        case SPELL_AURA_DAMAGE_SHIELD:
+            if (!caster)
+                break;
+            // Thorns
+            if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[0] & 0x100)
+                // 3.3% from sp bonus
+                DoneActualBenefit = caster->SpellBaseDamageBonus(m_spellInfo->GetSchoolMask()) * 0.033f;
             break;
         case SPELL_AURA_PERIODIC_DAMAGE:
             if (!caster)
@@ -681,6 +697,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 // Bonus from Glyph of Lightwell
                 if (AuraEffect* modHealing = caster->GetAuraEffect(55673, 0))
                     AddPctN(amount, modHealing->GetAmount());
+				// Bonus from talent Spiritual Healing
+				if (AuraEffect* modHealing = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 46, 1))
+					AddPctN(amount, modHealing->GetAmount());
             }
             break;
         case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
@@ -5099,6 +5118,20 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     caster->ToPlayer()->SetChampioningFaction(FactionID);
                     break;
                 }
+				case 57806: // Sprinkle Holy Water - Quest 13110
+
+                     if(target->GetTypeId() == TYPEID_UNIT)
+                     {
+                         if (apply)
+						{
+							if (caster && caster->ToPlayer())
+							{
+								target->CastSpell(caster, 57808, true);
+								caster->ToPlayer()->CastedCreatureOrGO(30546, target->GetGUID(), 57806);
+							}
+						}
+                     }
+                    break;
                 // LK Intro VO (1)
                 case 58204:
                     if (target->GetTypeId() == TYPEID_PLAYER)
@@ -5624,6 +5657,102 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
         case SPELLFAMILY_GENERIC:
             switch (GetId())
             {
+				case 43310: // Ram Level - Neutral
+                case 42992: // Ram - Trot
+                case 42993: // Ram - Canter
+                case 42994: // Ram - Gallop
+                {
+                    if (!caster)
+                        break;
+
+                    // Exhausted Ram
+                    if (!caster->ToPlayer() || caster->HasAura(43332))
+                        break;
+
+                    // Fatigue
+                    int8 mod = 0;
+                    switch (GetId())
+                    {
+                        case 43310: mod = -4; break;
+                        case 42992: mod = -2; break;
+                        case 42993: mod = 1; break;
+                        case 42994: mod = 5; break;
+                    }
+
+
+                    if (Aura* fatigue = caster->GetAura(43052))
+                    {
+
+                       fatigue->ModStackAmount(mod);
+                        if (fatigue && fatigue->GetStackAmount() >= 100)
+                        {
+                            caster->RemoveAurasDueToSpell(42924); // Giddyup!
+                            caster->RemoveAurasDueToSpell(43052); // Fatigue
+                            caster->RemoveAurasDueToSpell(GetId());
+                            caster->CastSpell(caster, 43310, true); // Ram Level - Neutral
+                            caster->CastSpell(caster, 43332, true); // Exhausted Ram
+                            return;
+                        }
+                    }
+                    else if (mod > 0)
+                        caster->CastCustomSpell(43052, SPELLVALUE_AURA_STACK, mod, caster, true);
+
+                    // Quest credits
+                    if (GetBase()->GetDuration() <= 892000)
+                    {
+                        if (caster->ToPlayer()->GetQuestStatus(11318) == QUEST_STATUS_INCOMPLETE ||
+                            caster->ToPlayer()->GetQuestStatus(11409) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            switch (GetId())
+                            {
+                                case 42992: caster->ToPlayer()->KilledMonsterCredit(24263, 0); break;
+                                case 42993: caster->ToPlayer()->KilledMonsterCredit(24264, 0); break;
+                                case 42994: caster->ToPlayer()->KilledMonsterCredit(24265, 0); break;
+                            }
+                        }
+                    }
+
+                    // get number of Giddyup!s
+                    uint8 count = caster->GetAuraCount(42924);
+
+                    uint32 newSpeedAura;
+
+                    switch (GetId())
+                    {
+                        // check every 2 seconds
+                        case 43310:
+                        case 42992:
+                            switch (count)
+                            {
+                                case 0: newSpeedAura = 43310; break;
+                                case 1: newSpeedAura = 42992; break;
+                                case 2: newSpeedAura = 42993; break;
+                                default: newSpeedAura = 42994; break;
+                            }
+                            break;
+                        // check every second
+                        case 42993:
+                        case 42994:
+                            switch (count)
+                            {
+                                case 0: newSpeedAura = 42992; break;
+                                case 1: newSpeedAura = 42993; break;
+                                default: newSpeedAura = 42994; break;
+                            }
+                            break;
+                    }
+
+                    // reset Giddyup!
+                    caster->RemoveAurasDueToSpell(42924);
+
+                    // apply new speed if needed
+                    if (newSpeedAura != GetId())
+                    {
+                        caster->RemoveAurasDueToSpell(GetId());
+                        caster->CastSpell(caster, newSpeedAura, true);
+                    }
+                    break;
+				}
                 case 66149: // Bullet Controller Periodic - 10 Man
                 case 68396: // Bullet Controller Periodic - 25 Man
                 {
@@ -5639,16 +5768,36 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     if (!caster || !target || !target->ToCreature() || !caster->GetVehicle() || target->HasAura(54683))
                         break;
 
-                    target->CastSpell(target, 54683, true);
+					if (Unit* rider = caster->GetVehicleKit()->GetPassenger(0))
+                    {
+                        target->CastSpell(target, 54683, true);
 
-                    // Credit Frostworgs
-                    if (target->GetEntry() == 29358)
-                        caster->CastSpell(caster, 54896, true);
-                    // Credit Frost Giants
-                    else if (target->GetEntry() == 29351)
-                        caster->CastSpell(caster, 54893, true);
+                        // Credit Frostworgs
+                        if (target->GetEntry() == 29358)
+                            rider->CastSpell(rider, 54896, true);
+                        // Credit Frost Giants
+                        else if (target->GetEntry() == 29351)
+                            rider->CastSpell(rider, 54893, true);
+                    }
                     break;
                 }
+				case 62038: // Biting Cold
+				    if(target->isMoving() && target->GetAura(62039))
+				        target->GetAura(62039)->ModStackAmount(-1);
+				    else if(target->GetTypeId() == TYPEID_PLAYER)
+				    {
+				        target->CastSpell(target,62039,true,0,0,caster->GetGUID());
+				        if(target->HasAura(62039) && caster->ToCreature() && target->GetAura(62039)->GetStackAmount() > 2)
+				            caster->ToCreature()->AI()->DoAction(1);
+				    }
+				    break;
+				case 62039: //Biting cold
+				{
+				    uint8 stackAmount = target->GetAura(62039)->GetStackAmount();
+				    int32 damage = (int32)(ceil(200 * pow(2.0,stackAmount)));
+				    target->CastCustomSpell(target,62188,&damage,0,0,true);
+				    break;
+				}
                 case 62292: // Blaze (Pool of Tar)
                     // should we use custom damage?
                     target->CastSpell((Unit*)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
@@ -5668,6 +5817,26 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         target->RemoveAura(64821);
                     }
                     break;
+				case 63802: // Brain Link
+					if (caster)
+					{
+					    std::list<Unit*> unitList;
+					    target->GetRaidMember(unitList, 80);
+					    for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+					    {
+					        Unit* pUnit = *itr;
+					        if (!pUnit || pUnit == target || !pUnit->HasAura(63802))
+					            continue;
+
+					        // Afflicted targets suffer Shadow damage whenever they are more than 20 yards apart
+					        if (target->IsWithinDist(pUnit, 20))
+					            target->CastSpell(pUnit, 63804, true, 0, 0);
+					        else
+					            target->CastSpell(pUnit, 63803, true, 0, 0);
+					        return;
+					    }
+					}
+                break;
             }
             break;
         case SPELLFAMILY_MAGE:
@@ -6085,6 +6254,16 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             case 66882:
                 target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000 * 2 / 3), NULL, true, NULL, this);
                 return;
+            case 56432:
+                target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, (100 - (m_tickNumber + 5) * 2) * 100, NULL, true, NULL, this);
+                return;			
+			// Rod of Purification - for quest 10839 (Veil Skith: Darkstone of Terokk)
+            case 38736:
+            {
+                if(Unit* caster = GetCaster())
+                    caster->CastSpell(target, triggerSpellId, true, NULL, this);
+                return;
+            }	
             // Beacon of Light
             case 53563:
             {
@@ -6120,6 +6299,14 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                 // triggered spell is cast as "triggered", reagents are not consumed
                 if (caster)
                     caster->CastSpell(target, triggerSpellId, false);
+                return;
+            }
+            // Rapid Recuperation (triggered energize have basepoints == 0)
+            case 56654:
+            case 58882:
+            {
+                if (int32 mana = target->GetMaxPower(POWER_MANA) / 100 * GetAmount())
+                    target->CastCustomSpell(target, triggerSpellId, &mana, NULL, NULL, true, NULL, this);
                 return;
             }
         }

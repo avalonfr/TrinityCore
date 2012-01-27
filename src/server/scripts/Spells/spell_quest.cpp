@@ -22,7 +22,9 @@
  */
 
 #include "ScriptPCH.h"
+#include <SpellAuraEffects.h>
 #include "Vehicle.h"
+#include "Spell.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
@@ -561,9 +563,10 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            uint32 spellId = SPELL_BANANAS_FALL_TO_GROUND;
-            switch (urand(0, 3))
+            uint32 spellId = 0;
+            switch (urand(0, 2))
             {
+				case 0: spellId = SPELL_BANANAS_FALL_TO_GROUND; break;
                 case 1: spellId = SPELL_ORANGE_FALLS_TO_GROUND; break;
                 case 2: spellId = SPELL_PAPAYA_FALLS_TO_GROUND; break;
             }
@@ -1026,6 +1029,149 @@ public:
     }
 };
 
+enum FlightOfTheWintergardeDefender
+{
+    NPC_HELPLESS_VILLAGER_A = 27315,
+    NPC_HELPLESS_VILLAGER_B = 27336,
+    SPELL_RIDE_VEHICLE = 43671,
+    GO_TEMP_GRYPHON_STATION = 300199,
+};
+
+class spell_q12237_rescue_villager: public SpellScriptLoader
+{
+    public:
+        spell_q12237_rescue_villager() : SpellScriptLoader("spell_q12237_rescue_villager") { }
+
+        class spell_q12237_rescue_villager_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12237_rescue_villager_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RIDE_VEHICLE))
+                    return false;
+
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Player* master = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself();
+
+                if (!master)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                SpellCustomErrors extension = SPELL_CUSTOM_ERROR_NONE;
+                SpellCastResult result = SPELL_CAST_OK;
+
+                if (!GetCaster()->FindNearestCreature(NPC_HELPLESS_VILLAGER_A, 5.0f) && !GetCaster()->FindNearestCreature(NPC_HELPLESS_VILLAGER_B, 5.0f))
+                {
+                    extension = SPELL_CUSTOM_ERROR_MUST_BE_NEAR_HELPLESS_VILLAGER;
+                    result = SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                if (GetCaster()->FindNearestGameObject(GO_TEMP_GRYPHON_STATION, 15.0f))
+                {
+                    extension = SPELL_CUSTOM_ERROR_NEED_HELPLESS_VILLAGER;
+                    result = SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                if (GetCaster()->HasAura(SPELL_RIDE_VEHICLE))
+                    result = SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (result != SPELL_CAST_OK)
+                {
+                    Spell::SendCastResult(master, GetSpellInfo(), 0, result, extension);
+                    return result;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+
+                if (target && !caster->HasAura(SPELL_RIDE_VEHICLE))
+                    target->CastSpell(caster, SPELL_RIDE_VEHICLE, true);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_q12237_rescue_villager_SpellScript::CheckCast);
+                OnEffectHit += SpellEffectFn(spell_q12237_rescue_villager_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12237_rescue_villager_SpellScript();
+        }
+};
+
+class spell_q12237_drop_off_villager: public SpellScriptLoader
+{
+    public:
+        spell_q12237_drop_off_villager() : SpellScriptLoader("spell_q12237_drop_off_villager") { }
+
+        class spell_q12237_drop_off_villager_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12237_drop_off_villager_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Player* master = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself();
+
+                if (!master)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                SpellCustomErrors extension = SPELL_CUSTOM_ERROR_NONE;
+                SpellCastResult result = SPELL_CAST_OK;
+
+                if (!GetCaster()->HasAura(SPELL_RIDE_VEHICLE))
+                {
+                    extension = SPELL_CUSTOM_ERROR_NO_PASSENGER;
+                    result = SPELL_FAILED_CUSTOM_ERROR;
+                }
+                else if (!GetCaster()->FindNearestGameObject(GO_TEMP_GRYPHON_STATION, 10.0f))
+                    result = SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+
+                if (result != SPELL_CAST_OK)
+                {
+                    Spell::SendCastResult(master, GetSpellInfo(), 0, result, extension);
+                    return result;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (Vehicle* gryphon = GetCaster()->GetVehicleKit())
+                    if (Unit* villager = gryphon->GetPassenger(1))
+                    {
+                        villager->ExitVehicle();
+
+                        if (villager->ToCreature())
+                            villager->ToCreature()->DespawnOrUnsummon(7*IN_MILLISECONDS);
+                    }
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_q12237_drop_off_villager_SpellScript::CheckCast);
+                OnEffectHit += SpellEffectFn(spell_q12237_drop_off_villager_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12237_drop_off_villager_SpellScript();
+        }
+};
 // http://old01.wowhead.com/quest=9452 - Red Snapper - Very Tasty!
 enum RedSnapperVeryTasty
 {
@@ -1074,6 +1220,64 @@ class spell_q9452_cast_net: public SpellScriptLoader
         }
 };
 
+// http://www.wowhead.com/quest=12277 Leave Nothing to Chance
+// 48742 Wintergarde Mine Explosion
+enum LeaveNothingToChance
+{
+    NPC_UPPER_MINE_SHAFT            = 27436,
+    NPC_LOWER_MINE_SHAFT            = 27437,
+    SPELL_UPPER_MINE_SHAFT_CREDIT   = 48744,
+    SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745,
+};
+
+class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
+{
+public:
+    spell_q12277_wintergarde_mine_explosion() : SpellScriptLoader("spell_q12277_wintergarde_mine_explosion") { }
+ 
+    class spell_q12277_wintergarde_mine_explosion_SpellScript : public SpellScript
+    {
+    public:
+        PrepareSpellScript(spell_q12277_wintergarde_mine_explosion_SpellScript)
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_UPPER_MINE_SHAFT_CREDIT))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_LOWER_MINE_SHAFT_CREDIT))
+                return false;
+            return true;
+        }
+ 
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Creature* unitTarget = GetHitCreature())
+                if (Unit* caster = GetCaster())
+                    if (caster->GetTypeId() == TYPEID_UNIT)
+                        if (Unit* owner = caster->GetOwner())
+                        {
+                            switch (unitTarget->GetEntry())
+                            {
+                            case NPC_UPPER_MINE_SHAFT:
+                                caster->CastSpell(owner, SPELL_UPPER_MINE_SHAFT_CREDIT, true);
+                                break;
+                            case NPC_LOWER_MINE_SHAFT:
+                                caster->CastSpell(owner, SPELL_LOWER_MINE_SHAFT_CREDIT, true);
+                                break;
+                            }
+                        }
+        }
+ 
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_q12277_wintergarde_mine_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+ 
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12277_wintergarde_mine_explosion_SpellScript();
+    }
+};
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1098,5 +1302,8 @@ void AddSC_quest_spell_scripts()
     new spell_q12805_lifeblood_dummy();
     new spell_q13280_13283_plant_battle_standard();
     new spell_q14112_14145_chum_the_water();
+	new spell_q12237_rescue_villager();
+    new spell_q12237_drop_off_villager();
     new spell_q9452_cast_net();
+	new spell_q12277_wintergarde_mine_explosion();
 }

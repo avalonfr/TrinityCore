@@ -2976,6 +2976,37 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
+            case 57934: // Tricks of the Trade - [Rogue]
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;			
+			case 1543: // Flare - llega al lugar donde se lanza instantaneamente
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_5_YARDS;
+                spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_5_YARDS; //10 yardas de diametro                
+				spellInfo->speed = 100;
+                break;
+            case 24259: // Spell Lock
+                spellInfo->speed = 80;
+                break;
+            case 23880: // Bloodthirst
+                spellInfo->Effect[EFFECT_0] = SPELL_EFFECT_HEAL_PCT;
+                spellInfo->EffectBasePoints[EFFECT_0] = 0; // default to 1%
+                // make it capable of crit as magic effect using spell crit chance
+                spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CANT_CRIT;
+                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_HOLY;
+                break;
+            case 23881: // Bloodthirst
+                spellInfo->EffectImplicitTargetA[EFFECT_1] = TARGET_UNIT_CASTER;
+                break;
+            case 23885: // Bloodthirst
+                spellInfo->EffectApplyAuraName[EFFECT_0] = SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE;
+                break;
+			case 48278:
+                spellInfo->Targets = 1;
+                spellInfo->StackAmount = 3;
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_NEARBY_ENEMY;
+                break;
             case 40244: case 40245: // Simon Game Visual
             case 40246: case 40247: // Simon Game Visual
             case 42835: // Spout, remove damage effect, only anim is needed
@@ -3029,6 +3060,14 @@ void SpellMgr::LoadDbcDataCorrections()
                 // because of bug in dbc
                 spellInfo->procChance = 0;
                 break;
+			 case 2825:  // Bloodlust
+                spellInfo->excludeCasterAuraSpell = 57724; // Sated
+                break;
+			case 32982: // Fire Elemental Totem
+			case 33663: // Earth Elemental Totem
+						// Earth and Fire Totem Transform spells were removed from dbc
+				spellInfo->Effect[1] = 0;
+            break;
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
@@ -3062,9 +3101,13 @@ void SpellMgr::LoadDbcDataCorrections()
             case 42611: // Shoot
             case 61588: // Blazing Harpoon
             case 52479: // Gift of the Harvester
+			case 56397: // Arcane Barrage 
             case 48246: // Ball of Flame
                 spellInfo->MaxAffectedTargets = 1;
                 break;
+			case 42132: // Headless Horseman - Start Fire
+				spellInfo->rangeIndex = 13;
+				break;
             case 41376: // Spite
             case 39992: // Needle Spine
             case 29576: // Multi-Shot
@@ -3078,6 +3121,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 28542: // Life Drain - Sapphiron
             case 66588: // Flaming Spear
             case 54171: // Divine Storm
+			case 61693: // Arcane Storm
                 spellInfo->MaxAffectedTargets = 3;
                 break;
             case 38310: // Multi-Shot
@@ -3099,6 +3143,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 40861: // Wicked Beam
             case 54835: // Curse of the Plaguebringer - Noth (H)
             case 54098: // Poison Bolt Volly - Faerlina (H)
+			case 61694: // Arcane Storm
                 spellInfo->MaxAffectedTargets = 10;
                 break;
             case 50312: // Unholy Frenzy
@@ -3190,6 +3235,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->SpellFamilyFlags[2] = 0x10;
                 spellInfo->EffectApplyAuraName[1] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
                 break;
+            case 41013: // Parasitic Shadowfiend Passive
             case 41913: // Parasitic Shadowfiend Passive
                 spellInfo->EffectApplyAuraName[0] = SPELL_AURA_DUMMY; // proc debuff, and summon infinite fiends
                 break;
@@ -3270,6 +3316,19 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+                break;
+			case 56790: // Create Harpoon
+                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
+                 break;
+            case 55849: // Power Spark
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 56430: // Arcane Bomb
+            case 61421: // Ride Vehicle
+            case 62309: // Ride Vehicle (Scales w/ Gear)
+            case 65031: // Ride Vehicle (Scales w/ Gear)
+            case 65266: // Gear Scaling
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
                 break;
             // ULDUAR SPELLS
             //
@@ -3363,6 +3422,12 @@ void SpellMgr::LoadDbcDataCorrections()
             case 70460: // Coldflame Jets (Traps after Saurfang)
                 spellInfo->DurationIndex = 1;   // 10 seconds
                 break;
+            case 69195: // Pungent Blight (Festergut)
+            case 71219: // Pungent Blight (Festergut)
+            case 73031: // Pungent Blight (Festergut)
+            case 73032: // Pungent Blight (Festergut)
+                spellInfo->InterruptFlags = 0;
+                break;
             case 71413: // Green Ooze Summon (Professor Putricide)
             case 71414: // Orange Ooze Summon (Professor Putricide)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
@@ -3405,9 +3470,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
                 break;
             case 70602: // Corruption
-            case 48278: // Paralyze
+/*            case 48278: // Paralyze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-                break;
+                break;*/
             case 70715: // Column of Frost (visual marker)
                 spellInfo->DurationIndex = 32; // 6 seconds (missing)
                 break;
@@ -3525,6 +3590,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 40166: // Introspection
             case 40167: // Introspection
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+				break;				
+			case 62012: // Turkey Caller
+                spellInfo->EffectRadiusIndex[0] = 36; //0yd
+                break;
             default:
                 break;
         }

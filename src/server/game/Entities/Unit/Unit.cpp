@@ -1031,8 +1031,12 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     // Calculate absorb resist
     if (damage > 0)
     {
-        CalcAbsorbResist(victim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist, spellInfo);
-        damage -= damageInfo->absorb + damageInfo->resist;
+		// Chaos Bolt - "Chaos Bolt cannot be resisted, and pierces through all absorption effects."
+        if (spellInfo->SpellIconID != 3178)
+        {
+			CalcAbsorbResist(victim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist, spellInfo);
+			damage -= damageInfo->absorb + damageInfo->resist;
+		}
     }
     else
         damage = 0;
@@ -5557,6 +5561,17 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (!procSpell)
                     return false;
 
+			// Very ugly hacks here. This required for triggered and AOE spells
+			uint32 costPercent = procSpell->ManaCostPercentage;
+			if (procSpell->SpellFamilyFlags[0] & 0x200000) // Arcane Missiles
+				costPercent = 6;
+			else if (procSpell->SpellFamilyFlags[0] & 0x80) // Blizzard
+				costPercent = urand(1,9);
+			else if (procSpell->SpellFamilyFlags[1] & 0x10000) // Living Bomb
+				costPercent = urand(1,22);
+			// Dragon's Breath, Arcane Explosion, Cone of Cold, Frost Nova, Flamestrike, Blast Wave
+			else if (procSpell->SpellFamilyFlags[0] & 0x801244 || procSpell->SpellFamilyFlags[1] & 0x40)
+				costPercent = urand(1,costPercent);
                 // mana cost save
                 int32 cost = int32(procSpell->ManaCost + CalculatePctU(GetCreateMana(), procSpell->ManaCostPercentage));
                 basepoints0 = CalculatePctN(cost, triggerAmount);
@@ -7896,6 +7911,17 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     *handled = true;
                     break;
                 }
+				// Vigilance - original proc picking wrong target
+				case 50720:
+				{
+					*handled = true;
+					if (Unit * caster = triggeredByAura->GetCaster())
+					{
+						CastSpell(caster, 50725, true);
+						return true;
+					}	
+					return false;
+				}
             }
 
             break;
@@ -8267,6 +8293,9 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     }
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount) / 3;
                     target = this;
+
+					if (AuraEffect * aurEff = target->GetAuraEffect(trigger_spell_id, 0))
+						basepoints0 += aurEff->GetAmount();
                     // Add remaining ticks to healing done
                     basepoints0 += GetRemainingPeriodicAmount(GetGUID(), trigger_spell_id, SPELL_AURA_PERIODIC_HEAL);
                 }
@@ -8683,6 +8712,14 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         case 63158:
             // Can proc only if target has hp below 35%
             if (!victim || !victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, procSpell, this))
+			return false;
+            break;
+        // Deathbringer Saurfang - Rune of Blood
+        case 72408:
+            // can proc only if target is marked with rune
+            // this should be handled by targetAuraSpell, but because 72408 is not passive
+            // one failed proc will remove the entire aura
+            if (!victim->HasAura(72410))
                 return false;
             break;
         // Deathbringer Saurfang - Blood Beast's Blood Link
@@ -8785,6 +8822,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Finish movies that add combo
         case 14189: // Seal Fate (Netherblade set)
         case 14157: // Ruthlessness
+		case 70802: // Rogue T10 4P Bonus
         {
             if (!victim || victim == this)
                 return false;
@@ -8858,7 +8896,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Maelstrom Weapon
         case 53817:
         {
-            // has rank dependant proc chance, ignore too often cases
+            // have rank dependent proc chance, ignore too often cases
+
             // PPM = 2.5 * (rank of talent),
             uint32 rank = auraSpellInfo->GetRank();
             // 5 rank -> 100% 4 rank -> 80% and etc from full rate
@@ -11043,6 +11082,9 @@ uint32 Unit::SpellHealingBonus(Unit* victim, SpellInfo const* spellProto, uint32
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return healamount;
 
+    // Warlock Healthstones No bonus heal.
+    if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellProto->SpellFamilyFlags[0] & 0x10000))
+        return healamount;
     // Healing Done
     // Taken/Done total percent damage auras
     float  DoneTotalMod = 1.0f;

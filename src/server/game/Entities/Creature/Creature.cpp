@@ -577,6 +577,9 @@ void Creature::Update(uint32 diff)
             m_regenTimer = CREATURE_REGEN_INTERVAL;
             break;
         }
+        case DEAD_FALLING:
+            GetMotionMaster()->UpdateMotion(diff);
+            break;
         default:
             break;
     }
