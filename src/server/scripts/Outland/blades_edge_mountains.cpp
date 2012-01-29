@@ -538,6 +538,113 @@ public:
 };
 
 /*######
+## mob_aether_ray
+######*/
+
+class mob_wrangled_aether_ray : public CreatureScript
+{
+public:
+    mob_wrangled_aether_ray() : CreatureScript("mob_wrangled_aether_ray") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_wrangled_aether_rayAI(pCreature);
+    }
+
+    struct mob_wrangled_aether_rayAI : public ScriptedAI
+    {
+        mob_wrangled_aether_rayAI(Creature *c) : ScriptedAI(c) { owner = 0; }
+
+        uint64 owner;
+
+        void Reset(){}
+        void EnterCombat(Unit *who) { }
+        void UpdateAI(const uint32 diff)
+        {
+            if(me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
+            {
+                Unit* ownerlink = me->GetUnit((*me),me->GetOwnerGUID() );
+                if(ownerlink)
+                    me->GetMotionMaster()->MoveFollow(ownerlink,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
+            }
+        }
+
+    };
+};
+
+#define EMOTE_READY         "appears ready to be wrangled."
+
+class mob_aether_ray : public CreatureScript
+{
+public:
+    mob_aether_ray() : CreatureScript("mob_aether_ray") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_aether_rayAI(pCreature);
+    }
+
+    struct mob_aether_rayAI : public ScriptedAI
+    {
+        mob_aether_rayAI(Creature *c) : ScriptedAI(c) { }
+
+        bool isready;
+        uint64 wranglerGUID;
+
+        void Reset()
+        {
+            isready = false;
+            wranglerGUID = 0;
+        }
+
+        void JustSummoned(Creature* summon)
+        {
+            Player* wrangler = me->GetPlayer(*summon,wranglerGUID);
+            if(wrangler)
+            {
+                //summon->CastSpell(wrangler,40926,true);
+
+                //summon->SetOwnerGUID(wrangler->GetGUID());
+                wrangler->KilledMonsterCredit(summon->GetEntry(),summon->GetGUID());
+                me->DealDamage(me,me->GetHealth());
+                me->RemoveCorpse();
+
+                //summon->CastSpell(wrangler,40926,true);
+                //wrangler->CastSpell(summon,40926,true);
+            }
+        }
+
+        void EnterCombat(Unit *who) { }
+        void DamageTaken(Unit *done_by, uint32 &damage)
+        {
+            if(!isready)
+                if(me->GetHealth() - damage > 0 && me->GetHealth() - damage < (me->GetMaxHealth() * 0.3))
+                {
+                    //DoTextEmote(EMOTE_READY,NULL);
+                    isready = true;
+                }
+        }
+
+        void SpellHit(Unit* target, const SpellEntry* spell)
+        {
+            if(isready)
+            {
+                if(target->GetTypeId() == TYPEID_PLAYER )
+                {
+                    if(spell->Id == 40856)
+                    {
+                        //DoCast(target,40917);
+                        //DoCast(target,40907);
+                        wranglerGUID = target->GetGUID();
+                        DoSpawnCreature(23343,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN, 20000);
+                    }
+                }
+            }
+        }
+    };
+};
+
+/*######
 ## go_thunderspike
 ######*/
 
@@ -1120,6 +1227,69 @@ class go_apexis_relic : public GameObjectScript
         }
 };
 
+/*######
+## npc_scalewing_serpent
+######*/
+
+enum ScalewingSerpent
+{
+    SPELL_LIGHTNING_STRIKE = 37841,
+    SPELL_MAGNETO_SPHERE = 37830,
+    NPC_RIDE_THE_LIGHTNING = 21910 // Quest: Ride the Lightning, #10657
+};
+
+class npc_scalewing_serpent : public CreatureScript
+{
+    public:
+        npc_scalewing_serpent() : CreatureScript("npc_scalewing_serpent") { }
+
+        struct npc_scalewing_serpentAI : public ScriptedAI
+        {
+            npc_scalewing_serpentAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                _lightningStrikeTimer = 5000;
+            }
+
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_LIGHTNING_STRIKE)
+                    if (target->ToPlayer() && target->HasAura(SPELL_MAGNETO_SPHERE))
+                        target->ToPlayer()->KilledMonsterCredit(NPC_RIDE_THE_LIGHTNING, 0);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (_lightningStrikeTimer <= diff)
+                {
+                    DoCast(SPELL_LIGHTNING_STRIKE);
+                    _lightningStrikeTimer = urand(4000, 8000);
+                }
+                else
+                    _lightningStrikeTimer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            uint32 _lightningStrikeTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_scalewing_serpentAI(creature);
+        }
+};
+
+
+
+/*######
+## AddSC
+######*/
 void AddSC_blades_edge_mountains()
 {
     new mobs_bladespire_ogre();
@@ -1130,8 +1300,11 @@ void AddSC_blades_edge_mountains()
     new go_legion_obelisk();
     new npc_bloodmaul_brutebane();
     new npc_ogre_brute();
+	new mob_aether_ray();
     new go_thunderspike();
     new npc_simon_bunny();
     new go_simon_cluster();
     new go_apexis_relic();
+    new mob_wrangled_aether_ray();
+    new npc_scalewing_serpent();
 }

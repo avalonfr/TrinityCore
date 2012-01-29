@@ -175,6 +175,22 @@ class achievement_arena_kills : public AchievementCriteriaScript
         uint8 const _arenaType;
 };
 
+
+#define DALARAN_ZONE_ID 4395
+
+class achievement_torch_juggler : public AchievementCriteriaScript
+{
+    public:
+        achievement_torch_juggler() : AchievementCriteriaScript("achievement_torch_juggler") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source || source->GetZoneId() != DALARAN_ZONE_ID)
+                return false;
+
+            return true;
+        }
+};
 class achievement_sickly_gazelle : public AchievementCriteriaScript
 {
 public:
@@ -285,6 +301,36 @@ class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
         }
 };
 
+enum TerokkarTurkeyTime
+{
+    SPELL_PILGRIMS_DRESS = 44785,
+    SPELL_PILGRIMS_ROBE = 46824,
+    SPELL_PILGRIMS_ATTIRE = 46800,
+};
+
+class achievement_terokkar_turkey_time : public AchievementCriteriaScript
+{
+    public:
+        achievement_terokkar_turkey_time() : AchievementCriteriaScript("achievement_terokkar_turkey_time")
+        {
+        }
+
+        bool OnCheck(Player* player, Unit* /*target*/)
+        {
+            if (!player)
+                return false;
+
+            for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+            {
+                Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+                if (item && (item->GetEntry() == SPELL_PILGRIMS_DRESS || item->GetEntry() == SPELL_PILGRIMS_ROBE || item->GetEntry() == SPELL_PILGRIMS_ATTIRE))
+                    return true;
+            }
+
+            return false;
+        }
+};
+
 class achievement_food_fight : public AchievementCriteriaScript
 {
 public:
@@ -333,7 +379,9 @@ void AddSC_achievement_scripts()
     new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);
     new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
     new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);
+	new achievement_torch_juggler();
     new achievement_bg_sa_defense_of_ancients();
+	new achievement_terokkar_turkey_time();
 	new achievement_food_fight();
 	new achievement_tilted();
 }
