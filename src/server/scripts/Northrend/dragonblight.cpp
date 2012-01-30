@@ -69,7 +69,72 @@ public:
     }
 };
 
+/*######
+## No Mercy for the Captured
+## http://www.wowhead.com/quest=12245
+## UPDATE `creature_template`SET `ScriptName` = 'npc_no_mercy_for_the_captured' WHERE `entry` IN (27376,27378,27379,27381);
+######*/
+
+enum NoMercyForTheCaptured
+{
+    NPC_DEATHGUARD_SCHNEIDER = 27376,
+    NPC_SENIOR_SCRIVENER_BARRIGA = 27378,
+    NPC_ENGINEER_BURKE = 27379,
+    NPC_CHANCELLOR_AMAI = 27381,
+    QUEST_NO_MERCY_FOR_THE_CAPTURED = 12245,
+};
+
+#define GOSSIP_PRISIONEROS "What do you mean my time has come? I'll kill you where you stand!"
+
+class npc_no_mercy_for_the_captured : public CreatureScript
+{
+public:
+    npc_no_mercy_for_the_captured() : CreatureScript("npc_no_mercy_for_the_captured") { }
+
+    struct npc_no_mercy_for_the_capturedAI : public ScriptedAI
+    {
+        npc_no_mercy_for_the_capturedAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+        }
+
+        void Reset()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+            me->RestoreFaction();
+        }
+    };
+
+    CreatureAI *GetAI(Creature* creature) const
+    {
+        return new npc_no_mercy_for_the_capturedAI(creature);
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (player->GetQuestStatus(QUEST_NO_MERCY_FOR_THE_CAPTURED) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PRISIONEROS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->setFaction(14);
+            creature->AI()->AttackStart(player);
+        }
+
+        return true;
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
+	new npc_no_mercy_for_the_captured;
 }
