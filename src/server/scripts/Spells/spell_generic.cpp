@@ -1689,14 +1689,24 @@ public:
                         caster->CastSpell(target, spellId, false);
                     break;
                 case EFFECT_1: // On damaging spells, for removing the a defend layer
+                    uint32 defendSpellId = 0;
+
                     Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                     {
                         Aura* aura = itr->second->GetBase();
                         SpellInfo const* auraInfo = aura->GetSpellInfo();
                         if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                        {
+                            defendSpellId = aura->GetId();
                             aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                            break;
+                        }
                     }
+                    // Remove dummys from rider (Necessary for updating visual shields)
+                    if (Unit* rider = target->GetCharmer())
+                        if (Aura* defend = rider->GetAura(defendSpellId))
+                            defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                     break;
             }
         }
@@ -1764,6 +1774,10 @@ public:
                             return;
                     }
 
+                    // If target isn't a training dummy there's a chance of failing the charge
+                    if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && urand(0,7) == 0)
+                        spellId = SPELL_CHARGE_MISS_EFFECT;
+
                     if (Unit* vehicle = caster->GetVehicleBase())
                         vehicle->CastSpell(target, spellId, false);
                     else
@@ -1771,14 +1785,24 @@ public:
                     break;
                 case EFFECT_1: // On damaging spells, for removing the a defend layer
                 case EFFECT_2:
+                    uint32 defendSpellId = 0;
+
                     Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                     {
                         Aura* aura = itr->second->GetBase();
                         SpellInfo const* auraInfo = aura->GetSpellInfo();
                         if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                        {
+                            defendSpellId = aura->GetId();
                             aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                            break;
+                        }
                     }
+                    // Remove dummys from rider (Necessary for updating visual shields)
+                    if (Unit* rider = target->GetCharmer())
+                        if (Aura* defend = rider->GetAura(defendSpellId))
+                            defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                     break;
             }
         }
@@ -1809,10 +1833,6 @@ public:
                 default:
                     return;
             }
-
-            // If target isn't a training dummy there's a chance of failing the charge
-            if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && urand(0,7) == 0)
-                spellId = SPELL_CHARGE_MISS_EFFECT;
 
             if (Unit* rider = caster->GetCharmer())
                 rider->CastSpell(target, spellId, false);
@@ -1865,7 +1885,7 @@ class spell_gen_defend : public SpellScriptLoader
                 return true;
             }
 
-            void RefreshVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void RefreshVisualShields(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();
@@ -1882,7 +1902,7 @@ class spell_gen_defend : public SpellScriptLoader
                 for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
                     target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
 
-                target->CastSpell(target, SPELL_VISUAL_SHIELD_1 + GetAura()->GetStackAmount() - 1);
+                target->CastSpell(target, SPELL_VISUAL_SHIELD_1 + GetAura()->GetStackAmount() - 1, true, NULL, aurEff);
             }
 
             void RemoveVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1913,7 +1933,7 @@ class spell_gen_defend : public SpellScriptLoader
                 if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
                 {
                     AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
                 }
 
                 // Remove Defend spell from player when he dismounts
@@ -1924,7 +1944,7 @@ class spell_gen_defend : public SpellScriptLoader
                 if (spell->Effects[EFFECT_1].ApplyAuraName == SPELL_AURA_DUMMY)
                 {
                     AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
                 }
             }
         };
@@ -2021,6 +2041,12 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
             SpellCastResult CheckIfLanceEquiped()
             {
                 Unit* caster = GetCaster();
+
+                if (caster->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_MOUNT_WITH_SHAPESHIFT);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
 
                 if (!caster->HasAura(SPELL_LANCE_EQUIPPED))
                 {
@@ -2152,7 +2178,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
             bool Load()
             {
                 _pennantSpellId = 0;
-                return (GetCaster()->GetTypeId() == TYPEID_PLAYER);
+                return (GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER);
             }
 
             void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2836,7 +2862,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_luck_of_the_draw();
     new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
     new spell_gen_dalaran_disguise("spell_gen_silver_covenant_disguise");
-    new spell_gen_mounted_charge();
+    new spell_gen_break_shield();
+	new spell_gen_mounted_charge();
     new spell_gen_defend();
     new spell_gen_tournament_duel();
     new spell_gen_summon_tournament_mount();

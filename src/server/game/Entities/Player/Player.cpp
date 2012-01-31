@@ -13071,7 +13071,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             if (IsBankPos(src))
                 ItemAddedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
         }
-        else if (IsBankPos (dst))
+        else if (IsBankPos(dst))
         {
             ItemPosCountVec dest;
             InventoryResult msg = CanBankItem(dstbag, dstslot, dest, pSrcItem, false);
@@ -13085,7 +13085,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             BankItem(dest, pSrcItem, true);
             ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
         }
-        else if (IsEquipmentPos (dst))
+        else if (IsEquipmentPos(dst))
         {
             uint16 dest;
             InventoryResult msg = CanEquipItem(dstslot, dest, pSrcItem, false);
@@ -13099,8 +13099,11 @@ void Player::SwapItem(uint16 src, uint16 dst)
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
         }
-
+		
+   //! Make sure that code below only is executed when trading
+       if (!GetTradeData())
         return;
+
     }
 
     // attempt merge to / fill target item

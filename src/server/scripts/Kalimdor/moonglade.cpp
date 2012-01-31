@@ -578,6 +578,8 @@ public:
 
 enum Omen
 {
+    NPC_OMEN = 15467,
+
     SPELL_OMEN_CLEAVE = 15284,
     SPELL_OMEN_STARFALL = 26540,
     SPELL_OMEN_SUMMON_SPOTLIGHT = 26392,
@@ -589,8 +591,6 @@ enum Omen
     EVENT_CAST_CLEAVE = 1,
     EVENT_CAST_STARFALL = 2,
     EVENT_DESPAWN = 3,
-
-    DESPAWN_TIME = 5*MINUTE*IN_MILLISECONDS,
 };
 
 class npc_omen : public CreatureScript
@@ -600,20 +600,13 @@ public:
 
     struct npc_omenAI : public ScriptedAI
     {
-        npc_omenAI(Creature* creature) : ScriptedAI(creature) {}
-
-        EventMap events;
-
-        void Reset()
+        npc_omenAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
         }
 
-        void EnterEvadeMode()
-        {
-            me->DespawnOrUnsummon();
-        }
+        EventMap events;
 
         void MovementInform(uint32 type, uint32 pointId)
         {
@@ -666,7 +659,8 @@ public:
                     events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(8000, 10000));
                     break;
                 case EVENT_CAST_STARFALL:
-                    DoCast(SPELL_OMEN_STARFALL);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_OMEN_STARFALL);
                     events.ScheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
                     break;
             }
@@ -695,24 +689,25 @@ public:
         void Reset()
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_DESPAWN, DESPAWN_TIME);
+            events.ScheduleEvent(EVENT_DESPAWN, 5*MINUTE*IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 diff)
         {
             events.Update(diff);
 
-            switch (events.ExecuteEvent())
+            if (events.ExecuteEvent() == EVENT_DESPAWN)
             {
-                case EVENT_DESPAWN:
-                    if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_1, 5.0f))
-                        trap->RemoveFromWorld();
+                if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_1, 5.0f))
+                    trap->RemoveFromWorld();
 
-                    if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_2, 5.0f))
-                        trap->RemoveFromWorld();
+                if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_2, 5.0f))
+                    trap->RemoveFromWorld();
 
-                    me->DespawnOrUnsummon();
-                    break;
+                if (Creature* omen = me->FindNearestCreature(NPC_OMEN, 5.0f, false))
+                    omen->DespawnOrUnsummon();
+
+                me->DespawnOrUnsummon();
             }
         }
     };
