@@ -352,6 +352,16 @@ public:
     }
 };
 
+enum ArgentTournamentAreas
+{
+    AREA_ARGENT_TOURNAMENT_FIELDS = 4658,
+    AREA_RING_OF_ASPIRANTS = 4670,
+    AREA_RING_OF_ARGENT_VALIANTS = 4671,
+    AREA_RING_OF_ALLIANCE_VALIANTS = 4672,
+    AREA_RING_OF_HORDE_VALIANTS = 4673,
+    AREA_RING_OF_CHAMPIONS = 4669,
+};
+
 class achievement_tilted : public AchievementCriteriaScript
 {
     public:
@@ -359,7 +369,14 @@ class achievement_tilted : public AchievementCriteriaScript
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
-            return player && player->duel && player->duel->isMounted;
+            bool checkArea = player->GetAreaId() == AREA_ARGENT_TOURNAMENT_FIELDS ||
+                                player->GetAreaId() == AREA_RING_OF_ASPIRANTS ||
+                                player->GetAreaId() == AREA_RING_OF_ARGENT_VALIANTS ||
+                                player->GetAreaId() == AREA_RING_OF_ALLIANCE_VALIANTS ||
+                                player->GetAreaId() == AREA_RING_OF_HORDE_VALIANTS ||
+                                player->GetAreaId() == AREA_RING_OF_CHAMPIONS;
+
+            return player && checkArea && player->duel && player->duel->isMounted;
         }
 };
 
