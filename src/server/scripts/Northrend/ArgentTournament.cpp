@@ -858,148 +858,160 @@ public:
 };
 
 /*######
-* npc_training_dummy_argent
+* npc_tournament_training_dummy
 ######*/
-// UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33229;
-// UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33272;
-// UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33243;
-enum eTrainingdummy
+enum TournamentDummy
 {
-	CREDIT_RANGE               = 33339,
-	CREDIT_CHARGE              = 33340,
-	CREDIT_MELEE               = 33341,
-	NPC_MELEE                  = 33229,
-	NPC_CHARGE                 = 33272,
-	NPC_RANGE                  = 33243,
-	SPELL_ARGENT_MELEE         = 62544,
-	SPELL_ARGENT_CHARGE        = 68321,
-	SPELL_ARGENT_BREAK_SHIELD  = 62626,  // spell goes't work
-	SPELL_DEFEND_AURA          = 62719,  // it's spell spam in console
-	SPELL_DEFEND_AURA_1        = 64100,  // it's spell spam in console
-	NPC_ADVANCED_TARGET_DUMMY  = 2674,
-	NPC_TARGET_DUMMY           = 2673
+    NPC_CHARGE_TARGET = 33272,
+    NPC_MELEE_TARGET = 33229,
+    NPC_RANGED_TARGET = 33243,
+
+    SPELL_CHARGE_CREDIT = 62658,
+    SPELL_MELEE_CREDIT = 62672,
+    SPELL_RANGED_CREDIT = 62673,
+
+    SPELL_PLAYER_THRUST = 62544,
+    SPELL_PLAYER_BREAK_SHIELD = 62626,
+    SPELL_PLAYER_CHARGE = 62874,
+
+    SPELL_RANGED_DEFEND = 62719,
+    SPELL_CHARGE_DEFEND = 64100,
+    SPELL_VULNERABLE = 62665,
+
+    SPELL_COUNTERATTACK = 62709,
+
+    EVENT_DUMMY_RECAST_DEFEND = 1,
+    EVENT_DUMMY_RESET = 2,
 };
 
-class npc_training_dummy_argent : public CreatureScript
+class npc_tournament_training_dummy : public CreatureScript
 {
-public:
-	npc_training_dummy_argent(): CreatureScript("npc_training_dummy_argent"){}
-		
-	struct npc_training_dummy_argentAI : Scripted_NoMovementAI
-	{
-	    npc_training_dummy_argentAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
-	    {
-			Npc_Entry = pCreature->GetEntry();
-	    }
+    public:
+        npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy"){}
 
-			uint64 Npc_Entry;
-			uint32 ResetTimer;
-			uint32 DespawnTimer;
-			uint32 ShielTimer;
-	    void Reset()
-	    {
-			me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
-			me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
-			me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
-			ResetTimer = 5000;
-			DespawnTimer = 15000;
-			ShielTimer=0;
-	    }
+        struct npc_tournament_training_dummyAI : Scripted_NoMovementAI
+        {
+            npc_tournament_training_dummyAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
-	    void EnterEvadeMode()
-	    {
-			if (!_EnterEvadeMode())
-				return;
-			Reset();
-	    }
+            EventMap events;
+            bool isVulnerable;
 
-	    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
-	    {
-			ResetTimer = 5000;
-			damage = 0;
-	    }
+            void Reset()
+            {
+                me->SetControlled(true, UNIT_STAT_STUNNED);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                isVulnerable = false;
 
-	    void EnterCombat(Unit * /*who*/)
-	    {
-		if (Npc_Entry != NPC_ADVANCED_TARGET_DUMMY && Npc_Entry != NPC_TARGET_DUMMY)
-		    return;
-	    }
+                // Cast Defend spells to max stack size
+                switch (me->GetEntry())
+                {
+                    case NPC_CHARGE_TARGET:
+                        DoCast(SPELL_CHARGE_DEFEND);
+                        break;
+                    case NPC_RANGED_TARGET:
+                        me->CastCustomSpell(SPELL_RANGED_DEFEND, SPELLVALUE_AURA_STACK, 3, me);
+                        break;
+                }
 
-		void SpellHit(Unit* caster,const SpellEntry* spell)
-		{		
-			if(caster->GetCharmerOrOwner())
-			{
-			Player * pPlayer = caster->GetCharmerOrOwner()->ToPlayer();
-			switch (Npc_Entry)
-				{
-					case NPC_MELEE: // dummy melee
-						if (pPlayer && spell->Id == SPELL_ARGENT_MELEE && (pPlayer->GetQuestStatus(13828) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13829) == QUEST_STATUS_INCOMPLETE))
-							caster->GetCharmerOrOwner()->ToPlayer()->KilledMonsterCredit(CREDIT_MELEE, 0);
-								return;
-					case NPC_CHARGE: // dummy charge
-						if (pPlayer && spell->Id == SPELL_ARGENT_CHARGE && (pPlayer->GetQuestStatus(13837) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13839) == QUEST_STATUS_INCOMPLETE))
-							caster->GetCharmerOrOwner()->ToPlayer()->KilledMonsterCredit(CREDIT_CHARGE, 0);
-								return;
-					case NPC_RANGE: // dummy range
-						if (pPlayer && spell->Id == SPELL_ARGENT_BREAK_SHIELD && (pPlayer->GetQuestStatus(13835) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13838) == QUEST_STATUS_INCOMPLETE))
-							caster->GetCharmerOrOwner()->ToPlayer()->KilledMonsterCredit(CREDIT_RANGE, 0);
-								return;
-				}
-			}
-		}
+                events.Reset();
+                events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
+            }
 
-	    void UpdateAI(const uint32 diff)
-	    {
-			if (ShielTimer <= diff)
-			{
-				if(Npc_Entry == NPC_RANGE)
-					me->CastSpell(me,SPELL_DEFEND_AURA,true);
+            void EnterEvadeMode()
+            {
+                if (!_EnterEvadeMode())
+                    return;
 
-			if(Npc_Entry == NPC_CHARGE && !me->GetAura(SPELL_DEFEND_AURA_1))
-						me->CastSpell(me,SPELL_DEFEND_AURA_1,true);
-				ShielTimer = 8000;
-			}
-			else
-				ShielTimer -= diff;
+                Reset();
+            }
 
-		if (!UpdateVictim())
-		    return;
-		if (!me->HasUnitState(UNIT_STAT_STUNNED))
-		    me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
-			
-		if (Npc_Entry != NPC_ADVANCED_TARGET_DUMMY && Npc_Entry != NPC_TARGET_DUMMY)
-		{
-			if (ResetTimer <= diff)
-			{
-				EnterEvadeMode();
-				ResetTimer = 5000;
-			}
-			else
-				ResetTimer -= diff;
-				return;
-			}
-			else
-			{
-			if (DespawnTimer <= diff)
-				me->DespawnOrUnsummon();
-			else
-				DespawnTimer -= diff;
-			}
-	    }
-	    void MoveInLineOfSight(Unit * /*who*/){return;}
-	};
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            {
+                damage = 0;
+                events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
+            }
 
-	CreatureAI* GetAI(Creature* pCreature) const
-	{
-	    return new npc_training_dummy_argentAI(pCreature);
-	}
+            void SpellHit(Unit* caster, SpellInfo const* spell)
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_CHARGE_TARGET:
+                        if (spell->Id == SPELL_PLAYER_CHARGE)
+                            if (isVulnerable)
+                                DoCast(caster, SPELL_CHARGE_CREDIT, true);
+                        break;
+                    case NPC_MELEE_TARGET:
+                        if (spell->Id == SPELL_PLAYER_THRUST)
+                        {
+                            DoCast(caster, SPELL_MELEE_CREDIT, true);
+
+                            if (Unit* target = caster->GetVehicleBase())
+                                DoCast(target, SPELL_COUNTERATTACK, true);
+                        }
+                        break;
+                    case NPC_RANGED_TARGET:
+                        if (spell->Id == SPELL_PLAYER_BREAK_SHIELD)
+                            if (isVulnerable)
+                                DoCast(caster, SPELL_RANGED_CREDIT, true);
+                        break;
+                }
+
+                if (spell->Id == SPELL_PLAYER_BREAK_SHIELD)
+                    if (!me->HasAura(SPELL_CHARGE_DEFEND) && !me->HasAura(SPELL_RANGED_DEFEND))
+                        isVulnerable = true;
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_DUMMY_RECAST_DEFEND:
+                        switch (me->GetEntry())
+                        {
+                            case NPC_CHARGE_TARGET:
+                            {
+                                if (!me->HasAura(SPELL_CHARGE_DEFEND))
+                                    DoCast(SPELL_CHARGE_DEFEND);
+                                break;
+                            }
+                            case NPC_RANGED_TARGET:
+                            {
+                                Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
+                                if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
+                                    DoCast(SPELL_RANGED_DEFEND);
+                                break;
+                            }
+                        }
+                        isVulnerable = false;
+                        events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
+                        break;
+                    case EVENT_DUMMY_RESET:
+                        if (UpdateVictim())
+                        {
+                            EnterEvadeMode();
+                            events.ScheduleEvent(EVENT_DUMMY_RESET, 10000);
+                        }
+                        break;
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                if (!me->HasUnitState(UNIT_STAT_STUNNED))
+                    me->SetControlled(true, UNIT_STAT_STUNNED);
+            }
+
+            void MoveInLineOfSight(Unit* /*who*/){return;}
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_tournament_training_dummyAI(creature);
+        }
 
 };
-
-void AddSC_ArgentTournament()
-{
-    new npc_training_dummy_argent;
-}
 
 /*######
 ## Npc Jeran Lockwood (33973)
@@ -2975,7 +2987,7 @@ void AddSC_Argent_Tournament()
     new npc_crusader_rhydalla;
     new npc_eadric_the_pure;
     new npc_crok_scourgebane_argent;
-    new npc_training_dummy_argent;
+    new npc_tournament_training_dummy;
     new npc_valis_windchaser;
     new npc_rugan_steelbelly;
     new npc_jeran_lockwood;
