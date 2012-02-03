@@ -507,5 +507,5 @@ void AddSC_howling_fjord()
     new npc_razael_and_lyana;
     new npc_mcgoyver;
     new npc_daegarn;
-	new	npc_banner_q11429
+	new	npc_banner_q11429;
  }
