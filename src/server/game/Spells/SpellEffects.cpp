@@ -3720,24 +3720,11 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
     if (unitTarget->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING))
         return;
 
-	float angle = unitTarget->GetAngle(m_targets.GetDst());
-    unitTarget->SetFacingTo(angle);
+    unitTarget->SetFacingTo(unitTarget->GetAngle(m_targets.GetDst()));
     unitTarget->ClearUnitState(UNIT_STATE_MOVING);
 
     if (unitTarget->GetTypeId() == TYPEID_UNIT)
-    {
-        // For players just turn them
-        unitTarget->ToPlayer()->UpdatePosition(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), angle, false);
-        unitTarget->ToPlayer()->SendTeleportAckPacket();
-    }
-    else
-    {
-        // Set creature Distracted, Stop it, And turn it
-        unitTarget->SetOrientation(angle);
-        unitTarget->StopMoving();
         unitTarget->GetMotionMaster()->MoveDistract(damage * IN_MILLISECONDS);
-        unitTarget->SendMovementFlagUpdate();
-    }
 }
 
 void Spell::EffectPickPocket(SpellEffIndex /*effIndex*/)
