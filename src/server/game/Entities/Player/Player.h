@@ -1025,7 +1025,7 @@ class TradeData
 
         Item* GetItem(TradeSlots slot) const;
         bool HasItem(uint64 itemGuid) const;
-        TradeSlots const GetTradeSlotForItem(uint64 itemGuid);
+        TradeSlots GetTradeSlotForItem(uint64 itemGuid) const;
         void SetItem(TradeSlots slot, Item* item);
 
         uint32 GetSpell() const { return m_spell; }
@@ -1827,7 +1827,7 @@ class Player : public Unit, public GridObject<Player>
         void SetContestedPvPTimer(uint32 newTime) {m_contestedPvPTimer = newTime;}
         void ResetContestedPvP()
         {
-            ClearUnitState(UNIT_STAT_ATTACK_PLAYER);
+            ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
             RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP);
             m_contestedPvPTimer = 0;
         }

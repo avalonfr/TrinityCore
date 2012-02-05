@@ -1423,7 +1423,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
 
                 //Any effect which causes you to lose control of your character will supress the starfall effect.
-                if (m_caster->HasUnitState(UNIT_STAT_CONTROLLED))
+                if (m_caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
                 m_caster->CastSpell(unitTarget, damage, true);
@@ -3107,7 +3107,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
         {
             case GAMEOBJECT_TYPE_DOOR:
             case GAMEOBJECT_TYPE_BUTTON:
-                gameObjTarget->UseDoorOrButton();
+                gameObjTarget->UseDoorOrButton(0, false, player);
                 player->GetMap()->ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
                 return;
 
@@ -3450,7 +3450,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     summon->SelectLevel(summon->GetCreatureInfo());       // some summoned creaters have different from 1 DB data for level/hp
                     summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureInfo()->npcflag);
 
-                    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
                     summon->AI()->EnterEvadeMode();
                     break;
@@ -3674,7 +3674,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         // Send dispelled spell info
         dataSuccess << uint32(itr->first->GetId());              // Spell Id
         dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
-        unitTarget->RemoveAurasDueToSpellByDispel(itr->first->GetId(), itr->first->GetCasterGUID(), m_caster, itr->second);
+        unitTarget->RemoveAurasDueToSpellByDispel(itr->first->GetId(), m_spellInfo->Id, itr->first->GetCasterGUID(), m_caster, itr->second);
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
 
@@ -3717,12 +3717,11 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
         return;
 
     // target must be OK to do this
-    if (unitTarget->HasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING))
+    if (unitTarget->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING))
         return;
 
-    float angle = unitTarget->GetAngle(m_targets.GetDst());
-	unitTarget->SetFacingTo(unitTarget->GetAngle(m_targets.GetDst()));
-    unitTarget->ClearUnitState(UNIT_STAT_MOVING);
+    unitTarget->SetFacingTo(unitTarget->GetAngle(m_targets.GetDst()));
+    unitTarget->ClearUnitState(UNIT_STATE_MOVING);
 
     if (unitTarget->GetTypeId() == TYPEID_UNIT)
     {
@@ -6192,7 +6191,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel->opponent   = target;
     duel->startTime  = 0;
     duel->startTimer = 0;
-	duel->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
+    duel->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
     caster->duel     = duel;
 
     DuelInfo* duel2   = new DuelInfo;
@@ -6200,7 +6199,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel2->opponent   = caster;
     duel2->startTime  = 0;
     duel2->startTimer = 0;
-	duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
+    duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
     target->duel      = duel2;
 
     caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
@@ -7019,7 +7018,7 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
     pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
     pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     pet->setDeathState(ALIVE);
-    pet->ClearUnitState(uint32(UNIT_STAT_ALL_STATE));
+    pet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
     pet->SetHealth(pet->CountPctFromMaxHealth(damage));
 
     //pet->AIM_Initialize();

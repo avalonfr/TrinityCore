@@ -343,7 +343,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     }
 
     if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK1))
-        unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+        unit->AddUnitState(UNIT_STATE_ONVEHICLE);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = seat->second.SeatInfo;
@@ -360,13 +360,12 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     {
         if (!_me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             ASSERT(false);
-        unit->ToPlayer()->SetMover(this->GetBase());
     }
 
     if (_me->IsInWorld())
     {
         unit->SendClearTarget();                                // SMSG_BREAK_TARGET
-        unit->SetControlled(true, UNIT_STAT_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
+        unit->SetControlled(true, UNIT_STATE_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
                                                                 // also adds MOVEMENTFLAG_ROOT
         unit->SendMonsterMoveTransport(_me);                     // SMSG_MONSTER_MOVE_TRANSPORT
 
@@ -409,13 +408,10 @@ void Vehicle::RemovePassenger(Unit* unit)
         ++_usableSeatNum;
     }
 
-    unit->ClearUnitState(UNIT_STAT_ONVEHICLE);
+    unit->ClearUnitState(UNIT_STATE_ONVEHICLE);
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
-    {
         _me->RemoveCharmedBy(unit);
-        unit->ToPlayer()->SetMover(unit->ToPlayer());
-    }
 
     if (_me->IsInWorld())
     {

@@ -40,6 +40,7 @@ npc_sayge               100%    Darkmoon event fortune teller, buff player based
 npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
 npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
 npc_locksmith            75%    list of keys needs to be confirmed
+npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -1737,6 +1738,12 @@ public:
             if (!UpdateVictim())
                 return;
 
+            if (me->getVictim()->HasBreakableByDamageCrowdControlAura())
+            {
+                me->InterruptNonMeleeSpells(false);
+                return;
+            }
+
             if (SpellTimer <= diff)
             {
                 if (IsViper) //Viper
@@ -1989,7 +1996,7 @@ public:
             Unit* owner = me->GetCharmerOrOwner();
 
             me->CombatStop(true);
-            if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW))
+            if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
             {
                 me->GetMotionMaster()->Clear(false);
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
@@ -2148,7 +2155,7 @@ public:
 
         void Reset()
         {
-            me->SetControlled(true, UNIT_STAT_STUNNED);//disable rotate
+            me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 
             ResetTimer = 5000;
@@ -2180,8 +2187,8 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!me->HasUnitState(UNIT_STAT_STUNNED))
-                me->SetControlled(true, UNIT_STAT_STUNNED);//disable rotate
+            if (!me->HasUnitState(UNIT_STATE_STUNNED))
+                me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
 
             if (Entry != NPC_ADVANCED_TARGET_DUMMY && Entry != NPC_TARGET_DUMMY)
             {
@@ -2282,7 +2289,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (FireShield_Timer <= diff)
@@ -4558,59 +4565,59 @@ class npc_lonely_turkey : public CreatureScript
 
 enum Fireworks
 {
-    NPC_OMEN = 15467,
-    NPC_MINION_OF_OMEN = 15466,
-    NPC_FIREWORK_BLUE = 15879,
-    NPC_FIREWORK_GREEN = 15880,
-    NPC_FIREWORK_PURPLE = 15881,
-    NPC_FIREWORK_RED = 15882,
-    NPC_FIREWORK_YELLOW = 15883,
-    NPC_FIREWORK_WHITE = 15884,
-    NPC_FIREWORK_BIG_BLUE = 15885,
-    NPC_FIREWORK_BIG_GREEN = 15886,
+    NPC_OMEN                = 15467,
+    NPC_MINION_OF_OMEN      = 15466,
+    NPC_FIREWORK_BLUE       = 15879,
+    NPC_FIREWORK_GREEN      = 15880,
+    NPC_FIREWORK_PURPLE     = 15881,
+    NPC_FIREWORK_RED        = 15882,
+    NPC_FIREWORK_YELLOW     = 15883,
+    NPC_FIREWORK_WHITE      = 15884,
+    NPC_FIREWORK_BIG_BLUE   = 15885,
+    NPC_FIREWORK_BIG_GREEN  = 15886,
     NPC_FIREWORK_BIG_PURPLE = 15887,
-    NPC_FIREWORK_BIG_RED = 15888,
+    NPC_FIREWORK_BIG_RED    = 15888,
     NPC_FIREWORK_BIG_YELLOW = 15889,
-    NPC_FIREWORK_BIG_WHITE = 15890,
+    NPC_FIREWORK_BIG_WHITE  = 15890,
 
-    NPC_CLUSTER_BLUE = 15872,
-    NPC_CLUSTER_RED = 15873,
-    NPC_CLUSTER_GREEN = 15874,
-    NPC_CLUSTER_PURPLE = 15875,
-    NPC_CLUSTER_WHITE = 15876,
-    NPC_CLUSTER_YELLOW = 15877,
-    NPC_CLUSTER_BIG_BLUE = 15911,
-    NPC_CLUSTER_BIG_GREEN = 15912,
-    NPC_CLUSTER_BIG_PURPLE = 15913,
-    NPC_CLUSTER_BIG_RED = 15914,
-    NPC_CLUSTER_BIG_WHITE = 15915,
-    NPC_CLUSTER_BIG_YELLOW = 15916,
-    NPC_CLUSTER_ELUNE = 15918,
+    NPC_CLUSTER_BLUE        = 15872,
+    NPC_CLUSTER_RED         = 15873,
+    NPC_CLUSTER_GREEN       = 15874,
+    NPC_CLUSTER_PURPLE      = 15875,
+    NPC_CLUSTER_WHITE       = 15876,
+    NPC_CLUSTER_YELLOW      = 15877,
+    NPC_CLUSTER_BIG_BLUE    = 15911,
+    NPC_CLUSTER_BIG_GREEN   = 15912,
+    NPC_CLUSTER_BIG_PURPLE  = 15913,
+    NPC_CLUSTER_BIG_RED     = 15914,
+    NPC_CLUSTER_BIG_WHITE   = 15915,
+    NPC_CLUSTER_BIG_YELLOW  = 15916,
+    NPC_CLUSTER_ELUNE       = 15918,
 
-    GO_FIREWORK_LAUNCHER_1 = 180771,
-    GO_FIREWORK_LAUNCHER_2 = 180868,
-    GO_FIREWORK_LAUNCHER_3 = 180850,
-    GO_CLUSTER_LAUNCHER_1 = 180772,
-    GO_CLUSTER_LAUNCHER_2 = 180859,
-    GO_CLUSTER_LAUNCHER_3 = 180869,
-    GO_CLUSTER_LAUNCHER_4 = 180874,
+    GO_FIREWORK_LAUNCHER_1  = 180771,
+    GO_FIREWORK_LAUNCHER_2  = 180868,
+    GO_FIREWORK_LAUNCHER_3  = 180850,
+    GO_CLUSTER_LAUNCHER_1   = 180772,
+    GO_CLUSTER_LAUNCHER_2   = 180859,
+    GO_CLUSTER_LAUNCHER_3   = 180869,
+    GO_CLUSTER_LAUNCHER_4   = 180874,
 
-    SPELL_ROCKET_BLUE = 26344,
-    SPELL_ROCKET_GREEN = 26345,
-    SPELL_ROCKET_PURPLE = 26346,
-    SPELL_ROCKET_RED = 26347,
-    SPELL_ROCKET_WHITE = 26348,
-    SPELL_ROCKET_YELLOW = 26349,
-    SPELL_ROCKET_BIG_BLUE = 26351,
-    SPELL_ROCKET_BIG_GREEN = 26352,
+    SPELL_ROCKET_BLUE       = 26344,
+    SPELL_ROCKET_GREEN      = 26345,
+    SPELL_ROCKET_PURPLE     = 26346,
+    SPELL_ROCKET_RED        = 26347,
+    SPELL_ROCKET_WHITE      = 26348,
+    SPELL_ROCKET_YELLOW     = 26349,
+    SPELL_ROCKET_BIG_BLUE   = 26351,
+    SPELL_ROCKET_BIG_GREEN  = 26352,
     SPELL_ROCKET_BIG_PURPLE = 26353,
-    SPELL_ROCKET_BIG_RED = 26354,
-    SPELL_ROCKET_BIG_WHITE = 26355,
+    SPELL_ROCKET_BIG_RED    = 26354,
+    SPELL_ROCKET_BIG_WHITE  = 26355,
     SPELL_ROCKET_BIG_YELLOW = 26356,
-    SPELL_LUNAR_FORTUNE = 26522,
+    SPELL_LUNAR_FORTUNE     = 26522,
 
     ANIM_GO_LAUNCH_FIREWORK = 3,
-    ZONE_MOONGLADE = 493,
+    ZONE_MOONGLADE          = 493,
 };
 
 Position omenSummonPos = {7558.993f, -2839.999f, 450.0214f, 4.46f};

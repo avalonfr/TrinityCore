@@ -273,6 +273,13 @@ public:
             }
             currentPhase = move;
         }
+
+        void JustReachedHome()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            DoCast(me, SPELL_FREEZE);
+        }
     };
 
 };
@@ -378,6 +385,13 @@ public:
                     CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
         }
+
+        void JustReachedHome()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            DoCast(me, SPELL_FREEZE);
+        }
     };
 
 };
@@ -470,6 +484,13 @@ public:
                 if (pPalehoof)
                     CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
+        }
+
+        void JustReachedHome()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            DoCast(me, SPELL_FREEZE);
         }
     };
 
@@ -566,6 +587,14 @@ public:
                     CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
         }
+		
+        void JustReachedHome()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            DoCast(me, SPELL_FREEZE);
+        }
+
     };
 
 };
@@ -674,6 +703,13 @@ public:
                     CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
         }
+
+        void JustReachedHome()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            DoCast(me, SPELL_FREEZE);
+        }
     };
 
 };
@@ -752,11 +788,11 @@ public:
                    if (pNext)
                    {
                         pNext->RemoveAurasDueToSpell(SPELL_FREEZE);
-                        pNext->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                        ((Unit*)pNext)->SetStandState(UNIT_STAND_STATE_STAND);
-                        pNext->SetReactState(REACT_AGGRESSIVE);
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            pNext->AI()->AttackStart(pTarget);
+                        pNext->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+                        pNext->SetStandState(UNIT_STAND_STATE_STAND);
+                        pNext->SetInCombatWithZone();
+                        pNext->Attack(pNext->SelectNearestTarget(100), true);
+
                    }
                    currentPhase=PHASE_NONE;
                 }

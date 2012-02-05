@@ -578,19 +578,19 @@ public:
 
 enum Omen
 {
-    NPC_OMEN = 15467,
+    NPC_OMEN                    = 15467,
 
-    SPELL_OMEN_CLEAVE = 15284,
-    SPELL_OMEN_STARFALL = 26540,
+    SPELL_OMEN_CLEAVE           = 15284,
+    SPELL_OMEN_STARFALL         = 26540,
     SPELL_OMEN_SUMMON_SPOTLIGHT = 26392,
-    SPELL_ELUNE_CANDLE = 26374,
+    SPELL_ELUNE_CANDLE          = 26374,
 
-    GO_ELUNE_TRAP_1 = 180876,
-    GO_ELUNE_TRAP_2 = 180877,
+    GO_ELUNE_TRAP_1             = 180876,
+    GO_ELUNE_TRAP_2             = 180877,
 
-    EVENT_CAST_CLEAVE = 1,
-    EVENT_CAST_STARFALL = 2,
-    EVENT_DESPAWN = 3,
+    EVENT_CAST_CLEAVE           = 1,
+    EVENT_CAST_STARFALL         = 2,
+    EVENT_DESPAWN               = 3,
 };
 
 class npc_omen : public CreatureScript
@@ -602,7 +602,7 @@ public:
     {
         npc_omenAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
         }
 
@@ -616,7 +616,7 @@ public:
             if (pointId == 1)
             {
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 if (Player* player = me->SelectNearestPlayer(40.0f))
                     AttackStart(player);
             }
