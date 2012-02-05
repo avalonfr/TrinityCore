@@ -435,7 +435,7 @@ if (pSpell->Id == SPELL_ELECTROSHOCK)
 
             events.Update(diff);
             
-            if (me->HasUnitState(UNIT_STAT_CASTING) || me->HasAura(SPELL_SYSTEMS_SHUTDOWN))
+            if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_SYSTEMS_SHUTDOWN))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -507,7 +507,7 @@ if (pSpell->Id == SPELL_ELECTROSHOCK)
                         me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
                         me->AddAura(SPELL_SYSTEMS_SHUTDOWN, me);
                         me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-                        me->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                        me->AddUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                         me->SetReactState(REACT_PASSIVE);
                         me->StopMoving();
                         events.CancelEvent(EVENT_SHUTDOWN);
@@ -515,7 +515,7 @@ if (pSpell->Id == SPELL_ELECTROSHOCK)
                     case EVENT_REPAIR:
                         me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
                         InstallAdds(true);
-                        me->ClearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                        me->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.CancelEvent(EVENT_REPAIR);
                         break;

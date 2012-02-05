@@ -348,7 +348,7 @@ public:
             events.Update(diff);
             EncounterTime += diff;
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
             
             if (phase == PHASE_1)
@@ -554,7 +554,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
             
             if (PrimaryTimer <= diff)
@@ -656,7 +656,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
             
             if (PrimaryTimer <= diff && SPELL_ARENA_PRIMARY(id))
@@ -755,7 +755,7 @@ public:
             if (!me->IsWithinMeleeRange(me->getVictim()))
                 DoCast(me, SPELL_SMASH);
     
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
             
             if (BarrierTimer <= diff)
@@ -850,7 +850,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
             
             if (StompTimer <= diff)
@@ -909,7 +909,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
             
             if (FrostTimer <= diff)

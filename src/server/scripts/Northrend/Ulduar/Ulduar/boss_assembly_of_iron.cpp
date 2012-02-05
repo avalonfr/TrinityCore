@@ -782,7 +782,7 @@ public:
             
             events.Update(diff);
         
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -803,7 +803,7 @@ public:
                         events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(4000, 6000));
                         break;
                     case EVENT_OVERLOAD:
-                        if (!me->HasUnitState(UNIT_STAT_STUNNED))
+                        if (!me->HasUnitState(UNIT_STATE_STUNNED))
                                 me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
                         DoScriptText(SAY_BRUNDIR_SPECIAL, me);
                         me->GetMotionMaster()->Initialize();

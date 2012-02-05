@@ -107,7 +107,7 @@ public:
             if (!UpdateVictim())
                 return;
             
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
   
             if (Spell_FrostBreath_Timer <= diff)
@@ -131,7 +131,7 @@ public:
                     Bombardier1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Bombardier1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     Bombardier1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
-                    Bombardier1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);*/
+                    Bombardier1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);*/
                 }
                 Pasajero_1 = true;
             }
@@ -144,7 +144,7 @@ public:
                     Bombardier2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Bombardier2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     Bombardier2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
-                    Bombardier2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    Bombardier2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 }
                 Pasajero_2 = true;
             }
@@ -157,7 +157,7 @@ public:
                     Bombardier3->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);                    
                     Bombardier3->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     Bombardier3->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
-                    Bombardier3->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    Bombardier3->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 }
                 Pasajero_3 = true;
             }
@@ -512,7 +512,7 @@ public:
 
         void DoMeleeAttackIfReady()
         {
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (me->isAttackReady())
@@ -898,7 +898,7 @@ class npc_tournament_training_dummy : public CreatureScript
 
             void Reset()
             {
-                me->SetControlled(true, UNIT_STAT_STUNNED);
+                me->SetControlled(true, UNIT_STATE_STUNNED);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 isVulnerable = false;
 
@@ -999,8 +999,8 @@ class npc_tournament_training_dummy : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (!me->HasUnitState(UNIT_STAT_STUNNED))
-                    me->SetControlled(true, UNIT_STAT_STUNNED);
+                if (!me->HasUnitState(UNIT_STATE_STUNNED))
+                    me->SetControlled(true, UNIT_STATE_STUNNED);
             }
 
             void MoveInLineOfSight(Unit* /*who*/){return;}

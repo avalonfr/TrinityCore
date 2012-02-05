@@ -253,7 +253,7 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
             
             if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
@@ -316,13 +316,13 @@ public:
                         if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_1, true);
-                            EyeBeam->ClearUnitState(UNIT_STAT_CASTING);
+                            EyeBeam->ClearUnitState(UNIT_STATE_CASTING);
                             EyeBeam->AI()->AttackStart(pTarget);
                         }
                         if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_2,pTarget->GetPositionX(),pTarget->GetPositionY()-3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_2, true);
-                            EyeBeam->ClearUnitState(UNIT_STAT_CASTING);
+                            EyeBeam->ClearUnitState(UNIT_STATE_CASTING);
                             EyeBeam->AI()->AttackStart(pTarget);
                         }
                     }

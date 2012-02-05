@@ -400,7 +400,7 @@ public:
             if (events.GetTimer() > 360000)
                 events.CancelEvent(EVENT_SUMMON_ALLIES);
             
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while(uint32 eventId = events.ExecuteEvent())
@@ -870,7 +870,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (uiGroundTremorTimer <= diff)
@@ -1094,7 +1094,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || (me->HasUnitState(UNIT_STAT_CASTING)))
+            if (!UpdateVictim() || (me->HasUnitState(UNIT_STATE_CASTING)))
                 return;
 
             if (uiNaturesFuryTimer <= diff)
@@ -1203,7 +1203,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || (me->HasUnitState(UNIT_STAT_CASTING)))
+            if (!UpdateVictim() || (me->HasUnitState(UNIT_STATE_CASTING)))
                 return;
             
             if (uiLightningLashTimer <= diff)

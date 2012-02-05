@@ -157,7 +157,7 @@ class boss_black_knight : public CreatureScript
                 _summons.DespawnAll();
 
                 me->SetDisplayId(me->GetNativeDisplayId());
-                me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
 
                 isResurrecting = false;
                 isSummoningArmy = false;
@@ -193,7 +193,7 @@ class boss_black_knight : public CreatureScript
 
             void EnterEvadeMode()
             {
-                me->ClearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                me->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                 ScriptedAI::EnterEvadeMode();
             }
 
@@ -235,7 +235,7 @@ class boss_black_knight : public CreatureScript
                 {
                     damage = 0;
                     me->SetHealth(0);
-                    me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                    me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
 
                     _summons.DoAction(NPC_RISEN_CHAMPION, 1);
                     _summons.DoAction(NPC_RISEN_BRIGHTSTAR, 1);
@@ -294,13 +294,13 @@ class boss_black_knight : public CreatureScript
                         ++phase;
                         resurrectTimer = 4000;
                         isResurrecting = false;
-                        me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                        me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                     }
                     else
                         resurrectTimer -= diff;
                 }
 
-                if (me->HasUnitState(UNIT_STAT_CASTING) || isResurrecting)
+                if (me->HasUnitState(UNIT_STATE_CASTING) || isResurrecting)
                     return;
 
                 switch (phase)
@@ -351,7 +351,7 @@ class boss_black_knight : public CreatureScript
                                 if (!isSummoningArmy)
                                 {
                                     isSummoningArmy = true;
-                                    me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                    me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                                     DoCast(me, SPELL_ARMY_DEAD);
                                 }
 
@@ -359,7 +359,7 @@ class boss_black_knight : public CreatureScript
                                 {
                                     if (deathArmyCheckTimer <= diff)
                                     {
-                                        me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                        me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                                         deathArmyCheckTimer = 0;
                                         ghoulExplodeTimer = urand(3000, 5000);
                                         isDeathArmySummoned = true;
@@ -412,7 +412,7 @@ class boss_black_knight : public CreatureScript
                     }
                 }
 
-                if (!me->HasUnitState(UNIT_STAT_STUNNED))
+                if (!me->HasUnitState(UNIT_STATE_STUNNED))
                     DoMeleeAttackIfReady();
             }
         };
@@ -475,7 +475,7 @@ class npc_risen_ghoul : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
