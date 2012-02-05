@@ -83,12 +83,12 @@ void LFGMgr::_LoadFromDB(Field* fields, uint64 guid)
     uint32 dungeon = fields[16].GetUInt32();
 
     uint8 state = fields[17].GetUInt8();
-    
+
     if (!dungeon || !state)
         return;
 
     SetDungeon(guid, dungeon);
-    
+
     switch (state)
     {
         case LFG_STATE_DUNGEON:
@@ -104,19 +104,19 @@ void LFGMgr::_SaveToDB(uint64 guid, uint32 db_guid)
 {
     if (!IS_GROUP(guid))
         return;
-        
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
 
     stmt->setUInt32(0, db_guid);
 
     CharacterDatabase.Execute(stmt);
-    
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LFG_DATA);
     stmt->setUInt32(0, db_guid);
-    
+
     stmt->setUInt32(1, GetDungeon(guid));
     stmt->setUInt32(2, GetState(guid));
-        
+
     CharacterDatabase.Execute(stmt);
 }
 
@@ -414,7 +414,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
     uint64 guid = player->GetGUID();
     uint8 level = player->getLevel();
     uint8 expansion = player->GetSession()->Expansion();
-	float averageItemLevel = player->GetAverageItemLevel();
+    float averageItemLevel = player->GetAverageItemLevel();
     LfgDungeonSet dungeons = GetDungeonsByRandom(0);
     LfgLockMap lock;
 
@@ -457,15 +457,14 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
                 else if (ar->item2 && !player->HasItemCount(ar->item2, 1))
                     locktype = LFG_LOCKSTATUS_MISSING_ITEM;
         }
-		
-   /* TODO VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
+        /* TODO VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
             locktype = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
             locktype = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
             locktype = LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
             locktype = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
             locktype = LFG_LOCKSTATUS_NOT_IN_SEASON; // Need list of instances and needed season to open
         */
-		
+
         float requiredItemLevel = 0.0f;
         if (dungeon->expansion == 2 && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
             requiredItemLevel = 160.0f;
@@ -491,7 +490,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
         if (averageItemLevel < requiredItemLevel)
             locktype = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
 
-		if (locktype != LFG_LOCKSTATUS_OK)
+        if (locktype != LFG_LOCKSTATUS_OK)
             lock[dungeon->Entry()] = locktype;
     }
     SetLockedDungeons(guid, lock);
@@ -1026,7 +1025,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
                 LfgQueueInfo* queue = itQueue->second;
                 if (!queue)
                     continue;
-        
+
                 for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
                 {
                     if (*itPlayers == ObjectAccessor::FindPlayer(itPlayer->first))
@@ -1729,7 +1728,7 @@ void LFGMgr::UpdateBoot(Player* player, bool accept)
         }
     }
 
-    if (agreeNum == pBoot->votedNeeded ||                  // Vote passed
+    if (agreeNum >= pBoot->votedNeeded ||                  // Vote passed
         votesNum == pBoot->votes.size() ||                 // All voted but not passed
         (pBoot->votes.size() - votesNum + agreeNum) < pBoot->votedNeeded) // Vote didnt passed
     {
@@ -1748,7 +1747,7 @@ void LFGMgr::UpdateBoot(Player* player, bool accept)
 
         uint64 gguid = grp->GetGUID();
         SetState(gguid, LFG_STATE_DUNGEON);
-        if (agreeNum == pBoot->votedNeeded)                // Vote passed - Kick player
+        if (agreeNum >= pBoot->votedNeeded)                // Vote passed - Kick player
         {
             Player::RemoveFromGroup(grp, pBoot->victim);
             if (Player* victim = ObjectAccessor::FindPlayer(pBoot->victim))
@@ -1839,6 +1838,89 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
                     z = at->target_Z;
                     orientation = at->target_Orientation;
                 }
+
+                // FIXME
+                switch (dungeon->ID)
+                {
+                    // world events
+                    case 285: // The Headless Horseman
+                        mapid = 189;
+                        x = 1793.837f;
+                        y = 1347.15f;
+                        z = 20.38f;
+                        orientation = 3.17f;
+                        break;
+                    case 286: // The Frost Lord Ahune
+                        break;
+                    case 287: // Coren Direbrew
+                        mapid = 230;
+                        x = 907.299f;
+                        y = -156.689f;
+                        z = -47.75f;
+                        orientation = 2.108f;
+                        break;
+                    case 288: // The Crown Chemical Co.
+                        mapid = 33;
+                        x = -234.948f;
+                        y = 2149.66f;
+                        z = 91.53f;
+                        orientation = 2.29f;
+                        break;
+                    // normal dungeons
+                    case 14: // Gnomeregan
+                        mapid = 90;
+                        x = -332.22f;
+                        y = -2.28f;
+                        z = -150.86f;
+                        orientation = 2.77f;
+                        break;
+                    case 22: // Uldaman
+                        mapid = 70;
+                        x = -226.8f;
+                        y = 49.09f;
+                        z = -46.03f;
+                        orientation = 1.39f;
+                        break;
+                    case 30: // Blackrock Depths - Prison
+                    case 276: // Blackrock Depths - Upper City
+                        mapid = 230;
+                        x = 458.32f;
+                        y = 26.52f;
+                        z = -70.67f;
+                        orientation = 4.95f;
+                        break;
+                    case 163: // Scarlet Monastery - Armory
+                        mapid = 189;
+                        x = 1610.83f;
+                        y = -323.433f;
+                        z = 18.6738f;
+                        orientation = 6.28022f;
+                        break;
+                    case 164: // Scarlet Monastery - Cathedral
+                        mapid = 189;
+                        x = 855.683f;
+                        y = 1321.5f;
+                        z = 18.6709f;
+                        orientation = 0.001747f;
+                        break;
+                    case 165: // Scarlet Monastery - Library
+                        mapid = 189;
+                        x = 255.346f;
+                        y = -209.09f;
+                        z = 18.6773f;
+                        orientation = 6.26656f;
+                        break;
+                    case 216: // Gundrak
+                    case 217: // Gundrak (Heroic)
+                        mapid = 604;
+                        x = 1894.58f;
+                        y = 652.713f;
+                        z = 176.666f;
+                        orientation = 4.078f;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             if (error == LFG_TELEPORTERROR_OK)
@@ -1906,9 +1988,9 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     ClearState(guid);
     SetState(guid, LFG_STATE_FINISHED_DUNGEON);
 
-    // Give rewards only if its a random dungeon
+    // Give rewards only if its a random dungeon or world event
     LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
-    if (!dungeon || dungeon->type != LFG_TYPE_RANDOM)
+    if (!dungeon || (dungeon->type != LFG_TYPE_RANDOM && dungeon->grouptype != 11))
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] dungeon %u is not random", guid, rDungeonId);
         return;
@@ -1917,6 +1999,10 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     // Update achievements
     if (dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+
+    // Oculus, Cache of the Ley-Guardian (workaround)
+    if (dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC && player->GetMapId() == 578)
+        player->AddItem(52676, 1);
 
     LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
     if (!reward)

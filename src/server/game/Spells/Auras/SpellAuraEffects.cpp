@@ -5807,6 +5807,14 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         target->RemoveAura(64821);
                     }
                     break;
+                case 68614: // Concentrated Irresistible Cologne Spill
+                    if (!target->HasAura(68530))
+                        caster->CastSpell(target, 68934, true);
+                    break;
+                case 68798: // Concentrated Alluring Perfume Spill
+                    if (!target->HasAura(68529))
+                        caster->CastSpell(target, 68927, true);
+                    break;
 				case 63802: // Brain Link
 					if (caster)
 					{
