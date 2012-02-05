@@ -76,7 +76,7 @@ class boss_eck : public CreatureScript
                         _berserkTimer -= diff;
                 }
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 if (_biteTimer <= diff)

@@ -564,7 +564,7 @@ class npc_tirion_toc : public CreatureScript
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
                                     pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                                     pTemp->SetReactState(REACT_PASSIVE);
                                 }
                             }
@@ -574,7 +574,7 @@ class npc_tirion_toc : public CreatureScript
                         case 155:
                             if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_GORMOK)))
                             {
-                                pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                                 pTemp->SetReactState(REACT_AGGRESSIVE);
                                 pTemp->SetInCombatWithZone();
                             }
@@ -602,14 +602,14 @@ class npc_tirion_toc : public CreatureScript
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
                                     pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                                     pTemp->SetReactState(REACT_PASSIVE);
                                 }
                                 if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ACIDMAW)))
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ());
                                     pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                                     pTemp->SetReactState(REACT_PASSIVE);
                                 }
                             }
@@ -619,13 +619,13 @@ class npc_tirion_toc : public CreatureScript
                         case 220:
                             if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_DREADSCALE)))
                             {
-                                pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                                 pTemp->SetReactState(REACT_AGGRESSIVE);
                                 pTemp->SetInCombatWithZone();
                             }
                             if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ACIDMAW)))
                             {
-                                pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                                 pTemp->SetReactState(REACT_AGGRESSIVE);
                                 pTemp->SetInCombatWithZone();
                             }

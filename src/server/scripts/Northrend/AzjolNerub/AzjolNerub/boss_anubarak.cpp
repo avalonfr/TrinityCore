@@ -139,7 +139,7 @@ class boss_anub_arak : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32 &damage)
             {
-                if (me->HasUnitState(UNIT_STAT_CASTING) || me->HasAura(SPELL_SUBMERGE))
+                if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_SUBMERGE))
                     return;
 
                 if (me->HealthBelowPctDamaged(100 - 25 * (_submergeCount + 1), damage))
@@ -211,7 +211,7 @@ class boss_anub_arak : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -239,7 +239,7 @@ class boss_anub_arak : public CreatureScript
                                 target->SetMaxHealth(100000);
                                 target->SetHealth(100000);
                                 target->SetReactState(REACT_PASSIVE);
-                                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_PASSIVE);
+                                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_NPC);
                                 AttackStart(target);
                                 me->SetReactState(REACT_PASSIVE);
                                 me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);

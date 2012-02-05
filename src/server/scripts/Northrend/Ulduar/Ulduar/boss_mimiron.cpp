@@ -765,7 +765,7 @@ public:
             switch(action)
             {
                 case DO_START_ENCOUNTER:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     phase = PHASE_LEVIATHAN_SOLO;
                     events.SetPhase(PHASE_LEVIATHAN_SOLO);
@@ -797,7 +797,7 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (phase == PHASE_LEVIATHAN_SOLO || phase == PHASE_LEVIATHAN_ASSEMBLED)
@@ -1009,7 +1009,7 @@ public:
             switch(action)
             {
                 case DO_START_VX001:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                     phase = PHASE_VX001_SOLO;
                     events.SetPhase(PHASE_VX001_SOLO);
                     DoZoneInCombat();
@@ -1077,7 +1077,7 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (phase == PHASE_VX001_SOLO || phase == PHASE_VX001_ASSEMBLED)
@@ -1231,7 +1231,7 @@ public:
             switch(action)
             {
                 case DO_START_AERIAL:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     phase = PHASE_AERIAL_SOLO;
                     events.SetPhase(PHASE_AERIAL_SOLO);
@@ -1274,7 +1274,7 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (phase == PHASE_AERIAL_SOLO || phase == PHASE_AERIAL_ASSEMBLED)

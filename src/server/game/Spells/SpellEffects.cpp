@@ -3720,7 +3720,8 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
     if (unitTarget->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING))
         return;
 
-    unitTarget->SetFacingTo(unitTarget->GetAngle(m_targets.GetDst()));
+	float angle = unitTarget->GetAngle(m_targets.GetDst());
+    unitTarget->SetFacingTo(angle);
     unitTarget->ClearUnitState(UNIT_STATE_MOVING);
 
     if (unitTarget->GetTypeId() == TYPEID_UNIT)
