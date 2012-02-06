@@ -5125,6 +5125,32 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             m_caster->CastCustomSpell(28375, SPELLVALUE_BASE_POINT0, damage, unitTarget);
                     }
                     return;
+                case 26678:                                 //Heart Candy
+                {
+                    uint32 item=0;
+                    switch ( urand(0, 7) )
+                    {
+                        case 0:
+                            item = 21816; break;
+                        case 1:
+                            item = 21817; break;
+                        case 2:
+                            item = 21818; break;
+                        case 3:
+                            item = 21819; break;
+                        case 4:
+                            item = 21820; break;
+                        case 5:
+                            item = 21821; break;
+                        case 6:
+                            item = 21822; break;
+                        case 7: 
+                            item = 21823; break;
+                    }
+                    if (item)
+                        DoCreateItem(effIndex, item);
+                    break;
+                }
                 // Mirren's Drinking Hat
                 case 29830:
                 {
