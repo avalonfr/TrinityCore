@@ -13,9 +13,9 @@ INSERT INTO `item_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootm
 (54537,40753,100,1,0,2,2),
 (54537,50250,1,1,0,1,1);
 
-UPDATE `creature_template` SET `faction_A` = 16, `faction_H` = 16, `Health_mod` = 86.189, `lootid` = 36296, `mechanic_immune_mask` = 650854235, `ScriptName` = 'npc_apothecary_hummel' WHERE `entry` = 36296;
-UPDATE `creature_template` SET `faction_A` = 16, `faction_H` = 16, `Health_mod` = 86.189, `lootid` = 36296, `mechanic_immune_mask` = 650854235, `ScriptName` = 'npc_apothecary_baxter' WHERE `entry` = 36565;
-UPDATE `creature_template` SET `faction_A` = 16, `faction_H` = 16, `Health_mod` = 86.189, `lootid` = 36296, `equipment_id` = 128, `mechanic_immune_mask` = 536870917, `flags_extra` = 256, `ScriptName` = 'npc_apothecary_frye' WHERE `entry` = 36272;
+UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35, `Health_mod` = 86.189, `lootid` = 0, `mechanic_immune_mask` = 650854235, `ScriptName` = 'npc_apothecary_hummel' WHERE `entry` = 36296;
+UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35, `Health_mod` = 86.189, `lootid` = 0, `mechanic_immune_mask` = 650854235, `ScriptName` = 'npc_apothecary_baxter' WHERE `entry` = 36565;
+UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35, `Health_mod` = 86.189, `lootid` = 36296, `equipment_id` = 128, `mechanic_immune_mask` = 536870917, `flags_extra` = 256, `ScriptName` = 'npc_apothecary_frye' WHERE `entry` = 36272;
 UPDATE `creature_template` SET `faction_A` = 16, `faction_H` = 16, `Health_mod` = 86.189, `mechanic_immune_mask` = 536870917,`ScriptName`='npc_crazed_apothecary' WHERE `entry`=36568;
 
 
