@@ -7911,9 +7911,12 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                         dmg += mod * stack;
                     if (Unit* caster = triggeredByAura->GetCaster())
                     {
-                        caster->CastCustomSpell(70701, SPELLVALUE_BASE_POINT0, dmg);
-                        if (Creature* creature = caster->ToCreature())
-                            creature->DespawnOrUnsummon(1);
+						if (caster->GetDistance(caster->getVictim()) < 10.0f)
+						{
+							caster->CastCustomSpell(70701, SPELLVALUE_BASE_POINT0, dmg);
+							if (Creature* creature = caster->ToCreature())
+								creature->DespawnOrUnsummon(1);
+						}
                     }
                     break;
                 }
