@@ -699,8 +699,8 @@ class npc_risen_archmage : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, urand(5000, 15000));
-                _events.ScheduleEvent(EVENT_MANA_VOID, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, urand(10000, 20000));
+                _events.ScheduleEvent(EVENT_MANA_VOID, urand(10000, 15000));
+                _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, urand(10000, 15000));
                 _canCallEnterCombat = true;
             }
 
@@ -768,12 +768,12 @@ class npc_risen_archmage : public CreatureScript
                         case EVENT_MANA_VOID:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, ManaVoidSelector(me)))
                                 DoCast(target, SPELL_MANA_VOID);
-                            _events.ScheduleEvent(EVENT_MANA_VOID, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_MANA_VOID, urand(10000, 15000));
                             break;
                         case EVENT_COLUMN_OF_FROST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -10.0f, true))
                                 DoCast(target, SPELL_COLUMN_OF_FROST);
-                            _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, urand(15000, 25000));
+                            _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, urand(10000, 15000));
                             break;
                         default:
                             break;

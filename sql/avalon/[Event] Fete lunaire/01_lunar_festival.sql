@@ -117,3 +117,18 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `spell_scripts` WHERE `id`=26393;
 INSERT INTO `spell_scripts`(`id`,`effIndex`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
 (26393,1,0,15,26394,2,0,0,0,0,0);
+
+
+-- Lunar festival: Rocket Clusters placed near Omen's summon place (Moonglade)
+SET @CLUSTER := 180874;
+SET @LUNARFESTIVAL := 7;
+
+DELETE FROM `gameobject` WHERE `id`=@CLUSTER AND `guid` IN (230,231);
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`) VALUES
+(230,@CLUSTER,1,1,1,7531.662,-2851.228,458.9172),
+(231,@CLUSTER,1,1,1,7561.145,-2872.45,461.0998);
+
+DELETE FROM `game_event_gameobject` WHERE `guid` IN (230,231) AND `eventEntry`=@LUNARFESTIVAL;
+INSERT INTO `game_event_gameobject` (`eventEntry`,`guid`) VALUES
+(@LUNARFESTIVAL,230),
+(@LUNARFESTIVAL,231);
