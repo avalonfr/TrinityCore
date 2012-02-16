@@ -1318,7 +1318,6 @@ void AddSC_sholazar_basin()
     new npc_avatar_of_freya();
     new npc_bushwhacker();
     new npc_engineer_helice();
-    new npc_adventurous_dwarf();
     new npc_jungle_punch_target();
 	new npc_mosswalker_victim();
     new npc_tipsy_mcmanus();
