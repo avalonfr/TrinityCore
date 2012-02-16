@@ -1071,8 +1071,7 @@ class npc_orb_carrier : public CreatureScript
                         if (Unit* northOrb = vehicle->GetPassenger(SEAT_NORTH))
                         {
                             if (northOrb->GetTypeId() == TYPEID_UNIT)
-                            if (northOrb->GetTypeId() == TYPEID_UNIT)
-                            northOrb->ToCreature()->AI()->Talk(EMOTE_WARN_LASER);
+                                northOrb->ToCreature()->AI()->Talk(EMOTE_WARN_LASER);
                             northOrb->CastSpell(northOrb, SPELL_TWILIGHT_PULSE_PERIODIC, true);
                             southOrb->CastSpell(southOrb, SPELL_TWILIGHT_PULSE_PERIODIC, true);
                             northOrb->CastSpell(southOrb, SPELL_TWILIGHT_CUTTER, false);
