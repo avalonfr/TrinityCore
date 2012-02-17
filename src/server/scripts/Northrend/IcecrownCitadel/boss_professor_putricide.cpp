@@ -223,7 +223,7 @@ class boss_professor_putricide : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_SLIME_PUDDLE, 10000);
-                events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, urand(1000, 2000));
+                events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, urand(25000, 30000));
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_UNBOUND_PLAGUE, 20000);
 
@@ -276,7 +276,6 @@ class boss_professor_putricide : public CreatureScript
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
                         summon->CastSpell(summon, SPELL_GASEOUS_BLOAT_PROC, true);
 						summon->CastSpell(summon, SPELL_GASEOUS_BLOAT, false);
-                        //summon->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, summon, false);
                         summon->SetReactState(REACT_PASSIVE);
                        return;
                     case NPC_VOLATILE_OOZE:
@@ -728,7 +727,7 @@ class npc_volatile_ooze : public CreatureScript
 					{
 					case 37697 :
 						{
-							if (me->GetExactDist2d(Ptarget->GetPositionX(),Ptarget->GetPositionY()) < 10.0f )
+							if (me->GetExactDist2d(Ptarget->GetPositionX(),Ptarget->GetPositionY()) < 5.0f )
 							{
 								DoCast(SPELL_OOZE_ERUPTION);
 								me->DisappearAndDie();
@@ -1502,6 +1501,40 @@ class spell_putricide_clear_mutated_plague : public SpellScriptLoader
         }
 };
 
+class spell_putricide_choking_gas_bomb : public SpellScriptLoader
+{
+    public:
+        spell_putricide_choking_gas_bomb() : SpellScriptLoader("spell_putricide_choking_gas_bomb") { }
+
+        class spell_putricide_choking_gas_bomb_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_putricide_choking_gas_bomb_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                uint32 skipIndex = urand(0, 2);
+                for (uint32 i = 0; i < 3; ++i)
+                {
+                    if (i == skipIndex)
+                        continue;
+
+                    uint32 spellId = uint32(GetSpellInfo()->Effects[i].CalcValue());
+                    GetCaster()->CastSpell(GetCaster(), spellId, true, NULL, NULL, GetCaster()->GetGUID());
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_putricide_choking_gas_bomb_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_putricide_choking_gas_bomb_SpellScript();
+        }
+};
+
 // Stinky and Precious spell, it's here because its used for both (Festergut and Rotface "pets")
 class spell_stinky_precious_decimate : public SpellScriptLoader
 {
@@ -1545,6 +1578,7 @@ void AddSC_boss_professor_putricide()
     new spell_putricide_unstable_experiment();
     new spell_putricide_ooze_summon();
     new spell_putricide_ooze_eruption_searcher();
+	new spell_putricide_choking_gas_bomb();
     new spell_putricide_unbound_plague();
     new spell_putricide_eat_ooze();
     new spell_putricide_mutated_plague();
