@@ -4865,7 +4865,6 @@ void AddSC_npcs_special()
     new npc_ebon_gargoyle;
     new npc_lightwell;
     new mob_mojo;
-	new npc_spring_rabbit();
     new npc_training_dummy;
     new npc_shadowfiend;
     new npc_wormhole;

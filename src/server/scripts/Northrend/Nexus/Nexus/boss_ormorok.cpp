@@ -31,6 +31,8 @@ enum Spells
     SPELL_TRAMPLE                                 = 48016,
     H_SPELL_TRAMPLE                               = 57066,
     SPELL_FRENZY                                  = 48017,
+	SPELL_FIEVREDEGIVRE                           = 55095,
+	SPELL_LENTEUR                                 = 31589,
     SPELL_SUMMON_CRYSTALLINE_TANGLER              = 61564, //summons npc 32665
     SPELL_ROOTS                                   = 28858  //proper spell id is unknown
 };
@@ -80,6 +82,8 @@ public:
         uint32 uiCrystalSpikesTimer;
         uint32 uiCrystalSpikesTimer2;
         uint32 uiTrampleTimer;
+		uint32 uiLENTEURTimer;
+		uint32 uiFIEVREDEGIVRETimer;
         uint32 uiFrenzyTimer;
         uint32 uiSpellReflectionTimer;
         uint32 uiSummonCrystallineTanglerTimer;
@@ -162,6 +166,24 @@ public:
                 DoCast(me, SPELL_SPELL_REFLECTION);
                 uiSpellReflectionTimer = 30*IN_MILLISECONDS;
             } else uiSpellReflectionTimer -= diff;
+			
+            if (uiFIEVREDEGIVRETimer <= diff)
+            {
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                {
+                    DoCast(target, SPELL_FIEVREDEGIVRE, false);
+                }
+                uiFIEVREDEGIVRETimer = 15*IN_MILLISECONDS;
+            } else uiFIEVREDEGIVRETimer -= diff;
+			
+			if (uiLENTEURTimer <= diff)
+            {
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                {
+                    DoCast(target, SPELL_LENTEUR, false);
+                }
+                uiLENTEURTimer = 10*IN_MILLISECONDS;
+            } else uiLENTEURTimer -= diff;
 
             if (uiCrystalSpikesTimer <= diff)
             {
