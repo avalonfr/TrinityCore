@@ -309,7 +309,7 @@ class boss_professor_putricide : public CreatureScript
                         if (HealthAbovePct(80))
                             return;
                         me->SetReactState(REACT_PASSIVE);
-                        DoAction(ACTION_CHANGE_PHASE);
+                        DoAction(ACTION_CHANGE_PHASE);					
                         break;
                     case PHASE_COMBAT_2:
                         if (HealthAbovePct(35))
@@ -704,7 +704,7 @@ class npc_volatile_ooze : public CreatureScript
             void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
             {
                 if (!_newTargetSelectTimer && sSpellMgr->GetSpellDifficultyId(spell->Id) == sSpellMgr->GetSpellDifficultyId(SPELL_OOZE_ERUPTION))
-                    _newTargetSelectTimer = 1000;
+                    _newTargetSelectTimer = 2000;
             }
 
 			void SetGUID(uint64 Tguid, int32 id = 0)
@@ -718,7 +718,15 @@ class npc_volatile_ooze : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
+
+				Unit* victim = me->getVictim();
 				
+                if (victim && victim->IsWithinDistInMap(me, 1.0f) && victim->HasAura(SPELL_VOLATILE_OOZE_ADHESIVE) && victim->isAlive())
+                {
+                    DoCast(me, SPELL_OOZE_ERUPTION);
+                    victim->RemoveAurasDueToSpell(SPELL_VOLATILE_OOZE_ADHESIVE, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                }
+
 				if (Tchase <= diff && Start_Chase)
 				{
 					me->GetMotionMaster()->MovePoint(0,Ptarget->GetPositionX(),Ptarget->GetPositionY(),Ptarget->GetPositionZ());
