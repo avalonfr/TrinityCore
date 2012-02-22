@@ -488,6 +488,7 @@ class boss_the_lich_king : public CreatureScript
             void Reset()
             {
                 _Reset();
+				me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_INTRO);
                 _necroticPlagueStack = 0;
                 _vileSpiritExplosions = 0;
@@ -1675,6 +1676,7 @@ class npc_strangulate_vehicle : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TELEPORT:
+							me->GetMotionMaster()->Clear(false);
                             me->GetMotionMaster()->MoveIdle();
                             if (TempSummon* summ = me->ToTempSummon())
                             {
