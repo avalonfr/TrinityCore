@@ -1621,6 +1621,35 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     else if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, aurSpellInfo) || m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
                         duration = int32(duration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
 
+                    // Seduction with Improved Succubus talent - fix duration.
+                    if (m_spellInfo->Id == 6358 && unit->GetTypeId() == TYPEID_PLAYER && m_originalCaster->GetOwner())
+                    {
+                        float mod = 1.0f;
+                        float durationadd = 0.0f;
+                    
+                        if (m_originalCaster->GetOwner()->HasAura(18754))
+                            durationadd += float(1.5*IN_MILLISECONDS*0.22);
+                        else if (m_originalCaster->GetOwner()->HasAura(18755))
+                            durationadd += float(1.5*IN_MILLISECONDS*0.44);
+                        else if (m_originalCaster->GetOwner()->HasAura(18756))
+                            durationadd += float(1.5*IN_MILLISECONDS*0.66);
+
+                        if (durationadd)
+                        {
+                            switch (m_diminishLevel)
+                            {
+                            case DIMINISHING_LEVEL_1: break;
+                            // lol, we lost 1 second here
+                            case DIMINISHING_LEVEL_2: duration += 1000; mod = 0.5f; break;
+                            case DIMINISHING_LEVEL_3: duration += 1000; mod = 0.25f; break;
+                            case DIMINISHING_LEVEL_IMMUNE: { m_spellAura->Remove(); return SPELL_MISS_IMMUNE; }
+                            default: break;
+                            }
+                            durationadd *= mod;
+                            duration += int32(durationadd);
+                        }
+                    }  
+
                     if (duration != m_spellAura->GetMaxDuration())
                     {
                         m_spellAura->SetMaxDuration(duration);
@@ -5004,6 +5033,22 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (!target || !target->IsFriendlyTo(m_caster) || target->getAttackers().empty())
                         return SPELL_FAILED_BAD_TARGETS;
 
+                }
+                else if (m_spellInfo->Id == 51690)          // Killing Spree
+                {
+                    float range = 10.0f;
+                    Unit *target = NULL;
+                    Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck u_check(m_caster, range);
+                    Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> checker(m_caster, target, u_check);
+                    m_caster->VisitNearbyObject(range, checker);
+
+                    if (target)
+                    {
+                        if (m_caster->GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
+                            return SPELL_FAILED_NOT_HERE;
+                    }
+                    else
+                        return SPELL_FAILED_OUT_OF_RANGE;
                 }
                 break;
             }

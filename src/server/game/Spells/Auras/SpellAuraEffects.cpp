@@ -374,7 +374,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
 
 AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster):
 m_base(base), m_spellInfo(base->GetSpellInfo()), m_effIndex(effIndex),
-m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->Effects[m_effIndex].BasePoints),
+m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->Effects[effIndex].BasePoints),
 m_canBeRecalculated(true), m_spellmod(NULL), m_isPeriodic(false),
 m_periodicTimer(0), m_tickNumber(0)
 {
@@ -769,6 +769,35 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         default:
             break;
     }
+	
+	// Mixology - Effect value mod
+    if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_POTION && (
+            sSpellMgr->IsSpellMemberOfSpellGroup(GetId(), SPELL_GROUP_ELIXIR_BATTLE) ||
+            sSpellMgr->IsSpellMemberOfSpellGroup(GetId(), SPELL_GROUP_ELIXIR_GUARDIAN)))
+        {
+            if (caster->HasAura(53042) && caster->HasSpell(GetSpellInfo()->Effects[0].TriggerSpell))
+            {
+                switch (GetId())
+                {
+                    case 53760: // Flask of Endless Rage
+                        amount += 64;
+                        break;
+                    case 53755: // Flask of the Frost Wyrm
+                        amount += 47;
+                        break;
+                    case 53758: // Flask of Stoneblood
+                        amount += 650;
+                        break;
+                    case 54212: // Flask of Pure Mojo
+                        amount += 20;
+                        break;
+                }
+            }
+        }
+    }
+	
     if (DoneActualBenefit != 0.0f)
     {
         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());

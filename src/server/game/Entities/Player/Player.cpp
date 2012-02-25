@@ -2949,6 +2949,10 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
 
     sScriptMgr->OnGivePlayerXP(this, xp, victim);
 
+    if(level < 66 && GetMapId() == 571)
+        return;
+
+
     // Favored experience increase START
     uint32 zone = GetZoneId();
     float favored_exp_mult = 0;
@@ -8401,7 +8405,22 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
                 if (spellInfo->IsPositive())
                     CastSpell(this, spellInfo, true, item);
                 else
+               // {
                     CastSpell(target, spellInfo, true, item);
+               /*     // Deadly Poison
+                    if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && spellInfo->SpellFamilyFlags[0] == 0x10000 && spellInfo->SpellFamilyFlags[1] == 0x80000) 
+					{
+                        if (Aura * aur = target->GetAura(pEnchant->spellid[s], GetGUID()))
+                            if (aur->GetStackAmount() == 5)
+                                if (Item* Weapon = GetWeaponForAttack(attType == BASE_ATTACK ? OFF_ATTACK : BASE_ATTACK, true))
+                                    if (SpellItemEnchantmentEntry const *Poison = sSpellItemEnchantmentStore.LookupEntry(Weapon->GetEnchantmentId(EnchantmentSlot(TEMP_ENCHANTMENT_SLOT)))) 
+                                    {
+                                        SpellInfo const *poisonEntry =  sSpellMgr->GetSpellInfo(Poison->spellid[s]);
+                                        if(poisonEntry && poisonEntry->Dispel == DISPEL_POISON)
+                                            CastSpell(target, poisonEntry, true, Weapon);
+                                    }
+                    }
+                }  */
             }
         }
     }
@@ -15622,8 +15641,8 @@ bool Player::SatisfyQuestSeasonal(Quest const* qInfo, bool /*msg*/)
         return true;
 
     uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
-    if (m_seasonalquests.find(eventId) == m_seasonalquests.end())
-        return false;
+    if (m_seasonalquests.find(eventId) == m_seasonalquests.end() || m_seasonalquests[eventId].empty())
+        return true;
 
     // if not found in cooldown list
     return m_seasonalquests[eventId].find(qInfo->GetQuestId()) == m_seasonalquests[eventId].end();

@@ -605,6 +605,10 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00200000, 0, 0))
                             AddPctN(damage, aurEff->GetAmount());
                 }
+                // Item - Druid T10 Balance 2P Bonus
+                if (m_spellInfo->Id == 16870 && m_caster->HasAura(70718))
+                    m_caster->CastSpell(m_caster, 70721, true);
+
                 break;
             }
             case SPELLFAMILY_ROGUE:
@@ -1296,6 +1300,55 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     m_caster->CastSpell(m_caster, 51037, true);
                     unitTarget->Kill(unitTarget);
+                    return;
+                }
+                // Glyph of Dragon's Breath
+                case 56989:  
+                {				
+                    if (unitTarget)
+                       m_caster->CastSpell(m_caster, 56373, false, NULL);
+                    return;
+                }
+                case 69922:                                 // Temper Quel'Delar
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+                    // Return Tempered Quel'Delar
+                    unitTarget->CastSpell(m_caster, 69956, true);
+                    return;
+                }
+                case 55804:           // quest=12937 Healing Finished
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+                    m_caster->CastSpell(m_caster, 55809, true, NULL);       // Trigger Aid of the Earthen
+                    m_caster->ToPlayer()->KilledMonsterCredit(30035, unitTarget->GetGUID());
+                    unitTarget->ToCreature()->ForcedDespawn();
+                    break;
+                }
+                case 55046:            // Ice Shard
+                {
+                    if (!m_caster || !unitTarget)
+                        return;
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+                    if (unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    Creature *target_crature = unitTarget->ToCreature();
+                    Creature *caster_crature = m_caster->ToCreature();
+                    if (Player *plr = caster_crature->GetCharmer()->ToPlayer())
+                    {
+                        if (target_crature && caster_crature && target_crature->GetEntry() == 29639)
+                        {
+                            plr->KilledMonsterCredit(29734,0);
+                            plr->KilledMonsterCredit(29709,0);
+                        target_crature->ForcedDespawn();
+                        //caster_crature->ForcedDespawn();
+                        }
+                    }
                     return;
                 }
             }
@@ -3508,7 +3561,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
             // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
             uint32 spell = VEHICLE_SPELL_RIDE_HARDCODED;
-            if (SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue()))
+            
+            SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue());
+            if (spellProto && spellProto->HasAura(SPELL_AURA_CONTROL_VEHICLE))
                 spell = spellProto->Id;
 
             // Hard coded enter vehicle spell
