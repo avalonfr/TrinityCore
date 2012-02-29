@@ -36,9 +36,10 @@ INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes
 (40142,0,0,0,0,0, '75476 78243'), -- Twilight Halion: Twilight Precision + Dusk Shroud
 (39863,0,0,0,0,0, '78243'); -- Halion: Twilight Precision
 
--- Todo: Fix this shit, we don't edit WDB data.
--- UPDATE `gameobject_template` SET `data10`=74807,`flags`=`flags`|32 WHERE `entry` IN (202794, 202795);
--- UPDATE `gameobject_template` SET `ScriptName`="go_exit_twilight_realm",`flags`=`flags`|32 WHERE `entry`=202796;
+-- Spell 75074 cannot be found in any DBC file and is not found in sniffs.
+-- thus leaving us with no other choice than editing a WDB field (kids, do not try this at home)
+UPDATE `gameobject_template` SET `data10`=74807,`WDBVerified`=-12340 WHERE `entry` IN (202794, 202795);
+-- UPDATE `gameobject_template` SET `ScriptName`="go_exit_twilight_realm",`flags`=`flags`|32, WHERE `entry`=202796;
 
 -- Spell scripts
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
@@ -49,8 +50,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_consu
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_summon';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_leave_twilight_realm';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_enter_twilight_realm';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_phasing';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter';
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter_triggered';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74641, 'spell_halion_meteor_strike_marker'),
 (74562, 'spell_halion_fiery_combustion'),
@@ -61,6 +62,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74800, 'spell_halion_combustion_consumption_summon'),
 (74812, 'spell_halion_leave_twilight_realm'),
 (74807, 'spell_halion_enter_twilight_realm'),
+(74808, 'spell_halion_twilight_phasing'),
 (74769, 'spell_halion_twilight_cutter'),
 (77844, 'spell_halion_twilight_cutter'),
 (77845, 'spell_halion_twilight_cutter'),
@@ -84,24 +86,25 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (40142,0,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
 (40142,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17508, 'Halion'),
 
-(40146,0,0, 'Your companion''s efforts have forced Halion further out of the Physical realm!',42,0,100,0,0,0, 'Halion'),
-(40146,1,0, 'Your efforts have forced Halion further into the Physical realm!',42,0,100,0,0,0, 'Halion'),
-(40146,2,0, 'Your companion''s efforts have forced Halion further out of the Twilight realm!',42,0,100,0,0,0, 'Halion'),
-(40146,3,0, 'Your efforts have forced Halion further into the Twilight realm!',42,0,100,0,0,0, 'Halion'),
-(40146,4,0, 'Without pressure in both realms, Halion begins to regenerate.',42,0,100,0,0,0, 'Halion'),
+(40146,0,0, 'Your companion''s efforts have forced Halion further out of the Physical realm!',42,0,100,0,0,0, 'Halion Controller'),
+(40146,1,0, 'Your efforts have forced Halion further into the Physical realm!',42,0,100,0,0,0, 'Halion Controller'),
+(40146,2,0, 'Your companion''s efforts have forced Halion further out of the Twilight realm!',42,0,100,0,0,0, 'Halion Controller'),
+(40146,3,0, 'Your efforts have forced Halion further into the Twilight realm!',42,0,100,0,0,0, 'Halion Controller'),
+(40146,4,0, 'Without pressure in both realms, Halion begins to regenerate.',42,0,100,0,0,0, 'Halion Controller'),
 
 (40081,0,0, 'The orbiting spheres pulse with dark energy!',41,0,100,0,0,0, 'Orb Carrier');
 
 -- Spawns
-SET @OGUID = xx; -- Set by TDB team (Need 1)
-INSERT INTO `gameobject` (`guid`,`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(@OGUID,203624,724,15,0x20,3154.99,535.637,72.887,3.14159,0,0,0,0,120,0,0); -- GO_TWILIGHT_FLAME_RING
+SET @OGUID = X; -- Set guid (1 required)
+DELETE FROM `gameobject` WHERE `id`=203624;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+(@OGUID,203624,724,15,0x20,3157.372,533.9948,72.8887,1.034892,0,0,0.4946623,0.8690853,120,0,0); -- GO_TWILIGHT_FLAME_RING
 
-SET @GUID = xx; -- Set by TDB team (Need 2) -- FFS Kaelima I don't have those, dont modify that !
-DELETE FROM `creature` WHERE `id` IN (40081, 40091);
+SET @GUID = X; -- Set guid (2 required)
+DELETE FROM `creature` WHERE `id` IN (40081,40091);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
-(@GUID,40091,724,1,20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
-(@GUID+1,40081,724,1,20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Orb Carrier
+(@GUID,40091,724,1,0x20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
+(@GUID+1,40081,724,1,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Orb Carrier
 
 -- Pathing for Orb Rotation Focus Entry: 40091
 SET @PATH = @GUID * 10;
@@ -127,7 +130,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,15,3113.711,533.5382,72.96869,0,0,0,0,100,0);
 
 -- Vehicle accessory for Orb Carrier
-DELETE FROM `vehicle_template_accessory` WHERE `entry`=40081;
+DELETE FROM `vehicle_template_accessory` WHERE `entry` IN (40081,40470,40471,40472);
 INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`,`summontype`,`summontimer`) VALUES
 (40081,40083,0,1, 'Orb Carrier',6,30000),
 (40081,40100,1,1, 'Orb Carrier',6,30000),
@@ -137,17 +140,17 @@ INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`m
 
 (40471,40083,0,1, 'Orb Carrier',6,30000),
 (40471,40100,1,1, 'Orb Carrier',6,30000),
-(40471,40468,2,1, 'Orb Carrier',6,30000),
-(40471,40469,3,1, 'Orb Carrier',6,30000),
+(40471,40468,2,1, 'Orb Carrier (seat guessed)',6,30000),
+(40471,40469,3,1, 'Orb Carrier (seat guessed)',6,30000),
 
 (40472,40083,0,1, 'Orb Carrier',6,30000),
 (40472,40100,1,1, 'Orb Carrier',6,30000),
-(40472,40468,2,1, 'Orb Carrier',6,30000),
-(40472,40469,3,1, 'Orb Carrier',6,30000);
+(40472,40468,2,1, 'Orb Carrier (seat guessed)',6,30000),
+(40472,40469,3,1, 'Orb Carrier (seat guessed)',6,30000);
 
 -- Vehicle spellclicks
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=40081;
-INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`cast_flags`) VALUES
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (40081,40470,40471,40472);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
 (40081,46598,0,1), -- Ride Vehicle Hardcoded
 (40470,46598,0,1),
 (40471,46598,0,1),
