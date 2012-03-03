@@ -279,7 +279,6 @@ Unit::~Unit()
     _DeleteRemovedAuras();
 
     delete m_charmInfo;
-    delete m_vehicleKit;
     delete movespline;
 
     ASSERT(!m_duringRemoveFromWorld);
@@ -7212,6 +7211,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         if (!triggeredSpell)
                             return false;
                         basepoints0 = CalculatePctN(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->Effects[0].Amplitude);
+                        // Add remaining ticks to healing done
+                        basepoints0 += GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_HEAL);
                     }
                     break;
                 }
@@ -13801,7 +13802,7 @@ void Unit::RemoveFromWorld()
     {
         m_duringRemoveFromWorld = true;
         if (IsVehicle())
-            GetVehicleKit()->Uninstall();
+        RemoveVehicleKit();
 
         RemoveCharmAuras();
         RemoveBindSightAuras();

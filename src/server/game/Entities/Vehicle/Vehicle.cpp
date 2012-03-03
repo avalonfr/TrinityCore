@@ -409,6 +409,12 @@ void Vehicle::RemovePassenger(Unit* unit)
     }
 
     unit->ClearUnitState(UNIT_STATE_ONVEHICLE);
+	// trinity what this is fuck?
+	unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+	unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+	unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+	unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+	unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
@@ -434,8 +440,7 @@ void Vehicle::RemovePassenger(Unit* unit)
 
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
-    Map* map = _me->GetMap();
-    ASSERT(map != NULL);
+    ASSERT(_me->IsInWorld());
 
     // not sure that absolute position calculation is correct, it must depend on vehicle orientation and pitch angle
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)

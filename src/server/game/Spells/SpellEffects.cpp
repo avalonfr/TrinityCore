@@ -3561,7 +3561,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
             // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
             uint32 spell = VEHICLE_SPELL_RIDE_HARDCODED;
-            if (SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue()))
+            
+            SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue());
+            if (spellProto && spellProto->HasAura(SPELL_AURA_CONTROL_VEHICLE))
                 spell = spellProto->Id;
 
             // Hard coded enter vehicle spell
@@ -4815,6 +4817,8 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
 
+	m_caster->AddGameObject(pGameObj);
+	
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
     // Wild object not have owner and check clickable by players
