@@ -134,7 +134,7 @@ public:
                     summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
-                summoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                summoned->SetLevitate(true);
                 targetGUID = summoned->GetGUID();
             }
         }
@@ -283,8 +283,8 @@ public:
             {
                 if (EventMove_Timer <= diff)
                 {
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                    me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, 0);
+                    me->SetLevitate(true);
+                    me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetDistance(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW) / (5000 * 0.001f));
                     me->SetPosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
                     EventMove = false;
                 } else EventMove_Timer -= diff;

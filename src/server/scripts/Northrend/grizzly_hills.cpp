@@ -162,7 +162,7 @@ public:
                         player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
                         DoScriptText(SAY_QUEST_COMPLETE, me, player);
                     }
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(false);
                     break;
                 case 25:
                     DoScriptText(SAY_VICTORY4, me);
@@ -415,7 +415,7 @@ public:
             // call this each update tick?
             if (me->FindNearestCreature(TALLHORN_STAG, 0.2f))
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
             }
             else
                 if (m_uiPhase)

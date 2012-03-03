@@ -254,8 +254,8 @@ class boss_lich_king_toc : public CreatureScript
                     summoned->CastSpell(summoned, 51807, false);
                     summoned->SetDisplayId(11686);
                 }
-                if (m_pInstance) m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                if (m_instance) m_instance->SetData(TYPE_LICH_KING, IN_PROGRESS);
+                me->SetWalk(true);
             }
 
             void MovementInform(uint32 uiType, uint32 uiId)
@@ -378,7 +378,7 @@ class npc_fizzlebang_toc : public CreatureScript
 
             void Reset()
             {
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(true);
                 m_uiPortalGUID = 0;
                 me->GetMotionMaster()->MovePoint(1, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY()-60, ToCCommonLoc[10].GetPositionZ());
             }
@@ -390,8 +390,8 @@ class npc_fizzlebang_toc : public CreatureScript
                 switch (uiId)
                 {
                     case 1:
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                        if (m_pInstance)
+                        me->SetWalk(false);
+                        if (m_instance)
                         {
                             m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
                             m_pInstance->SetData(TYPE_EVENT, 1120);
@@ -429,7 +429,7 @@ class npc_fizzlebang_toc : public CreatureScript
                         case 1130:
                             me->GetMotionMaster()->MovementExpired();
                             DoScriptText(SAY_STAGE_1_03, me);
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_SPELLCAST_OMNI);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST_OMNI);
                             if (Unit* pTrigger =  me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 4.69494f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 m_uiTriggerGUID = pTrigger->GetGUID();
@@ -446,7 +446,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             m_uiUpdateTimer = 4000;
                             break;
                         case 1134:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_SPELLCAST_OMNI);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST_OMNI);
                             if (Creature* pPortal = me->SummonCreature(NPC_WILFRED_PORTAL, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 4.71239f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 pPortal->SetReactState(REACT_PASSIVE);

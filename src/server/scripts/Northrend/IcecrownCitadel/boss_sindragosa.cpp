@@ -215,7 +215,7 @@ class boss_sindragosa : public CreatureScript
                 if (instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) != 255)
                 {
                     me->SetFlying(true);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetLevitate(true);
                 }
             }
 
@@ -258,9 +258,7 @@ class boss_sindragosa : public CreatureScript
                 instance->SetBossState(DATA_SINDRAGOSA, FAIL);
                 instance->SetData(DATA_SINDRAGOSA, FAIL);
                 me->SetFlying(false);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
+                me->SetLevitate(false);
             }
 
             void KilledUnit(Unit* victim)
@@ -318,7 +316,7 @@ class boss_sindragosa : public CreatureScript
                     case POINT_FROSTWYRM_LAND:
                         me->setActive(false);
                         me->SetFlying(false);
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SetLevitate(false);
                         me->SetHomePosition(SindragosaLandPos);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetSpeed(MOVE_FLIGHT, 2.0f);
@@ -339,8 +337,8 @@ class boss_sindragosa : public CreatureScript
                         break;
                     case POINT_LAND:
                         me->SetFlying(false);
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetLevitate(false);
+                        me->SetReactState(REACT_DEFENSIVE);
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                             me->GetMotionMaster()->MovementExpired();
                         if (Unit* target = me->getVictim())
@@ -504,7 +502,7 @@ class boss_sindragosa : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_FROST_AURA);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_AURA);
                             me->SetFlying(true);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->SetLevitate(true);
                             me->SetReactState(REACT_PASSIVE);
                             Position pos;
                             pos.Relocate(me);
@@ -737,6 +735,16 @@ class npc_spinestalker : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
+            void InitializeAI()
+            {
+                // Increase add count
+                if (!me->isDead())
+                {
+                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                    Reset();
+                }
+            }
+
             void Reset()
             {
                 _events.Reset();
@@ -747,7 +755,7 @@ class npc_spinestalker : public CreatureScript
                 if (_instance->GetData(DATA_SPINESTALKER) != 255)
                 {
                     me->SetFlying(true);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetLevitate(true);
                 }
             }
 
@@ -790,7 +798,7 @@ class npc_spinestalker : public CreatureScript
 
                 me->setActive(false);
                 me->SetFlying(false);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SetLevitate(false);
                 me->SetHomePosition(SpinestalkerLandPos);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -862,6 +870,16 @@ class npc_rimefang : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
+            void InitializeAI()
+            {
+                // Increase add count
+                if (!me->isDead())
+                {
+                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                    Reset();
+                }
+            }
+
             void Reset()
             {
                 _events.Reset();
@@ -872,7 +890,7 @@ class npc_rimefang : public CreatureScript
                 if (_instance->GetData(DATA_RIMEFANG) != 255)
                 {
                     me->SetFlying(true);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetLevitate(true);
                 }
             }
 
@@ -915,7 +933,7 @@ class npc_rimefang : public CreatureScript
 
                 me->setActive(false);
                 me->SetFlying(false);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SetLevitate(false);
                 me->SetHomePosition(RimefangLandPos);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
@@ -1018,7 +1036,10 @@ class npc_sindragosa_trash : public CreatureScript
                 _frostwyrmId = (me->GetHomePosition().GetPositionY() < 2484.35f) ? DATA_RIMEFANG : DATA_SPINESTALKER;
                 // Increase add count
                 if (!me->isDead())
+                {
                     _instance->SetData(_frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
+                    Reset();
+                }
             }
 
             void Reset()
@@ -1530,12 +1551,10 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                         ++itr;
                 }
 
-                std::list<Unit*>::iterator itr = unitList.begin();
-                std::advance(itr, urand(0, unitList.size()-1));
-			    if (unitList.empty())
+                if (unitList.empty())
                     return;
 
-                Unit* target = *itr;
+                Unit* target = SelectRandomContainerElement(unitList);
                 unitList.clear();
                 unitList.push_back(target);
             }
@@ -1547,7 +1566,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                 std::list<Creature*> unitList;
                 GetCreatureListWithEntryInGrid(unitList, GetCaster(), NPC_FROSTWING_WHELP, 150.0f);
                 if (Creature* creature = GetCaster()->ToCreature())
-                unitList.remove_if(OrderWhelpTargetSelector(creature));
+                    unitList.remove_if(OrderWhelpTargetSelector(creature));
 
                 if (unitList.empty())
                     return;
@@ -1678,7 +1697,6 @@ void AddSC_boss_sindragosa()
     new spell_sindragosa_instability();
     new spell_sindragosa_frost_beacon();
     new spell_sindragosa_ice_tomb();
-    new spell_sindragosa_collision_filter();
     new spell_sindragosa_icy_grip();
     new spell_rimefang_icy_blast();
     new spell_frostwarden_handler_order_whelp();
