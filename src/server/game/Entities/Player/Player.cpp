@@ -13006,7 +13006,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
     }
 
     // SRC checks
-
     if (pSrcItem->m_lootGenerated)                           // prevent swap looting item
     {
         //best error message found for attempting to swap while looting
@@ -13041,7 +13040,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
     }
 
     // DST checks
-
     if (pDstItem)
     {
         if (pDstItem->m_lootGenerated)                       // prevent swap looting item
@@ -13066,7 +13064,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
     // NOW this is or item move (swap with empty), or swap with another item (including bags in bag possitions)
     // or swap empty bag with another empty or not empty bag (with items exchange)
-
     // Move case
     if (!pDstItem)
     {
@@ -13113,14 +13110,19 @@ void Player::SwapItem(uint16 src, uint16 dst)
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
         }
-		
    //! Make sure that code below only is executed when trading
        if (!GetTradeData())
         return;
 
     }
-
     // attempt merge to / fill target item
+
+	if(!pSrcItem)
+		return;
+
+	if (!pDstItem)
+		return;
+
     if (!pSrcItem->IsBag() && !pDstItem->IsBag())
     {
         InventoryResult msg;
@@ -13134,7 +13136,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
             msg = CanEquipItem(dstslot, eDest, pSrcItem, false);
         else
             return;
-
         // can be merge/fill
         if (msg == EQUIP_ERR_OK)
         {
@@ -13168,7 +13169,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
             return;
         }
     }
-
     // impossible merge/fill, do real swap
     InventoryResult msg = EQUIP_ERR_OK;
 
@@ -13191,7 +13191,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         SendEquipError(msg, pSrcItem, pDstItem);
         return;
     }
-
     // check dest->src move possibility
     ItemPosCountVec sDest2;
     uint16 eDest2 = 0;
@@ -13211,7 +13210,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         SendEquipError(msg, pDstItem, pSrcItem);
         return;
     }
-
     // Check bag swap with item exchange (one from empty in not bag possition (equipped (not possible in fact) or store)
     if (Bag* srcBag = pSrcItem->ToBag())
     {
@@ -13278,7 +13276,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
     }
-
     // now do moves, remove...
     RemoveItem(dstbag, dstslot, false);
     RemoveItem(srcbag, srcslot, false);
@@ -13298,7 +13295,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         BankItem(sDest2, pDstItem, true);
     else if (IsEquipmentPos(src))
         EquipItem(eDest2, pDstItem, true);
-
     // if player is moving bags and is looting an item inside this bag
     // release the loot
     if (GetLootGUID())
@@ -13320,7 +13316,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 }
             }
         }
-
         if (!released && IsBagPos(dst) && pDstItem)
         {
             Bag* bag = pDstItem->ToBag();

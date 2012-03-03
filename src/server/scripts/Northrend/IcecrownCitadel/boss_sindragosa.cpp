@@ -205,19 +205,12 @@ class boss_sindragosa : public CreatureScript
                 Cleanup();
                 summons.DespawnAll();
                 BossAI::Reset();
-                DoCast(me, SPELL_TANK_MARKER, true);
-                events.ScheduleEvent(EVENT_BERSERK, 600000);
-                events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_TAIL_SMASH, 20000, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_FROST_BREATH, urand(8000, 12000), EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
                 _mysticBuffetStack = 0;
                 _isInAirPhase = false;
                 _isThirdPhase = false;
                 _bCanLand     = true;
                 _bombsLanded  = 0;
+				_firstphase = true;
 
                 if (instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) != 255)
                 {
@@ -241,6 +234,14 @@ class boss_sindragosa : public CreatureScript
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
+
+				DoCast(me, SPELL_TANK_MARKER, true);
+                events.ScheduleEvent(EVENT_BERSERK, 600000);
+                events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_TAIL_SMASH, 20000, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_FROST_BREATH, urand(8000, 12000), EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
 
                 BossAI::EnterCombat(victim);
                 instance->SetData(DATA_SINDRAGOSA, IN_PROGRESS);
@@ -284,7 +285,7 @@ class boss_sindragosa : public CreatureScript
                         float moveTime = me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
                         me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                         me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SindragosaFlyPos);
-                        DoCast(me, SPELL_SINDRAGOSA_S_FURY);
+                        //DoCast(me, SPELL_SINDRAGOSA_S_FURY);
                         break;
                     }
                     case ACTION_BOMB_LANDED:
@@ -359,7 +360,7 @@ class boss_sindragosa : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
-                if (!_isThirdPhase && !HealthAbovePct(35))
+               /* if (!_isThirdPhase && !HealthAbovePct(35))
                 {
                     //Do not start third phase while flying
                     if (me->IsFlying())
@@ -368,12 +369,18 @@ class boss_sindragosa : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_BREATH_P1);
                     Talk(SAY_PHASE_2);
                     events.CancelEvent(EVENT_AIR_PHASE);
-                    events.ScheduleEvent(EVENT_ICE_TOMB, urand(7000, 10000));
+                    //events.ScheduleEvent(EVENT_ICE_TOMB, urand(7000, 10000));
                     events.RescheduleEvent(EVENT_ICY_GRIP, urand(35000, 40000));
                     DoCast(me, SPELL_MYSTIC_BUFFET, true);
                     me->RemoveAurasDueToSpell(SPELL_BUFFET_VULNERABILITY);
                     _isThirdPhase = true;
-                }
+                }*/
+
+				if (HealthAbovePct(85) && _firstphase)
+				{
+					events.ScheduleEvent(EVENT_AIR_PHASE, 1000);
+					_firstphase = false;
+				}
             }
 
             void JustSummoned(Creature* summon)
@@ -447,42 +454,51 @@ class boss_sindragosa : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BERSERK:
+							sLog->outError("DANS BSERSK ************************************************");
                             DoScriptText(EMOTE_GENERIC_BERSERK_RAID, me);
                             Talk(SAY_BERSERK);
                             DoCast(me, SPELL_BERSERK);
                             break;
                         case EVENT_CLEAVE:
+							sLog->outError("DANS CLEAVE ************************************************");
                             DoCastVictim(SPELL_CLEAVE);
                             events.ScheduleEvent(EVENT_CLEAVE, urand(15000, 20000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_TAIL_SMASH:
+							sLog->outError("DANS EVENT_TAIL_SMASH ************************************************");
                             DoCast(me, SPELL_TAIL_SMASH);
                             events.ScheduleEvent(EVENT_TAIL_SMASH, urand(27000, 32000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_FROST_BREATH:
+							sLog->outError("DANS FROST BEATH ************************************************");
                             DoCastVictim(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1);
                             events.ScheduleEvent(EVENT_FROST_BREATH, urand(20000, 25000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_UNCHAINED_MAGIC:
+							sLog->outError("DANS UNCHAINED MAGIC ************************************************");
                             Talk(SAY_UNCHAINED_MAGIC);
                             DoCast(me, SPELL_UNCHAINED_MAGIC);
                             events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(30000, 35000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_ICY_GRIP:
+							sLog->outError("DANS ICY GRIP ************************************************");
                             DoCast(me, SPELL_ICY_GRIP);
                             events.ScheduleEvent(EVENT_ICY_GRIP, urand(70000, 75000), EVENT_GROUP_LAND_PHASE);
                             events.ScheduleEvent(EVENT_BLISTERING_COLD, 1000, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_BLISTERING_COLD:
+							sLog->outError("DANS BLISTERRING COLD ************************************************");
                             Talk(EMOTE_WARN_BLISTERING_COLD);
                             DoCast(me, SPELL_BLISTERING_COLD);
                             events.ScheduleEvent(EVENT_BLISTERING_COLD_YELL, 5000, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_BLISTERING_COLD_YELL:
+							sLog->outError("DANS BLISTERING SAY ************************************************");
                             Talk(SAY_BLISTERING_COLD);
                             break;
                         case EVENT_AIR_PHASE:
                         {
+							sLog->outError("DANS AIR PHASE ************************************************");
                             _isInAirPhase = true;
                             Talk(SAY_AIR_PHASE);
                             me->RemoveAurasDueToSpell(SPELL_FROST_AURA);
@@ -501,9 +517,11 @@ class boss_sindragosa : public CreatureScript
                             break;
                         }
                         case EVENT_AIR_MOVEMENT:
+							sLog->outError("DANS AIR MOVEMENT ************************************************");
                             me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE, SindragosaAirPos);
                             break;
                         case EVENT_ICE_TOMB:
+							sLog->outError("DANS ICY TOMB ************************************************");
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
                             {
                                 if(target)
@@ -516,6 +534,7 @@ class boss_sindragosa : public CreatureScript
                             break;
                         case EVENT_FROST_BOMB:
                         {
+							sLog->outError("DANS FROST BOMB ************************************************");
                             float myX, myY, myZ;
                             me->GetPosition(myX, myY, myZ);
                             Position pos;
@@ -565,6 +584,7 @@ class boss_sindragosa : public CreatureScript
                         }
                         case EVENT_LAND:
                         {
+							sLog->outError("DANS EVENT_LAND ************************************************");
                             events.CancelEvent(EVENT_FROST_BOMB);
                             if (!_bCanLand)
                             {
@@ -580,6 +600,7 @@ class boss_sindragosa : public CreatureScript
                         }
                         case EVENT_THIRD_PHASE_CHECK:
                         {
+							sLog->outError("DANS EVENT_3rd PHASE CHECK ************************************************");
                             if (!_isInAirPhase)
                             {
                                 Talk(SAY_PHASE_2);
@@ -593,6 +614,7 @@ class boss_sindragosa : public CreatureScript
                         }
                         case EVENT_CHECK_MYSTIC_BUFFET:
                         {
+							sLog->outError("DANS EVENT_CHECK_MYSTIC_BUFFET ************************************************");
                             me->RemoveAurasDueToSpell(SPELL_BUFFET_VULNERABILITY);
                             if (_isThirdPhase)
                                 if (!me->HasAura(SPELL_MYSTIC_BUFFET)) 
@@ -615,6 +637,7 @@ class boss_sindragosa : public CreatureScript
             bool _isInAirPhase;
             bool _isThirdPhase;
             bool _bCanLand;
+			bool _firstphase;
             uint8 _bombsLanded;
         };
 
