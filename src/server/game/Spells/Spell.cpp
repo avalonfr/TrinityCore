@@ -1047,10 +1047,6 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
         SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> > (searcher, containerTypeMask, m_caster, m_caster, radius);
 
-	// Skip if has aura "Recently Reapaired"
-    if (target->HasAura(62705))
-        return;
-
         if (!targets.empty())
         {
             // Other special target selection goes here
@@ -2096,6 +2092,12 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     if (checkIfValid)
         if (m_spellInfo->CheckTarget(m_caster, target, true) != SPELL_CAST_OK)
             return;
+    if (!CheckEffectTarget(target, effectMask))
+        return;
+
+  // Skip if has aura "Recently Reapaired"
+    if (target->HasAura(62705))
+        return;
 
     // Check for effect immune skip if immuned
     for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
@@ -2481,7 +2483,25 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
         }
 
-        caster->DealSpellDamage(&damageInfo, true);
+		caster->DealSpellDamage(&damageInfo, true);
+
+		// unleashed dark & light
+        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_GENERIC && m_spellInfo->Effects[1].TriggerSpell == 3617 && (m_spellInfo->SpellIconID == 1988 || m_spellInfo->SpellIconID == 1874))
+        {
+            AuraEffect const* pAurEff;
+            if ((pAurEff = unitTarget->GetAuraEffect(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE,SPELLFAMILY_GENERIC,1,0)) && !damageInfo.damage)
+            {
+                unitTarget->AddAura(67590,unitTarget);
+                if (unitTarget->GetAura(67590)->GetStackAmount() == 100)
+                {
+                    unitTarget->RemoveAura(67590);
+                    if (SpellSchoolMask(m_spellInfo->SchoolMask) == SPELL_SCHOOL_MASK_FIRE)
+                        unitTarget->AddAura(67218,unitTarget);
+                    else
+                        unitTarget->AddAura(67215,unitTarget);
+                }
+            }
+        }
 
         // Haunt
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[1] & 0x40000 && m_spellAura && m_spellAura->GetEffect(1))
@@ -2489,7 +2509,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             AuraEffect* aurEff = m_spellAura->GetEffect(1);
             aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
         }
-        m_damage = damageInfo.damage;
+
+		// Cobra Strikes (can't find any other way that may work)
+	    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->SpellFamilyFlags[1] & 0x10000000)
+			if (Unit * owner = caster->GetOwner())
+		        if (Aura* pAura = owner->GetAura(53257))
+					pAura->DropCharge();
+
+		m_damage = damageInfo.damage;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
@@ -2585,7 +2612,17 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
         {
-            unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
+		    // spell misses if target has Invisibility or Vanish and isn't visible for caster
+            if (m_spellInfo->Speed > 0.0f && unit == m_targets.GetUnitTarget()
+                && ((unit->HasInvisibilityAura() || m_caster->HasInvisibilityAura())
+                || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
+                && !m_caster->canSeeOrDetect(unit))
+	            {
+	                return SPELL_MISS_MISS;
+	            }
+
+			unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
+
             //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
             if ((m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
                 unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
@@ -2690,6 +2727,35 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         positive = aurApp->IsPositive();
 
                     duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive, effectMask);
+
+			         // Seduction with Improved Succubus talent - fix duration.
+			         if (m_spellInfo->Id == 6358 && unit->GetTypeId() == TYPEID_PLAYER && m_originalCaster->GetOwner())
+			         {
+			             float mod = 1.0f;
+			             float durationadd = 0.0f;
+			
+			             if (m_originalCaster->GetOwner()->HasAura(18754))
+			                 durationadd += float(1.5*IN_MILLISECONDS*0.22);
+			             else if (m_originalCaster->GetOwner()->HasAura(18755))
+			                 durationadd += float(1.5*IN_MILLISECONDS*0.44);
+			             else if (m_originalCaster->GetOwner()->HasAura(18756))
+			                 durationadd += float(1.5*IN_MILLISECONDS*0.66);
+			
+			             if (durationadd)
+			             {
+			                 switch (m_diminishLevel)
+			                 {
+			                 case DIMINISHING_LEVEL_1: break;
+			                 // lol, we lost 1 second here
+			                 case DIMINISHING_LEVEL_2: duration += 1000; mod = 0.5f; break;
+			                 case DIMINISHING_LEVEL_3: duration += 1000; mod = 0.25f; break;
+			                 case DIMINISHING_LEVEL_IMMUNE: { m_spellAura->Remove(); return SPELL_MISS_IMMUNE; }
+			                 default: break;
+			                 }
+			                 durationadd *= mod;
+			                 duration += int32(durationadd);
+			             }
+			         }
 
                     // Haste modifies duration of channeled spells
                     if (m_spellInfo->IsChanneled())
