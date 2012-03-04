@@ -399,7 +399,7 @@ public:
                             StartMove();
 
                     if (AuraCheckTimer <= diff) {
-                        if (AuraPlayer && AuraPlayer->GetQuestStatus(QUEST_A_FALL_FROM_GRACE) == QUEST_STATUS_INCOMPLETE && AuraPlayer->getQuestStatusMap()[QUEST_A_FALL_FROM_GRACE].m_creatureOrGOcount[0] == 1 && !AuraPlayer->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_MALE) && !AuraPlayer->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_FEMALE)) {
+                        if (AuraPlayer && AuraPlayer->GetQuestStatus(QUEST_A_FALL_FROM_GRACE) == QUEST_STATUS_INCOMPLETE && AuraPlayer->getQuestStatusMap()[QUEST_A_FALL_FROM_GRACE].CreatureOrGOCount[0] == 1 && !AuraPlayer->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_MALE) && !AuraPlayer->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_FEMALE)) {
                             switch(AuraPlayer->getGender())
                             {
                             case GENDER_FEMALE:
@@ -416,7 +416,7 @@ public:
 
                     if (me->GetEntry() != NPC_HIGH_ABBOT_LANDGREN_ESCORTEE_ENTRY)
                     {
-                        if (BodyGuardStart && AuraPlayer->GetQuestStatus(QUEST_A_FALL_FROM_GRACE) == QUEST_STATUS_INCOMPLETE && AuraPlayer->getQuestStatusMap()[QUEST_A_FALL_FROM_GRACE].m_creatureOrGOcount[0] == 1) {
+                        if (BodyGuardStart && AuraPlayer->GetQuestStatus(QUEST_A_FALL_FROM_GRACE) == QUEST_STATUS_INCOMPLETE && AuraPlayer->getQuestStatusMap()[QUEST_A_FALL_FROM_GRACE].CreatureOrGOCount[0] == 1) {
                             if (Creature* tmp = me->FindNearestCreature(NPC_DEVOUT_BODYGUARD, Range, true))
                             {
                                 if (BodyGuardMoveTimer <= diff)
@@ -454,7 +454,7 @@ public:
         if (pCreature->isQuestGiver())
             player->PrepareQuestMenu(pCreature->GetGUID());
 
-        if (pCreature->GetEntry() == NPC_HIGH_ABBOT_LANDGREN_ENTRY && player->GetQuestStatus(QUEST_A_FALL_FROM_GRACE) == QUEST_STATUS_INCOMPLETE && player->getQuestStatusMap()[QUEST_A_FALL_FROM_GRACE].m_creatureOrGOcount[0] == 1 && (player->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_MALE) || player->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_FEMALE)))
+        if (pCreature->GetEntry() == NPC_HIGH_ABBOT_LANDGREN_ENTRY && player->GetQuestStatus(QUEST_A_FALL_FROM_GRACE) == QUEST_STATUS_INCOMPLETE && player->getQuestStatusMap()[QUEST_A_FALL_FROM_GRACE].CreatureOrGOCount[0] == 1 && (player->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_MALE) || player->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_FEMALE)))
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, HighAbbotText[0], GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             player->SEND_GOSSIP_MENU(TEXT_1, pCreature->GetGUID());

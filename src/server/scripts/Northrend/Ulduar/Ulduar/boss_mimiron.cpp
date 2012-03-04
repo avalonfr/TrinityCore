@@ -230,7 +230,7 @@ public:
         {
             _Reset();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
             me->SetVisible(true);
             me->ExitVehicle();
             me->GetMotionMaster()->MoveTargetedHome();

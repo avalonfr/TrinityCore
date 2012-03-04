@@ -1804,17 +1804,18 @@ class spell_gen_break_shield: public SpellScriptLoader
     public:
         spell_gen_break_shield(const char* name) : SpellScriptLoader(name) {}
 
-    class spell_gen_break_shield_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gen_break_shield_SpellScript)
-
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        class spell_gen_break_shield_SpellScript : public SpellScript
         {
-            if (Unit* target = GetHitUnit())
+            PrepareSpellScript(spell_gen_break_shield_SpellScript)
+
+            void HandleScriptEffect(SpellEffIndex effIndex)
             {
+                Unit* target = GetHitUnit();
+
                 switch (effIndex)
                 {
                     case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
+                    {
                         uint32 spellId;
 
                         switch (GetSpellInfo()->Id)
@@ -1835,7 +1836,9 @@ class spell_gen_break_shield: public SpellScriptLoader
                         else
                             GetCaster()->CastSpell(target, spellId, false);
                         break;
+                    }
                     case EFFECT_1: // On damaging spells, for removing a defend layer
+                    {
                         Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
                         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                         {
@@ -1852,24 +1855,55 @@ class spell_gen_break_shield: public SpellScriptLoader
                             }
                         }
                         break;
+                    }
                     default:
                         break;
-
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_gen_break_shield_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_break_shield_SpellScript();
-    }
 };
+
+/* DOCUMENTATION: Charge spells
+Charge spells can be classified in four groups:
+
+- Spells on vehicle bar used by players:
++ EFFECT_0: SCRIPT_EFFECT
++ EFFECT_1: TRIGGER_SPELL
++ EFFECT_2: NONE
+- Spells casted by player's mounts triggered by script:
++ EFFECT_0: CHARGE
++ EFFECT_1: TRIGGER_SPELL
++ EFFECT_2: APPLY_AURA
+- Spells casted by players on the target triggered by script:
++ EFFECT_0: SCHOOL_DAMAGE
++ EFFECT_1: SCRIPT_EFFECT
++ EFFECT_2: NONE
+- Spells casted by NPCs on players:
++ EFFECT_0: SCHOOL_DAMAGE
++ EFFECT_1: CHARGE
++ EFFECT_2: SCRIPT_EFFECT
+
+In the following script we handle the SCRIPT_EFFECT and CHARGE
+- When handling SCRIPT_EFFECT:
++ EFFECT_0: Corresponds to "Spells on vehicle bar used by players" and we make player's mount cast
+the charge effect on the current target ("Spells casted by player's mounts triggered by script").
++ EFFECT_1 and EFFECT_2: Triggered when "Spells casted by player's mounts triggered by script" hits target,
+corresponding to "Spells casted by players on the target triggered by script" and "Spells casted by
+NPCs on players" and we check Defend layers and drop a charge of the first found.
+- When handling CHARGE:
++ Only launched for "Spells casted by player's mounts triggered by script", makes the player cast the
+damaging spell on target with a small chance of failing it.
+*/
 
 enum ChargeSpells
 {
@@ -1891,20 +1925,21 @@ enum ChargeSpells
 
 class spell_gen_mounted_charge: public SpellScriptLoader
 {
-public:
-    spell_gen_mounted_charge() : SpellScriptLoader("spell_gen_mounted_charge") { }
+    public:
+        spell_gen_mounted_charge() : SpellScriptLoader("spell_gen_mounted_charge") { }
 
-    class spell_gen_mounted_charge_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gen_mounted_charge_SpellScript)
-
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        class spell_gen_mounted_charge_SpellScript : public SpellScript
         {
-            if (Unit* target = GetHitUnit())
+            PrepareSpellScript(spell_gen_mounted_charge_SpellScript)
+
+            void HandleScriptEffect(SpellEffIndex effIndex)
             {
+                Unit* target = GetHitUnit();
+
                 switch (effIndex)
                 {
                     case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
+                    {
                         uint32 spellId;
 
                         switch (GetSpellInfo()->Id)
@@ -1928,8 +1963,10 @@ public:
                         else
                             GetCaster()->CastSpell(target, spellId, false);
                         break;
+                    }
                     case EFFECT_1: // On damaging spells, for removing a defend layer
                     case EFFECT_2:
+                    {
                         Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
                         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                         {
@@ -1946,9 +1983,9 @@ public:
                             }
                         }
                         break;
+                    }
                 }
             }
-        }
 
             void HandleChargeEffect(SpellEffIndex /*effIndex*/)
             {
@@ -1972,28 +2009,27 @@ public:
                 }
 
                 if (Unit* rider = GetCaster()->GetCharmer())
-                    rider->CastSpell(target, spellId, false);
+                    rider->CastSpell(GetHitUnit(), spellId, false);
                 else
-                    GetCaster()->CastSpell(target, spellId, false);
+                    GetCaster()->CastSpell(GetHitUnit(), spellId, false);
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
+
+                if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
+                    OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+
+                if (spell->Effects[EFFECT_0].Effect == SPELL_EFFECT_CHARGE)
+                    OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
-
-            if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
-                OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
-
-            if (spell->Effects[EFFECT_0].Effect == SPELL_EFFECT_CHARGE)
-                OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
+            return new spell_gen_mounted_charge_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_mounted_charge_SpellScript();
-    }
 };
 
 enum DefendVisuals

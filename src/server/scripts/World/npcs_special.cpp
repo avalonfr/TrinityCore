@@ -3526,87 +3526,6 @@ class npc_dark_iron_herald : public CreatureScript
         }
 };
 
-class npc_dark_iron_guzzler : public CreatureScript
-{
-    public:
-        npc_dark_iron_guzzler() : CreatureScript("npc_dark_iron_guzzler") { }
-
-        struct npc_dark_iron_guzzlerAI : public ScriptedAI
-        {
-            npc_dark_iron_guzzlerAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset()
-            {
-                _kegGUID = 0;
-                _destroyTimer = 20*IN_MILLISECONDS;
-                _kegReached = false;
-            }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
-            {
-                if (spell->Id == SPELL_BREWFEST_STUN)
-                {
-                    me->GetMotionMaster()->Clear();
-                    me->DespawnOrUnsummon(3*IN_MILLISECONDS);
-                    _kegReached = false;
-                }
-            }
-
-            void SetGUID(uint64 guid, int32 /*id*/ = 0)
-            {
-                _kegGUID = guid;
-            }
-
-            void MovementInform(uint32 type, uint32 id)
-            {
-                if (type != POINT_MOTION_TYPE)
-                    return;
-
-                if (GameObject* keg = ObjectAccessor::GetGameObject(*me, _kegGUID))
-                {
-                    _kegReached = true;
-                    me->SetFacingToObject(keg);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK2HLOOSE);
-                }
-                else
-                    me->DespawnOrUnsummon();
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (_kegReached)
-                {
-                    GameObject* keg = ObjectAccessor::GetGameObject(*me, _kegGUID);
-                    if (!keg || (keg && keg->GetGoState() == GO_STATE_ACTIVE))
-                    {
-                        me->DespawnOrUnsummon();
-                        _kegReached = false;
-                        return;
-                    }
-
-                    if (_destroyTimer <= diff)
-                    {
-                        keg->SetGoState(GO_STATE_ACTIVE);
-                        me->DespawnOrUnsummon();
-                        _kegReached = false;
-                    }
-                    else
-                        _destroyTimer -= diff;
-                }
-            }
-
-        private:
-            uint64 _kegGUID;
-            uint32 _destroyTimer;
-            bool _kegReached;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_dark_iron_guzzlerAI(creature);
-        }
-};
-
 enum hallowen
 {
     QUEST_INCOMING_GUMDROP = 8358,
@@ -4797,100 +4716,6 @@ public:
     }
 };
 
-/*#####
-# npc_spring_rabbit
-#####*/
-
-enum rabbitSpells
-{
-    SPELL_SPRING_FLING          = 61875,
-    SPELL_SPRING_RABBIT_JUMP    = 61724,
-    SPELL_SPRING_RABBIT_WANDER  = 61726,
-    SPELL_SUMMON_BABY_BUNNY     = 61727,
-    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
-    NPC_SPRING_RABBIT           = 32791
-};
-
-class npc_spring_rabbit : public CreatureScript
-{
-public:
-    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_spring_rabbitAI(creature);
-    }
-
-    struct npc_spring_rabbitAI : public ScriptedAI
-    {
-        npc_spring_rabbitAI(Creature* c) : ScriptedAI(c) { }
-
-        bool inLove;
-        uint32 jumpTimer;
-        uint32 bunnyTimer;
-        uint32 searchTimer;
-        uint64 rabbitGUID;
-
-        void Reset()
-        {
-            inLove = false;
-            rabbitGUID = 0;
-            jumpTimer = urand(5000, 10000);
-            bunnyTimer = urand(10000, 20000);
-            searchTimer = urand(5000, 10000);
-            if (Unit* owner = me->GetOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-        }
-
-        void EnterCombat(Unit * /*who*/) { }
-
-        void DoAction(const int32 /*param*/)
-        {
-            inLove = true;
-            if (Unit* owner = me->GetOwner())
-                owner->CastSpell(owner, SPELL_SPRING_FLING, true);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (inLove)
-            {
-                if (jumpTimer <= diff)
-                {
-                    if (Unit* rabbit = Unit::GetUnit(*me, rabbitGUID))
-                        DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
-                    jumpTimer = urand(5000, 10000);
-                } else jumpTimer -= diff;
-
-                if (bunnyTimer <= diff)
-                {
-                    DoCast(SPELL_SUMMON_BABY_BUNNY);
-                    bunnyTimer = urand(20000, 40000);
-                } else bunnyTimer -= diff;
-            }
-            else
-            {
-                if (searchTimer <= diff)
-                {
-                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 10.0f))
-                    {
-                        if (rabbit == me || rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
-                            return;
-
-                        me->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, me);
-                        DoAction(1);
-                        rabbit->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, rabbit);
-                        rabbit->AI()->DoAction(1);
-                        rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
-                        rabbitGUID = rabbit->GetGUID();
-                    }
-                    searchTimer = urand(5000, 10000);
-                } else searchTimer -= diff;
-            }
-        }
-    };
-};
-
 void AddSC_npcs_special()
 {
     new npc_air_force_bots;
@@ -4932,7 +4757,6 @@ void AddSC_npcs_special()
     new npc_bark_bunny();
     new npc_brew_vendor();
 	new npc_dark_iron_herald();
-    new npc_dark_iron_guzzler();
 	new npc_kali_remik;
     new npc_hallowend();
     new npc_headless_horseman_fire();

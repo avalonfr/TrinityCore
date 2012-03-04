@@ -1194,46 +1194,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
-                case 62324: // Throw Passenger
-                {
-                    if (m_targets.HasTraj())
-                    {
-                        if (Vehicle* vehicle = m_caster->GetVehicleKit())
-                            if (Unit* passenger = vehicle->GetPassenger(damage - 1))
-                            {
-                                std::list<Unit*> unitList;
-                                // use 99 because it is 3d search
-                                SearchAreaTarget(unitList, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, 33114);
-                                float minDist = 99 * 99;
-                                Unit* target = NULL;
-                                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-                                {
-                                    if (Vehicle* seat = (*itr)->GetVehicleKit())
-                                        if (!seat->GetPassenger(0))
-                                            if (Unit* device = seat->GetPassenger(2))
-                                                if (!device->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                                                {
-                                                    float dist = (*itr)->GetExactDistSq(m_targets.GetDst());
-                                                    if (dist < minDist)
-                                                    {
-                                                        minDist = dist;
-                                                        target = (*itr);
-                                                    }
-                                                }
-                                }
-                                if (target && target->IsWithinDist2d(m_targets.GetDst(), m_spellInfo->Effects[effIndex].CalcRadius() * 2)) // now we use *2 because the location of the seat is not correct
-                                    passenger->EnterVehicle(target, 0);
-                                else
-                                {
-                                    passenger->ExitVehicle();
-                                    float x, y, z;
-                                    m_targets.GetDst()->GetPosition(x, y, z);
-                                    passenger->GetMotionMaster()->MoveJump(x, y, z, m_targets.GetSpeedXY(), m_targets.GetSpeedZ());
-                                }
-                            }
-                    }
-                    return;
-                }
                 case 64385:                                 // Unusual Compass
                 {
                     m_caster->SetOrientation(float(urand(0, 62832)) / 10000.0f);
@@ -1958,7 +1918,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
                         passenger->ExitVehicle();
                     passenger->AddAura(66251,passenger);
                         float x, y, z;
-                        m_targets.GetDst()->GetPosition(x, y, z);
+                        m_targets.GetDst()->_position.GetPosition(x,y,z);
                         passenger->GetMotionMaster()->MoveJump(x, y, z, m_targets.GetSpeedXY(), m_targets.GetSpeedZ());
                     }                    
                 return;    

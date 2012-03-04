@@ -254,7 +254,7 @@ class boss_lich_king_toc : public CreatureScript
                     summoned->CastSpell(summoned, 51807, false);
                     summoned->SetDisplayId(11686);
                 }
-                if (m_instance) m_instance->SetData(TYPE_LICH_KING, IN_PROGRESS);
+                if (m_pInstance) m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
                 me->SetWalk(true);
             }
 
@@ -391,7 +391,7 @@ class npc_fizzlebang_toc : public CreatureScript
                 {
                     case 1:
                         me->SetWalk(false);
-                        if (m_instance)
+                        if (m_pInstance)
                         {
                             m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
                             m_pInstance->SetData(TYPE_EVENT, 1120);

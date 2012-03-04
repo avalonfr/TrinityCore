@@ -8839,7 +8839,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             if (!victim->ToCreature())
                 return false;
 
-            if (victim->ToCreature()->GetCreatureInfo()->MechanicImmuneMask & (1 << procSpell->Effects[EFFECT_0].Mechanic))
+            if (victim->ToCreature()->GetCreatureTemplate()->MechanicImmuneMask & (1 << procSpell->Effects[EFFECT_0].Mechanic))
                 target = victim;
             else
                 return false;
@@ -15659,11 +15659,11 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             {
                 if (instanceMap->IsRaidOrHeroicDungeon())
                 {
-                    if (creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                    if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                     {
                          ((InstanceMap *)instanceMap)->PermBindAllPlayers(creditedPlayer);
                         /** World of Warcraft Armory **/
-                        creditedPlayer->WriteWowArmoryDatabaseLog(3, creature->GetCreatureInfo()->Entry);
+                        creditedPlayer->WriteWowArmoryDatabaseLog(3, creature->GetCreatureTemplate()->Entry);
                         /** World of Warcraft Armory **/
                     }
                 }

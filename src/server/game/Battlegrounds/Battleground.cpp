@@ -761,7 +761,7 @@ void Battleground::EndBattleground(uint32 winner)
                     result.release();
                 }
                 uint32 gameID = maxChartID+1;
-                for(BattlegroundScoreMap::const_iterator itr = m_PlayerScores.begin(); itr != m_PlayerScores.end(); ++itr)
+                for(BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
                 {
                     Player *plr = ObjectAccessor::FindPlayer(itr->first);
                     if (!plr)

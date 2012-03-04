@@ -541,7 +541,7 @@ public:
                         break;
                     case 4:
                         for (uint8 n = 0; n < RAID_MODE(2,4); ++n)
-                            engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+                            engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                         for (uint8 n = 0; n < 4; ++n)
                             defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                         me->MonsterYell(SAY_AGGRO_2, LANG_UNIVERSAL, 0);

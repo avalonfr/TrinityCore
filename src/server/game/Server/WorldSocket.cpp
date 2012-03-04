@@ -1038,14 +1038,14 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     uint32 t = 0;
     uint32 seed = m_Seed;
 
-    sha.UpdateData (account);
-    sha.UpdateData ((uint8 *) & t, 4);
-    sha.UpdateData ((uint8 *) & clientSeed, 4);
-    sha.UpdateData ((uint8 *) & seed, 4);
-    sha.UpdateBigNumbers (&k, NULL);
-    sha.Finalize();
+    sha1.UpdateData (account);
+    sha1.UpdateData ((uint8 *) & t, 4);
+    sha1.UpdateData ((uint8 *) & clientSeed, 4);
+    sha1.UpdateData ((uint8 *) & seed, 4);
+    sha1.UpdateBigNumbers (&k, NULL);
+    sha1.Finalize();
 
-    if (memcmp (sha.GetDigest(), digest, 20))
+    if (memcmp (sha1.GetDigest(), digest, 20))
     {
         packet.Initialize (SMSG_AUTH_RESPONSE, 1);
         packet << uint8 (AUTH_FAILED);
@@ -1081,7 +1081,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
+	ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), isVIP, expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
     m_Crypt.Init(&k);
 

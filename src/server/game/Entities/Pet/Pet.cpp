@@ -216,7 +216,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
             setPowerType(POWER_FOCUS);
             break;
 		case CLASS_MAGE:
-            return GetCreatureInfo()->type == CREATURE_TYPE_ELEMENTAL;
+            return GetCreatureTemplate()->type == CREATURE_TYPE_ELEMENTAL;
         default:
             if (!IsPetGhoul())
                 sLog->outError("Pet have incorrect type (%u) for pet loading.", getPetType());
