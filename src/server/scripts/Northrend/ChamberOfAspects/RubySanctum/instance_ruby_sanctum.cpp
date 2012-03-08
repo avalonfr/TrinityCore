@@ -236,6 +236,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                             break;
 
                         DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 0);
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, 0);
+
                         HandleGameObject(FlameRingGUID, true);
                         HandleGameObject(TwilightFlameRingGUID, true);
                         break;
@@ -254,9 +257,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_BALTHARUS_SHARED_HEALTH:
                         BaltharusSharedHealth = data;
                         break;
-                    case DATA_HALION_SHARED_HEALTH:
-                        HalionSharedHealth = data;
-                        break;
                     default:
                         break;
                 }
@@ -268,8 +268,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                 {
                     case DATA_BALTHARUS_SHARED_HEALTH:
                         return BaltharusSharedHealth;
-                    case DATA_HALION_SHARED_HEALTH:
-                        return HalionSharedHealth;
                     default:
                         break;
                 }
@@ -346,7 +344,6 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 TwilightFlameRingGUID;
 
             uint32 BaltharusSharedHealth;
-            uint32 HalionSharedHealth;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

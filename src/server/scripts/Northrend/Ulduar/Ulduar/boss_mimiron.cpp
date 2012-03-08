@@ -50,7 +50,20 @@ enum Yells
     SAY_YS_HELP                                 = -1603259
 };
 
-#define EMOTE_LEVIATHAN                         "Leviathan MK II begins to cast Plasma Blast!"
+#define SAY_TIME_1 								"Cette zone sera détruite dans 10 minutes!"
+#define SAY_TIME_2 								"Cette zone sera détruite dans 9 minutes!" //soundid 15416 and below
+#define SAY_TIME_3 								"Cette zone sera détruite dans 8 minutes!"
+#define SAY_TIME_4 								"Cette zone sera détruite dans 7 minutes!"
+#define SAY_TIME_5 								"Cette zone sera détruite dans 6 minutes!"
+#define SAY_TIME_6 								"Cette zone sera détruite dans 5 minutes!"
+#define SAY_TIME_7 								"Cette zone sera détruite dans 4 minutes!"
+#define SAY_TIME_8 								"Cette zone sera détruite dans 3 minutes!"
+#define SAY_TIME_9 								"Cette zone sera détruite dans 2 minutes!"
+#define SAY_TIME_10 							"Cette zone sera détruite dans 1 minute!"
+#define SAY_TIME_UP 							"Fin de l'auto-destruction-fréquence. Bonne journée :D"
+#define SAY_TIME_CANCEL 						"Auto-destruction-fréquence abordé. A905 code de l'émetteur."
+#define SAY_ALARM_HARD_MODE 					"Auto-destruction-fréquence initialisé!"
+#define EMOTE_LEVIATHAN                         "Leviathan MK II commence à jeter souffle Plasma!"
 
 enum eSpells
 {
@@ -94,6 +107,19 @@ enum eSpells
 
 enum eEvents
 {
+    //Annonce HM
+    EVENT_9MINS,
+    EVENT_8MINS,
+    EVENT_7MINS,
+    EVENT_6MINS,
+    EVENT_5MINS,
+    EVENT_4MINS,
+    EVENT_3MINS,
+    EVENT_2MINS,
+    EVENT_1MINS,
+    EVENT_TIMEUP,
+    EVENT_CANCEL,
+	
     // Leviathan MK II
     EVENT_NONE,
     EVENT_PROXIMITY_MINE,
@@ -320,6 +346,72 @@ public:
             
             if (MimironHardMode)
             {
+				while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_9MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15416);
+                            me->MonsterYell(SAY_TIME_2, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_8MINS, 60000);
+                            break;
+                        case EVENT_8MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15417);
+                            me->MonsterYell(SAY_TIME_3, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_7MINS, 60000);
+                            break;
+                        case EVENT_7MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15418);
+                            me->MonsterYell(SAY_TIME_4, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_6MINS, 60000);
+                            break;
+                        case EVENT_6MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15419);
+                            me->MonsterYell(SAY_TIME_5, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_5MINS, 60000);
+                            break;
+                        case EVENT_5MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15420);
+                            me->MonsterYell(SAY_TIME_6, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_4MINS, 60000);
+                            break;
+                        case EVENT_4MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15421);
+                            me->MonsterYell(SAY_TIME_7, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_3MINS, 60000);
+                            break;
+                        case EVENT_3MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15422);
+                            me->MonsterYell(SAY_TIME_8, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_2MINS, 60000);
+                            break;
+                        case EVENT_2MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15423);
+                            me->MonsterYell(SAY_TIME_9, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_1MINS, 60000);
+                            break;
+                        case EVENT_1MINS:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15424);
+                            me->MonsterYell(SAY_TIME_10, LANG_UNIVERSAL, 0);
+							// events.ScheduleEvent(EVENT_TIMEUP, 60000);
+                            break;
+                        case EVENT_TIMEUP:
+                            me->SetName("Ordinateur");
+                            me->PlayDirectSound(15425);
+                            me->MonsterYell(SAY_TIME_UP, LANG_UNIVERSAL, 0);
+                            break;
+                    }
+                }
+				
                 if (FlameTimer <= diff)
                 {
                     for (uint8 i = 0; i < 3; ++i)
@@ -374,38 +466,70 @@ public:
                     {
                         case 1:
                             if (MimironHardMode)
-                                DoScriptText(SAY_HARDMODE_ON, me);
+							{
+                                me->SetName("Ordinateur");
+                                me->MonsterYell(SAY_ALARM_HARD_MODE, LANG_UNIVERSAL, 0);
+                                me->PlayDirectSound(15413);
+                                JumpToNextStep(2000);
+                            }
                             else
-                                DoScriptText(SAY_AGGRO, me);
-                            JumpToNextStep(10000);
+                            {
+                                    JumpToNextStep(1);
+                            }
                             break;
-                        case 2:
+						case 2:
+                            if(MimironHardMode)
+                            {
+                                me->SetName("Mimiron");
+                                DoScriptText(SAY_HARDMODE_ON, me);
+                                JumpToNextStep(15000);
+                            }
+                            else
+                            {
+                                me->SetName("Mimiron");
+                                DoScriptText(SAY_AGGRO, me);
+                                JumpToNextStep(10000);
+                            }
+                            break;						
+                        case 3:
                             if (instance)
                             {
                                 if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                     me->_EnterVehicle(pLeviathan->GetVehicleKit(), 4);
                             }
-                            JumpToNextStep(2000);
-                            break;
-                        case 3:
-                            me->ChangeSeat(2);
+							me->SetName("Ordinateur");
                             JumpToNextStep(2000);
                             break;
                         case 4:
-                            me->ChangeSeat(5);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
-                            JumpToNextStep(2500);
+                                if(MimironHardMode)
+                                {
+                                    me->PlayDirectSound(15415);
+                                    me->MonsterYell(SAY_TIME_1, LANG_UNIVERSAL, 0);
+                                    me->ChangeSeat(2);
+                                    JumpToNextStep(3000);
+                                }
+                                else
+                                {
+                                    me->ChangeSeat(2);
+                                    JumpToNextStep(2000);
+                                }
                             break;
                         case 5:
+							me->SetName("Mimiron");
+                            me->ChangeSeat(5);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                            JumpToNextStep(3000);
+                            break;
+                        case 6:
                             DoScriptText(SAY_MKII_ACTIVATE, me);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                             JumpToNextStep(6000);
                             break;
-                        case 6:
+                        case 7:
                             me->ChangeSeat(6);
                             JumpToNextStep(2000);
                             break;
-                        case 7:
+                        case 8:
                             if (instance)
                             {
                                 if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
@@ -413,6 +537,17 @@ public:
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                     pLeviathan->AI()->DoAction(DO_START_ENCOUNTER);
                                     phase = PHASE_COMBAT;
+                                    me->SetName("Ordinateur");
+                                    events.ScheduleEvent(EVENT_9MINS, 60000);
+                                    events.ScheduleEvent(EVENT_8MINS, 120000);
+                                    events.ScheduleEvent(EVENT_7MINS, 180000);
+                                    events.ScheduleEvent(EVENT_6MINS, 240000);
+                                    events.ScheduleEvent(EVENT_5MINS, 300000);
+                                    events.ScheduleEvent(EVENT_4MINS, 360000);
+                                    events.ScheduleEvent(EVENT_3MINS, 420000);
+                                    events.ScheduleEvent(EVENT_2MINS, 480000);
+                                    events.ScheduleEvent(EVENT_1MINS, 540000);
+                                    events.ScheduleEvent(EVENT_TIMEUP, 600000);
                                 }
                             }
                             break;
