@@ -3125,7 +3125,6 @@ void AddSC_generic_spell_scripts()
     new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
 	new spell_gen_elunes_blessing();
-	new spell_gen_elune_candle();
 	new spell_gen_ds_flush_knockback();
     new spell_gen_chaos_blast();
 }
