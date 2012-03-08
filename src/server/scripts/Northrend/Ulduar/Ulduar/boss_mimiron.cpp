@@ -466,38 +466,70 @@ public:
                     {
                         case 1:
                             if (MimironHardMode)
-                                DoScriptText(SAY_HARDMODE_ON, me);
+							{
+                                me->SetName("Ordinateur");
+                                me->MonsterYell(SAY_ALARM_HARD_MODE, LANG_UNIVERSAL, 0);
+                                me->PlayDirectSound(15413);
+                                JumpToNextStep(2000);
+                            }
                             else
-                                DoScriptText(SAY_AGGRO, me);
-                            JumpToNextStep(10000);
+                            {
+                                    JumpToNextStep(1);
+                            }
                             break;
-                        case 2:
+						case 2:
+                            if(MimironHardMode)
+                            {
+                                me->SetName("Mimiron");
+                                DoScriptText(SAY_HARDMODE_ON, me);
+                                JumpToNextStep(15000);
+                            }
+                            else
+                            {
+                                me->SetName("Mimiron");
+                                DoScriptText(SAY_AGGRO, me);
+                                JumpToNextStep(10000);
+                            }
+                            break;						
+                        case 3:
                             if (instance)
                             {
                                 if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                     me->_EnterVehicle(pLeviathan->GetVehicleKit(), 4);
                             }
-                            JumpToNextStep(2000);
-                            break;
-                        case 3:
-                            me->ChangeSeat(2);
+							me->SetName("Ordinateur");
                             JumpToNextStep(2000);
                             break;
                         case 4:
+                                if(MimironHardMode)
+                                {
+                                    me->PlayDirectSound(15415);
+                                    me->MonsterYell(SAY_TIME_1, LANG_UNIVERSAL, 0);
+                                    me->ChangeSeat(2);
+                                    JumpToNextStep(3000);
+                                }
+                                else
+                                {
+                                    me->ChangeSeat(2);
+                                    JumpToNextStep(2000);
+                                }
+                            break;
+                        case 5:
+							me->SetName("Mimiron");
                             me->ChangeSeat(5);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                             JumpToNextStep(3000);
                             break;
-                        case 5:
+                        case 6:
                             DoScriptText(SAY_MKII_ACTIVATE, me);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                             JumpToNextStep(6000);
                             break;
-                        case 6:
+                        case 7:
                             me->ChangeSeat(6);
                             JumpToNextStep(2000);
                             break;
-                        case 7:
+                        case 8:
                             if (instance)
                             {
                                 if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
