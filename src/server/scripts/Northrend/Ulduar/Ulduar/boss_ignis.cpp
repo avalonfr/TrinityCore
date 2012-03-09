@@ -230,7 +230,7 @@ public:
                     case EVENT_GRAB_POT:
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
-                            SlagPotTarget->CastCustomSpell(SPELL_GRAB_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, 1, me, true)
+                            SlagPotTarget->CastCustomSpell(SPELL_GRAB_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, 1, me, true);
                             events.ScheduleEvent(EVENT_CHANGE_POT, 1000);
                         }
                         break;
