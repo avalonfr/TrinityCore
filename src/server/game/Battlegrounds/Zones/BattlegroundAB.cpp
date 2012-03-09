@@ -191,8 +191,8 @@ void BattlegroundAB::StartingEventOpenDoors()
     }
     DoorOpen(BG_AB_OBJECT_GATE_A);
     DoorOpen(BG_AB_OBJECT_GATE_H);
-
-    // Achievement: Let's Get This Done
+	
+	// Achievement: Let's Get This Done
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, AB_EVENT_START_BATTLE);
 }
 

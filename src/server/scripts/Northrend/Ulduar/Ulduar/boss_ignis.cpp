@@ -21,6 +21,10 @@ SDAuthor: PrinceCreed
 SD%Complete: 100
 EndScriptData */
 
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "ScriptPCH.h"
 #include "ulduar.h"
 #include "Vehicle.h"
@@ -45,17 +49,19 @@ enum Spells
     SPELL_FLAME_JETS                            = 62680,
     SPELL_SCORCH                                = 62546,
     SPELL_SLAG_POT                              = 62717,
-    SPELL_SLAG_IMBUED                           = 62836,
     SPELL_SLAG_POT_DAMAGE                       = 65722,
+    SPELL_SLAG_IMBUED                           = 62836,
     SPELL_ACTIVATE_CONSTRUCT                    = 62488,
     SPELL_STRENGHT                              = 64473,
     SPELL_GRAB                                  = 62707,
     SPELL_BERSERK                               = 47008,
+	SPELL_GRAB_ENTER_VEHICLE      				= 62711,
 
     // Iron Construct
     SPELL_HEAT                                  = 65667,
     SPELL_MOLTEN                                = 62373,
     SPELL_BRITTLE                               = 62382,
+	SPELL_BRITTLE_25              				= 67114,
     SPELL_SHATTER                               = 62383,
     SPELL_FREEZE_ANIM                           = 63354,
 
@@ -66,14 +72,15 @@ enum Spells
 enum Events
 {
     EVENT_NONE,
-    EVENT_JET,
+    EVENT_JET 									=1,
     EVENT_SCORCH,
     EVENT_SLAG_POT,
     EVENT_GRAB_POT,
     EVENT_CHANGE_POT,
-    EVENT_END_POT,
     EVENT_CONSTRUCT,
-    EVENT_BERSERK
+    EVENT_BERSERK,
+	
+	ACTION_REMOVE_BUFF
 };
 
 enum Npcs
@@ -81,8 +88,6 @@ enum Npcs
     NPC_IRON_CONSTRUCT                          = 33121,
     NPC_SCORCH_GROUND                           = 33221
 };
-
-#define ACTION_REMOVE_BUFF                      1
 
 enum Achievements
 {
@@ -93,26 +98,26 @@ enum Achievements
 
 const Position Pos[20] =
 {
-{630.366f,216.772f,360.891f,M_PI},
-{630.594f,231.846f,360.891f,M_PI},
-{630.435f,337.246f,360.886f,M_PI},
-{630.493f,313.349f,360.886f,M_PI},
-{630.444f,321.406f,360.886f,M_PI},
-{630.366f,247.307f,360.888f,M_PI},
-{630.698f,305.311f,360.886f,M_PI},
-{630.500f,224.559f,360.891f,M_PI},
-{630.668f,239.840f,360.890f,M_PI},
-{630.384f,329.585f,360.886f,M_PI},
-{543.220f,313.451f,360.886f,0},
-{543.356f,329.408f,360.886f,0},
-{543.076f,247.458f,360.888f,0},
-{543.117f,232.082f,360.891f,0},
-{543.161f,305.956f,360.886f,0},
-{543.277f,321.482f,360.886f,0},
-{543.316f,337.468f,360.886f,0},
-{543.280f,239.674f,360.890f,0},
-{543.265f,217.147f,360.891f,0},
-{543.256f,224.831f,360.891f,0}
+    {630.366f, 216.772f, 360.891f, 3.001970f},
+    {630.594f, 231.846f, 360.891f, 3.124140f},
+    {630.435f, 337.246f, 360.886f, 3.211410f},
+    {630.493f, 313.349f, 360.886f, 3.054330f},
+    {630.444f, 321.406f, 360.886f, 3.124140f},
+    {630.366f, 247.307f, 360.888f, 3.211410f},
+    {630.698f, 305.311f, 360.886f, 3.001970f},
+    {630.500f, 224.559f, 360.891f, 3.054330f},
+    {630.668f, 239.840f, 360.890f, 3.159050f},
+    {630.384f, 329.585f, 360.886f, 3.159050f},
+    {543.220f, 313.451f, 360.886f, 0.104720f},
+    {543.356f, 329.408f, 360.886f, 6.248280f},
+    {543.076f, 247.458f, 360.888f, 6.213370f},
+    {543.117f, 232.082f, 360.891f, 0.069813f},
+    {543.161f, 305.956f, 360.886f, 0.157080f},
+    {543.277f, 321.482f, 360.886f, 0.052360f},
+    {543.316f, 337.468f, 360.886f, 6.195920f},
+    {543.280f, 239.674f, 360.890f, 6.265730f},
+    {543.265f, 217.147f, 360.891f, 0.174533f},
+    {543.256f, 224.831f, 360.891f, 0.122173f}
 };
 
 
@@ -167,9 +172,8 @@ public:
 
             events.ScheduleEvent(EVENT_JET, 30000);
             events.ScheduleEvent(EVENT_SCORCH, 25000);
-            events.ScheduleEvent(EVENT_SLAG_POT, 35000);
+            events.ScheduleEvent(EVENT_SLAG_POT, 35000, 1);
             events.ScheduleEvent(EVENT_CONSTRUCT, 15000);
-            events.ScheduleEvent(EVENT_END_POT, 40000);
             events.ScheduleEvent(EVENT_BERSERK, 480000);
             SlagPotGUID = 0;
             ConstructTimer = 0;
@@ -210,6 +214,7 @@ public:
                     case EVENT_JET:
                         me->MonsterTextEmote(EMOTE_JETS, 0, true);
                         DoCastAOE(SPELL_FLAME_JETS);
+						events.DelayEvents(5000, 1);
                         events.ScheduleEvent(EVENT_JET, urand(35000,40000));
                         break;
                     case EVENT_SLAG_POT:
@@ -218,15 +223,14 @@ public:
                             DoScriptText(SAY_SLAG_POT, me);
                             SlagPotGUID = pTarget->GetGUID();
                             DoCast(pTarget, SPELL_GRAB);
-                            events.DelayEvents(3000);
                             events.ScheduleEvent(EVENT_GRAB_POT, 500);
                         }
-                        events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000));
+                        events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000), 1);
                         break;
                     case EVENT_GRAB_POT:
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
-                            SlagPotTarget->_EnterVehicle(_vehicle, 0);
+                            SlagPotTarget->CastCustomSpell(SPELL_GRAB_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, 1, me, true)
                             events.ScheduleEvent(EVENT_CHANGE_POT, 1000);
                         }
                         break;
@@ -234,16 +238,10 @@ public:
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
                             SlagPotTarget->AddAura(SPELL_SLAG_POT, SlagPotTarget);
-                            SlagPotTarget->ChangeSeat(1);
-                            events.ScheduleEvent(EVENT_END_POT, 10000);
-                        }
-                        break;
-                    case EVENT_END_POT:
-                        if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
-                        {
-                            SlagPotTarget->ExitVehicle();
-                            SlagPotTarget = NULL;
-                            SlagPotGUID = NULL;
+							SlagPotTarget->ExitVehicle();
+                            SlagPotTarget->CastCustomSpell(SPELL_GRAB_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, 2, me, true);
+                            SlagPotTarget->ClearUnitState(UNIT_STATE_ONVEHICLE); // Hack
+							SlagPotGUID = 0;
                         }
                         break;
                     case EVENT_SCORCH:
@@ -346,7 +344,7 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32 &damage)
         {
-            if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
+            if (me->HasAura(RAID_MODE<uint32>(SPELL_BRITTLE, SPELL_BRITTLE_25)) && damage >= 5000)
             {
                 DoCastAOE(SPELL_SHATTER, true);
                 if (Creature *pIgnis = me->GetCreature(*me, pInstance->GetData64(DATA_IGNIS)))
@@ -427,7 +425,6 @@ public:
 
 };
 
-
 class npc_scorch_ground : public CreatureScript
 {
 public:
@@ -454,41 +451,44 @@ public:
 
 };
 
-
 class spell_ignis_slag_pot : public SpellScriptLoader
 {
     public:
         spell_ignis_slag_pot() : SpellScriptLoader("spell_ignis_slag_pot") { }
- 
+
         class spell_ignis_slag_pot_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_ignis_slag_pot_AuraScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_SLAG_POT_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_POT_DAMAGE))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_SLAG_POT))
-                    return false;
-                if (!sSpellStore.LookupEntry(SPELL_SLAG_IMBUED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_IMBUED))
                     return false;
                 return true;
             }
 
-            void HandleEffectPeriodic(AuraEffect const * aurEff)
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
                 Unit* aurEffCaster = aurEff->GetCaster();
                 if (!aurEffCaster)
                     return;
 
-                Unit * target = GetTarget();
+                Unit* target = GetTarget();
                 aurEffCaster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
-                if (target->isAlive() && !GetDuration())
-                     target->CastSpell(target, SPELL_SLAG_IMBUED, true);
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTarget()->isAlive())
+                    GetTarget()->CastSpell(GetTarget(), SPELL_SLAG_IMBUED, true);
             }
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_ignis_slag_pot_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ignis_slag_pot_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -498,13 +498,39 @@ class spell_ignis_slag_pot : public SpellScriptLoader
         }
 };
 
+class spell_ignis_flame_jets : public SpellScriptLoader
+{
+    public:
+        spell_ignis_flame_jets() : SpellScriptLoader("spell_ignis_flame_jets") { }
+
+        class spell_ignis_flame_jets_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ignis_flame_jets_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(PlayerOrPetCheck());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_ignis_flame_jets_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_ignis_flame_jets_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_ignis_flame_jets_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ignis_flame_jets_SpellScript();
+        }
+};
+
 void AddSC_boss_ignis()
 {
     new boss_ignis();
     new npc_iron_construct();
     new npc_scorch_ground();
     new spell_ignis_slag_pot();
-
-    if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3206)))
-        vehSeat->m_flags |= 0x400;
+    new spell_ignis_flame_jets();  
 }
