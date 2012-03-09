@@ -382,8 +382,8 @@ enum eSquireDavid
     GOSSIP_TEXTID_SQUIRE                                = 14407
 };
 
-#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
-#define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
+#define GOSSIP_SQUIRE_ITEM_1 "Je suis prêt à me battre!"
+#define GOSSIP_SQUIRE_ITEM_2 "Comment les Croisés d'Argent se battent-ils?"
 
 class npc_squire_david : public CreatureScript
 {
@@ -1018,8 +1018,8 @@ class npc_tournament_training_dummy : public CreatureScript
 #define JERAN_DEFAULT_TEXTID 14453
 #define JERAN_QUEST_TEXTID 14431
 #define JERAN_RP_TEXTID 14434
-#define GOSSIP_HELLO_JERAN_1 "Show me how to train with a Melee Target?"
-#define GOSSIP_HELLO_JERAN_2 "Tell me more about Defend and Thrust!."
+#define GOSSIP_HELLO_JERAN_1 "Montrez-moi comment s'entraîner avec une cible de mêlée?"
+#define GOSSIP_HELLO_JERAN_2 "Parlez-moi de défense et de poussée!."
 #define SPELL_CREDIT_JERAN 64113
 
 class npc_jeran_lockwood : public CreatureScript
@@ -1066,8 +1066,8 @@ public:
 #define RUGAN_DEFAULT_TEXTID 14453
 #define RUGAN_QUEST_TEXTID 14436
 #define RUGAN_RP_TEXTID 14437
-#define GOSSIP_HELLO_RUGAN_1 "Show me how to train with a Charge Target?"
-#define GOSSIP_HELLO_RUGAN_2 "Tell me more about the Charge!"
+#define GOSSIP_HELLO_RUGAN_1 "Montrez-moi comment s'entraîner avec une cible de charge?"
+#define GOSSIP_HELLO_RUGAN_2 "Parlez-moi de la Charge!"
 #define SPELL_CREDIT_RUGAN 64114
 
 class npc_rugan_steelbelly : public CreatureScript
@@ -1114,8 +1114,8 @@ public:
 #define VALIS_DEFAULT_TEXTID 14453
 #define VALIS_QUEST_TEXTID 14438
 #define VALIS_RP_TEXTID 14439
-#define GOSSIP_HELLO_VALIS_1 "Show me how to train with a Ranged Target."
-#define GOSSIP_HELLO_VALIS_2 "Tell me more about using the Shield-Breaker."
+#define GOSSIP_HELLO_VALIS_1 "Montrez-moi comment s'entraîner avec une cible à distance."
+#define GOSSIP_HELLO_VALIS_2 "Dites-moi plus sur l'utilisation du Brise Bouclier!"
 #define SPELL_CREDIT_VALIS 64115
 
 class npc_valis_windchaser : public CreatureScript
@@ -1163,7 +1163,7 @@ UPDATE creature_template SET type_flags=8, spell1=59234, spell2=53112, VehicleId
 UPDATE creature_template SET `ScriptName` = 'npc_keritose', npcflag='3' WHERE entry=30946;
 UPDATE creature_template SET KillCredit2=31555 WHERE entry IN (31554, 30949 , 30951)
 ######*/
-#define GOSSIP_KERITOSE_I  "I am prepared to join the assault, keritose do you have a Skeletal Gryphon ready for me!"
+#define GOSSIP_KERITOSE_I  "Je suis prêt à rejoindre l'assaut, Keritose avez-vous un gryphon squelettique prêt pour moi!"
 
 enum eKeritose
 {
@@ -1206,11 +1206,11 @@ public:
 ## npc_valiant  
 ######*/
 
-#define GOSSIP_VALIANT_1    "I am ready to fight."
-//#define GOSSIP_VALIANT_GOSS "Are you sure you ready to fight a champion?"
-#define SAY_START_1         "On your guard!"
-#define SAY_START_2         "Prepare yourself!"
-#define SAY_END             "I have been defeated. Good Fight !"
+#define GOSSIP_VALIANT_1    "Je suis prêt à me battre!"
+//#define GOSSIP_VALIANT_GOSS "Etes-vous sûr prêts à vous battre champion?"
+#define SAY_START_1         "Sur vos gardes!"
+#define SAY_START_2         "Préparez-vous!"
+#define SAY_END             "J'ai été vaincu. Beau combat!"
 
 enum ValiantQuest
 {
@@ -1595,10 +1595,10 @@ enum ValiantGrandMelee
     MOUNTED_MELEE_VICTORY_GRAND             = 62724, // Crea item Credit.
 };   
 
-#define GOSSIP_VALIANT_1_GRAND    "I am ready to fight."
-#define SAY_START_1_GRAND         "On your guard!"
-#define SAY_START_2_GRAND         "Prepare yourself!"
-#define SAY_END_GRAND             "I have been defeated. Good Fight !"
+#define GOSSIP_VALIANT_1_GRAND    "Je suis prêt à me battre!"
+#define SAY_START_1_GRAND         "Sur vos gardes!"
+#define SAY_START_2_GRAND         "Préparez-vous!"
+#define SAY_END_GRAND             "J'ai été vaincu. Beau combat!"
 
 class npc_ValiantGrandMelee : public CreatureScript
 {
@@ -1856,6 +1856,7 @@ SELECT * FROM quest_template WHERE title LIKE 'The Valiant%s Challenge'
 
 enum eSquireDanny
 {
+	GOSSIP_TEXTID_SQUIRE                                = 14407,
     NPC_ARGENT_CHAMPION_CREDIT                          = 33708,
     NPC_ARGENT_CHAMPION                                 = 33707,
     SAY_START_VALIANT                                   = -1850013,//"You believe you are ready to be a champion? Defend yourself!"  
@@ -1869,7 +1870,7 @@ struct QUEST_THE_VALIANT_CHALLENGE
 
 QUEST_THE_VALIANT_CHALLENGE m_quest[] = {13699, 13713, 13723, 13724, 13725, 13726, 13727, 13728, 13729, 13731};
 
-#define GOSSIP_SQUIRE_DANNY_1   "I am ready to fight!"
+#define GOSSIP_SQUIRE_DANNY_1   "Je suis prêt à me battre!"
 
 class npc_squire_danny : public CreatureScript
 {
@@ -2344,9 +2345,9 @@ enum eSoldier
     QUEST_THE_BROKEN_FRONT_H                     = 13228,
 };
 
-#define GOSSIP_ITEM_DYING_SOLDIER   "Travel well, hero of the Alliance!"
-#define GOSSIP_ITEM_DYING_SOLDIER1  "Stay with me, friend. I must know what happened here."
-#define GOSSIP_ITEM_DYING_BERSERKER "Stay with me, friend. I must know what happened here."
+#define GOSSIP_ITEM_DYING_SOLDIER   "Bon voyage, héros de l'Alliance!"
+#define GOSSIP_ITEM_DYING_SOLDIER1  "Reste avec moi, mon ami. Je dois savoir ce qui s'est passé ici."
+#define GOSSIP_ITEM_DYING_BERSERKER "Reste avec moi, mon ami. Je dois savoir ce qui s'est passé ici."
 
 class npc_dying_soldier : public CreatureScript
 {
@@ -2672,7 +2673,7 @@ enum MaidenOFAshwoodLake
     SPELL_SUMMON_ASHWOOD_BRAND  = 62554
 };
 
-#define GOSSIP_HELLO_MAIDEN "Glad to help. my lady. I'm toid you were once the guardian of a fabled sword. Do you know where I might find it?"
+#define GOSSIP_HELLO_MAIDEN "Je suis heureux de vous aider. ma dame. Il me semble que vous êtes la gardienne d'une épée légendaire. Savez-vous où je pourrais la trouver?"
 
 class npc_maiden_of_ashwood_lake : public CreatureScript
 {
@@ -2972,6 +2973,51 @@ public:
     }
 };
 
+/*######
+## npc_squire_cavin
+######*/
+
+enum eSquireCavin
+{
+    QUEST_THE_BLACK_KNIGHT_FALL = 13664,
+    NPC_BLACK_KNIGHT = 33785,
+    //SPELL_RIDING_ARGENT_CHARGER = 63663  need fix
+};
+
+#define GOSSIP_SQUIRE_C_ITEM_1 "Demandez à Cavian de convoquer le chevalier noir"
+#define GOSSIP_SQUIRE_ITEM_1 "Je suis prêt à me battre!"
+#define GOSSIP_TEXTID_SQUIRE "Êtes-vous prêt à lutter contre un vaillant de la Croisade d'argent?"
+#define SQUIRE_CAVIN_YELL "$N contre le Chevalier noir!" //fat traduc ;D
+#define SQUIRE_CAVIN_SAY "Bonne chance, $N"
+
+class npc_squire_cavin : public CreatureScript
+{
+public:
+    npc_squire_cavin(): CreatureScript("npc_squire_cavin"){}
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (player->GetQuestStatus(QUEST_THE_BLACK_KNIGHT_FALL) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            if (Creature* knight = creature->SummonCreature(NPC_BLACK_KNIGHT, 8462.94f, 962.13f, 545.5f, 3.13f, TEMPSUMMON_DEAD_DESPAWN)) 
+                knight->Attack(player, true);
+            creature->MonsterYell(SQUIRE_CAVIN_YELL, LANG_UNIVERSAL, player->GetGUID()); 
+            creature->MonsterSay(SQUIRE_CAVIN_SAY, LANG_UNIVERSAL, player->GetGUID()); 
+        }
+        return true;
+    }
+};
+
 void AddSC_Argent_Tournament()
 {
     new npc_chillmaw;
@@ -3006,4 +3052,6 @@ void AddSC_Argent_Tournament()
     new npc_lake_frog;
     new npc_maiden_of_ashwood_lake;
     new npc_maiden_of_drak_mar;
+	new npc_squire_cavin;
+	new npc_black_knight_gryphon;
 }

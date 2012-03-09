@@ -270,3 +270,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 DELETE FROM `spell_script_names` WHERE `spell_id`=62709;
 INSERT INTO `spell_script_names` VALUES (62709, 'spell_gen_tournament_counterattack');
 
+
+UPDATE creature_template SET ScriptName='npc_squire_cavin' WHERE entry= 33522;
+UPDATE creature_template SET ScriptName='npc_black_knight_gryphon' WHERE entry= 33519;
