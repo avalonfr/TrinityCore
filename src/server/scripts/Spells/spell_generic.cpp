@@ -1331,6 +1331,15 @@ class spell_gen_launch : public SpellScriptLoader
         }
 };
 
+enum VehicleScaling
+
+{
+
+    SPELL_GEAR_SCALING      = 66668,
+
+};
+
+
 class spell_gen_vehicle_scaling : public SpellScriptLoader
 {
     public:
@@ -1342,8 +1351,8 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+               return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+			   }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -1354,7 +1363,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                 // TODO: Reserach coeffs for different vehicles
                 switch (GetId())
                 {
-                    case 66668:
+                    case SPELL_GEAR_SCALING:
                         factor = 1.0f;
                         baseItemLevel = 205;
                         break;
