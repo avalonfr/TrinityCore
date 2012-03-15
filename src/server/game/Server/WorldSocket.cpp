@@ -863,8 +863,9 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         return -1;
     }
 
-    if (!DebugAuthHack_FilterA(recvPacket, GetRemoteAddress().c_str()))
-        return -1;
+	if(sWorld->getBoolConfig(CONFIG_DEBUG_AUTH_HACK_ENABLE))
+		if (!DebugAuthHack_FilterA(recvPacket, GetRemoteAddress().c_str()))
+			return -1;
 
     // Read the content of the packet
     recvPacket >> BuiltNumberClient;                        // for now no use
@@ -942,8 +943,9 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
             return -1;
         }
     }
-    else if (!DebugAuthHack_FilterB(recvPacket, GetRemoteAddress().c_str(), fields[2].GetCString()))
-        return -1;
+	else if (sWorld->getBoolConfig(CONFIG_DEBUG_AUTH_HACK_ENABLE))
+		if (!DebugAuthHack_FilterB(recvPacket, GetRemoteAddress().c_str(), fields[2].GetCString()))
+			return -1;
 
     id = fields[0].GetUInt32();
     /*

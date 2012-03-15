@@ -3036,3 +3036,10 @@ OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding = 1500
 OutdoorPvP.Wintergrasp.Antifarm.Enable = 1
 OutdoorPvP.Wintergrasp.Antifarm.Atk = 1
 OutdoorPvP.Wintergrasp.Antifarm.Def = 1
+
+##############################################
+#
+#		DEBUG AUTH HACK
+#
+##############################################
+DebugAuthHack.enbale = 0
