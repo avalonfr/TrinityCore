@@ -1496,11 +1496,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 			case 70756:
 				{
 					//Paladin T10(Healer) 4 items bonus
-					if (unitTarget->HasAura(70756)){
+					if (unitTarget->HasAura(70756))
+					{
 						int32 proc_effect = 1;
 						m_caster->CastCustomSpell(m_caster, 70757, &proc_effect, NULL, NULL, true);
-				}
-			break;
+					}
+					break;
+				}	
         case SPELLFAMILY_DEATHKNIGHT:
             // Death strike
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
