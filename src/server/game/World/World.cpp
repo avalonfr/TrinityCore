@@ -1247,6 +1247,9 @@ void World::LoadConfigSettings(bool reload)
 	//Debug AUTH Hack
 	m_bool_configs[CONFIG_DEBUG_AUTH_HACK_ENABLE] = ConfigMgr::GetBoolDefault("DebugAuthHack.enbale", false);
 
+	// Guild on start
+	m_bool_configs[CONFIG_GUILD_ON_START_ENABLE] = ConfigMgr::GetBoolDefault("GuildageOnStart.enable", false);
+
     // misc
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
