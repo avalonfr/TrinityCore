@@ -3043,3 +3043,11 @@ OutdoorPvP.Wintergrasp.Antifarm.Def = 1
 #
 ##############################################
 DebugAuthHack.enbale = 0
+
+##############################################
+#
+#		GULDAGE AUTO
+#
+##############################################
+GuildageOnStart.enable = 1
+GuildageOnStart.name = "welcome on avalon"
