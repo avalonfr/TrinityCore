@@ -656,6 +656,10 @@ public:
 
     // Members
     // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
+
+	/* Avalon */
+	bool AddMemberOnStart(uint64 guid, uint8 rankId = GUILD_RANK_NONE);
+	/* avalon */
     bool AddMember(uint64 guid, uint8 rankId = GUILD_RANK_NONE);
     void DeleteMember(uint64 guid, bool isDisbanding = false, bool isKicked = false);
     bool ChangeMemberRank(uint64 guid, uint8 newRank);

@@ -2065,9 +2065,37 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
 
 ///////////////////////////////////////////////////////////////////////////////
 // Members handling
+/* avalon */
+bool Guild::AddMemberOnStart(uint64 guid, uint8 rankId)
+{
+	//pas deja guilder ou un residu de guid
+	if (Player::GetGuildIdFromDB(guid) != 0)
+		return false;
+
+	// If rank was not passed, assing lowest possible rank
+	if (rankId == GUILD_RANK_NONE)
+	    rankId = _GetLowestRankId();
+
+	Member* pMember = new Member(m_id, guid, rankId);
+	uint32 lowguid = GUID_LOPART(guid);
+	if (pMember)
+	{
+		m_members[lowguid] = pMember;
+		SQLTransaction trans(NULL);
+		pMember->SaveToDB(trans);
+		_UpdateAccountsNumber();
+	}
+	else 
+		return false;
+
+	return true;
+}
+/* avalon*/
+
 bool Guild::AddMember(uint64 guid, uint8 rankId)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
+
     // Player cannot be in guild
     if (player)
     {
@@ -2075,7 +2103,7 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
             return false;
     }
     else if (Player::GetGuildIdFromDB(guid) != 0)
-        return false;
+		 return false;
 
     // Remove all player signs from another petitions
     // This will be prevent attempt to join many guilds and corrupt guild data integrity
@@ -2115,7 +2143,6 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
         }
     }
     m_members[lowguid] = pMember;
-
     SQLTransaction trans(NULL);
     pMember->SaveToDB(trans);
     // If player not in game data in will be loaded from guild tables, so no need to update it!
@@ -2125,7 +2152,6 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
         player->SetRank(rankId);
         player->SetGuildIdInvited(0);
     }
-
     _UpdateAccountsNumber();
 
     // Call scripts if member was succesfully added (and stored to database)

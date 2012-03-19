@@ -105,14 +105,14 @@ enum Spells
     SPELL_TRACK_ROTATION                = 74758,
 
     // Misc
-    SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 2 to phase 3
+    SPELL_TWILIGHT_DIVISION             = 75063, // Phase spell from phase 2 to phase 3
     SPELL_LEAVE_TWILIGHT_REALM          = 74812,
-    SPELL_TWILIGHT_PHASING              = 74808,    // Phase spell from phase 1 to phase 2
-    SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794
+    SPELL_TWILIGHT_PHASING              = 74808, // Phase spell from phase 1 to phase 2
+    SPELL_SUMMON_TWILIGHT_PORTAL        = 74809, // Summons go 202794
     SPELL_TWILIGHT_MENDING              = 75509,
     SPELL_TWILIGHT_REALM                = 74807,
 
-    SPELL_COPY_DAMAGE                   = 74810,
+    SPELL_COPY_DAMAGE                   = 74810, // Not in DBCs but found in sniffs.
 };
 
 enum Events
@@ -243,7 +243,7 @@ class boss_halion : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* who)
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -262,7 +262,7 @@ class boss_halion : public CreatureScript
                 // Due to Halion's EventMap not being updated under phase two, Berserk will be triggered by the Controller
                 // so that the timer still ticks in phase two.
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                    controller->AI()->DoAction(ACTION_BERSERK);
+                    controller->AI()->EnterCombat(who);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -392,6 +392,14 @@ class boss_halion : public CreatureScript
                     events.SetPhase(value);
             }
 
+            uint32 GetData(uint32 index)
+            {
+                if (index == DATA_FIGHT_PHASE)
+                    return events.GetPhaseMask();
+
+                return 0;
+            }
+
             void DoAction(int32 const action)
             {
                 if (action != ACTION_BERSERK)
@@ -427,8 +435,12 @@ class boss_twilight_halion : public CreatureScript
                 me->SetHealth(uint32(0.75f * me->GetMaxHealth()));
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* who)
             {
+                if (Creature* whoCreature = who->ToCreature())
+                    if (whoCreature->GetEntry() == NPC_COMBAT_STALKER)
+                        return;
+
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me, 2);
                 events.Reset();
                 events.SetPhase(PHASE_TWO);
@@ -469,13 +481,9 @@ class boss_twilight_halion : public CreatureScript
 
             void JustReachedHome()
             {
-                // If the Twilight Halion enters evade mode on phase 2, the players in the Physical realm
-                // should enter the Twilight Realm to end the fight (i.e. wipe).
-                // As a consequence, the Twilight Halion entering evade mode does not end the encounter.
-                if (events.GetPhaseMask() & PHASE_TWO_MASK)
-                    return;
-
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
+                    controller->CastSpell(controller, SPELL_CLEAR_DEBUFFS);
                 ScriptedAI::JustReachedHome();
             }
 
@@ -614,6 +622,14 @@ class npc_halion_controller : public CreatureScript
                 _summons.Summon(who);
             }
 
+            void EnterCombat(Unit* who)
+            {
+                if (Creature* combatStalker = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_COMBAT_STALKER)))
+                    combatStalker->AI()->EnterCombat(who);
+
+                _events.ScheduleEvent(EVENT_BERSERK, 8 * MINUTE * IN_MILLISECONDS);
+            }
+
             void DoAction(int32 const action)
             {
                 switch (action)
@@ -630,7 +646,6 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_TWO:
                     {
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 10000); // Fix the timer
-                        me->GetMap()->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         if (Creature* rotationFocus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_ROTATION_FOCUS)))
                             rotationFocus->AI()->DoAction(ACTION_BEGIN_ROTATION);
                         break;
@@ -644,13 +659,6 @@ class npc_halion_controller : public CreatureScript
                         _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
                         _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, 50);
                         _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
-                        break;
-                    }
-                    case ACTION_BERSERK:
-                    {
-                        _events.ScheduleEvent(EVENT_BERSERK, 8 * MINUTE * IN_MILLISECONDS);
-                        //! Here because this is called when Halion is engaged.
-                        me->SetInCombatWithZone();
                         break;
                     }
                 }
@@ -681,6 +689,7 @@ class npc_halion_controller : public CreatureScript
                             DoCast(me, SPELL_FIERY_EXPLOSION);
                             if (Creature* halion = me->GetMap()->SummonCreature(NPC_HALION, HalionSpawnPos))
                                 halion->AI()->Talk(SAY_INTRO);
+                            me->GetMap()->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                             break;
                         case EVENT_SHADOW_PULSARS_SHOOT:
                         {
@@ -1059,18 +1068,20 @@ class npc_orb_carrier : public CreatureScript
 
         struct npc_orb_carrierAI : public ScriptedAI
         {
-            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature)
+            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
                 ASSERT(creature->GetVehicleKit());
+                me->setActive(true);
             }
 
             void UpdateAI(uint32 const diff)
             {
                 //! According to sniffs this spell is cast every 1 or 2 seconds.
                 //! However, refreshing it looks bad, so just cast the spell if
-                //! we are not channeling it. Targeting will be handled by conditions.
+                //! we are not channeling it.
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    DoCast(me, SPELL_TRACK_ROTATION, false);
+                    if (Creature* rotationFocus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_ROTATION_FOCUS)))
+                        DoCast(rotationFocus, SPELL_TRACK_ROTATION, true);
             }
 
             void DoAction(int32 const action)
@@ -1107,6 +1118,9 @@ class npc_orb_carrier : public CreatureScript
                     }
                 }
             }
+
+        private:
+            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1125,35 +1139,65 @@ class npc_combat_stalker : public CreatureScript
             npc_combat_stalkerAI(Creature* creature) : Scripted_NoMovementAI(creature),
                    _instance(creature->GetInstanceScript())
             {
+                creature->SetPhaseMask(0x20|0x1, true);
+                me->setActive(true);
             }
 
             void Reset()
             {
                 ScriptedAI::Reset();
-                me->SetReactState(REACT_PASSIVE);
             }
 
-            bool CanAIAttack(const Unit * target) const
+            void EnterCombat(Unit* who)
             {
-                if (target->GetTypeId() == TYPEID_UNIT)
+                DoZoneInCombat();
+                if (who->GetTypeId() == TYPEID_UNIT)
+                    if (who->ToCreature()->GetEntry() == NPC_HALION || who->ToCreature()->GetEntry() == NPC_TWILIGHT_HALION)
+                        me->AddThreat(who, float(urand(1,3) * 100.0f));
+
+                _wipeCheck = true;
+            }
+
+            void EnterEvadeMode()
+            {
+                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                    halion->AI()->EnterEvadeMode();
+
+                if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                    twilightHalion->AI()->EnterEvadeMode();
+
+                _wipeCheck = false;
+
+                ScriptedAI::EnterEvadeMode();
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!me->isInCombat())
+                    return;
+
+                std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
+                if (threatList.empty())
                 {
-                    switch (target->ToCreature()->GetEntry())
-                    {
-                        case NPC_HALION:
-                        case NPC_TWILIGHT_HALION:
-                            return true;
-                        default:
-                            break;
-                    }
+                    EnterEvadeMode();
+                    return;
                 }
 
-                return false;
-            }
+                if (!_wipeCheck)
+                    return;
 
-            void UpdateAI(uint32 const /*diff*/) { }
+                _wipeCheck = !_wipeCheck;
+                for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                    if (Unit* refTarget = (*itr)->getTarget())
+                        if (refTarget->GetTypeId() == TYPEID_PLAYER)
+                            return;
+
+                EnterEvadeMode();
+            }
 
         private:
             InstanceScript* _instance;
+            bool _wipeCheck;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1716,6 +1760,38 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         }
 };
 
+class spell_halion_copy_damage : public SpellScriptLoader
+{
+    public:
+        spell_halion_copy_damage() : SpellScriptLoader("spell_halion_copy_damage") { }
+
+        class spell_halion_copy_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halion_copy_damage_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                if (!GetCaster()) // Probably useless
+                    return;
+
+                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                damageInfo.damage = GetSpellValue()->EffectBasePoints[0];
+                GetCaster()->SendSpellNonMeleeDamageLog(&damageInfo);
+                GetCaster()->DealSpellDamage(&damageInfo, false);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_halion_copy_damage_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_halion_copy_damage_SpellScript();
+        }
+};
+
 void AddSC_boss_halion()
 {
     new boss_halion();
@@ -1738,27 +1814,5 @@ void AddSC_boss_halion()
     new spell_halion_twilight_phasing();
     new spell_halion_twilight_cutter();
     new spell_halion_clear_debuffs();
+    new spell_halion_copy_damage();
 }
-
-/*
-ServerToClient: SMSG_SPELLNONMELEEDAMAGELOG (0x0250) Length: 46 Time: 06/30/2010 22:55:05.000 Number: 354005
-Target GUID: Full: 0xF130009BB700E547 Type: Unit Entry: 39863 Low: 58695 <-- Halion
-Caster GUID: Full: 0xF130009CCE00E548 Type: Unit Entry: 40142 Low: 58696 <-- Twilight Halion
-Spell ID: 74810 <-- Not in DBCs.
-Damage: 388
-Overkill: 0
-SchoolMask: 8
-Absorb: 0
-Resist: 0
-Show spellname in log: False
-
-Also
-ServerToClient: SMSG_SPELLNONMELEEDAMAGELOG (0x0250) Length: 46 Time: 06/30/2010 22:39:48.000 Number: 287998
-Target GUID: Full: 0xF130009CCE00DB07 Type: Unit Entry: 40142 Low: 56071 <-- Twilight Halion
-Caster GUID: Full: 0xF130009BB700DB06 Type: Unit Entry: 39863 Low: 56070 <-- Halion
-Spell ID: 74810
-Damage: 1232
-Overkill: 0
-
-WTF is this shit ? Schoolmask changes randomly on this spell. 141 hits on three attempts to kill Halion.
-*/

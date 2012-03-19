@@ -28,6 +28,7 @@
 #include "DatabaseEnv.h"
 
 #include "ArenaTeam.h"
+#include "Config.h"
 #include "Chat.h"
 #include "Group.h"
 #include "Guild.h"
@@ -636,6 +637,21 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             // Player created, save it now
             newChar.SaveToDB(true);
+
+			/* avalon */
+			//on guilde a la creation
+			if (sWorld->getBoolConfig(CONFIG_GUILD_ON_START_ENABLE))
+			{
+				std::string glName = 	ConfigMgr::GetStringDefault("GuildageOnStart.name","welcome on avalon");
+;
+				Guild *targetGuild = sGuildMgr->GetGuildByName(glName);
+				if (targetGuild){
+						// player's guild membership checked in AddMember before add
+						targetGuild->AddMemberOnStart(newChar.GetGUID());
+					}
+			}
+			/* avalon */
+
             createInfo->CharCount += 1;
 
             SQLTransaction trans = LoginDatabase.BeginTransaction();

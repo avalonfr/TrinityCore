@@ -407,7 +407,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     int32 randomPoints = int32(DieSides);
 
     // base amount modification based on spell lvl vs caster lvl
-    if (caster)
+    if (caster && _spellInfo)
     {
 		sLog->outError("spell incriminé ************************************************************  %u",_spellInfo->Id);
 		sLog->outError("caster incriminé ************************************************************  %u",caster->GetGUID());

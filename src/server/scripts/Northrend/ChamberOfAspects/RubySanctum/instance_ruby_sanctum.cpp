@@ -44,11 +44,13 @@ class instance_ruby_sanctum : public InstanceMapScript
                 OrbCarrierGUID           = 0;
                 OrbRotationFocusGUID     = 0;
                 HalionControllerGUID     = 0;
+                CombatStalkerGUID        = 0;
                 CrystalChannelTargetGUID = 0;
                 XerestraszaGUID          = 0;
                 BaltharusSharedHealth    = 0;
                 FlameWallsGUID           = 0;
                 FlameRingGUID            = 0;
+
                 memset(ZarithrianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
             }
@@ -80,6 +82,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case NPC_ORB_ROTATION_FOCUS:
                         OrbRotationFocusGUID = creature->GetGUID();
+                        break;
+                    case NPC_COMBAT_STALKER:
+                        CombatStalkerGUID = creature->GetGUID();
                         break;
                     case NPC_BALTHARUS_TARGET:
                         CrystalChannelTargetGUID = creature->GetGUID();
@@ -189,6 +194,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return FlameRingGUID;
                     case DATA_TWILIGHT_FLAME_RING:
                         return TwilightFlameRingGUID;
+                    case DATA_COMBAT_STALKER:
+                        return CombatStalkerGUID;
                     default:
                         break;
                 }
@@ -252,27 +259,18 @@ class instance_ruby_sanctum : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                switch (type)
-                {
-                    case DATA_BALTHARUS_SHARED_HEALTH:
-                        BaltharusSharedHealth = data;
-                        break;
-                    default:
-                        break;
-                }
+                if (type != DATA_BALTHARUS_SHARED_HEALTH)
+                    return;
+
+                BaltharusSharedHealth = data;
             }
 
             uint32 GetData(uint32 type)
             {
-                switch (type)
-                {
-                    case DATA_BALTHARUS_SHARED_HEALTH:
-                        return BaltharusSharedHealth;
-                    default:
-                        break;
-                }
+                if (type != DATA_BALTHARUS_SHARED_HEALTH)
+                    return 0;
 
-                return 0;
+                return BaltharusSharedHealth;
             }
 
             std::string GetSaveData()
@@ -342,6 +340,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 BurningTreeGUID[4];
             uint64 FlameRingGUID;
             uint64 TwilightFlameRingGUID;
+            uint64 CombatStalkerGUID;
 
             uint32 BaltharusSharedHealth;
         };
