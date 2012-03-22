@@ -475,15 +475,15 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
             case 251: // The Forge of Souls
             case 253: // Pit of Saron
             case 255: // Halls of Reflection
-                requiredItemLevel = 180;
+                requiredItemLevel = 146; //Equi T6 - old : 180
                 break;
             case 249: // Heroic: Trial of the Champion
             case 252: // Heroic: The Forge of Souls
             case 254: // Heroic: Pit of Saron
-                requiredItemLevel = 200;
+                requiredItemLevel = 146; //Equi T6 - old : 200
                 break;
             case 256: // Heroic: Halls of Reflection
-                requiredItemLevel = 219;
+                requiredItemLevel = 146; //Equi T6 - old : 219
                 break;
         }
 

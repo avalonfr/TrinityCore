@@ -65,6 +65,8 @@ bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint3
             case 1: pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, pCreature->GetGUID()); break;
             case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID()); break;
         }
+       if (Creature* pCreature = pCreature->FindNearestCreature(27852, 30.0f, true))
+           pCreature->CastSpell(pCreature, 49899, true);
     }
 
     return true;
