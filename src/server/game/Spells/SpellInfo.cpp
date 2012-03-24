@@ -409,6 +409,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     // base amount modification based on spell lvl vs caster lvl
     if (caster && _spellInfo)
     {
+		sLog->outError("spell incriminé ************************************************************  %u",_spellInfo->Id);
+		sLog->outError("caster incriminé ************************************************************  %u",caster->GetGUID());
         int32 level = int32(caster->getLevel());
         if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
             level = int32(_spellInfo->MaxLevel);
