@@ -35,8 +35,8 @@ insert into `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equip
 insert into `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) values('250477','36948','631','1','1','0','0','-438.575','2418.29','191.233','1.16268','300','0','0','2205000','0','0','0','0','0');
 
 
-INSERT IGNORE INTO npc_spellclick_spells VALUES (36838, 65403, 0, 0, 0, 1, 0, 0, 0);
-INSERT IGNORE INTO npc_spellclick_spells VALUES (36839, 65403, 0, 0, 0, 1, 0, 0, 0);
+INSERT IGNORE INTO npc_spellclick_spells VALUES (36838, 65403, 1, 0);
+INSERT IGNORE INTO npc_spellclick_spells VALUES (36839, 65403, 1, 0);
 
 DELETE FROM `gameobject_template` WHERE `entry` IN ('1915001', '1914901', '1915002', '1914902',1915003,1914903);
 
@@ -96,35 +96,35 @@ insert into `item_template` (`entry`, `class`, `subclass`, `unk0`, `name`, `disp
 
 
 --//////////////////////////////////////////////////////Condition
-delete from conditions where SourceEntry = 69705;
-insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','0','69705','0','18','1','36838','0','0','','Gunship Battle - Spell 69705 (Below Zero) target creature 36838');
-insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','0','69705','0','18','1','36839','0','0','','Gunship Battle - Spell 69705 (Below Zero) target creature 36839');
+delete FROM conditions WHERE SourceEntry IN (69705,69400,70175);
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','1','69705','0','0','31','0','3','36839','0','0','0','','Gunship Battle - Spell 69705 (Below Zero) target creature 36839');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','2','69705','0','0','31','0','3','36838','0','0','0','','Gunship Battle - Spell 69705 (Below Zero) target creature 36838');
 
 --//////////////////////////////////////////////////////CANON SPELL
 DELETE  FROM conditions WHERE SourceEntry in( 69400,70175);
 
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','69400','0','18','1','36969','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36969');
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','69400','0','18','1','36948','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36948');
- INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','69400','0','18','1','36978','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36978');
- INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','69400','0','18','1','37116','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 37116');
-  INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','69400','0','18','1','37026','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 37026');
- 
- 
- INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','70175','0','18','1','36969','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36969');
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','70175','0','18','1','36948','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36948');
- INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','70175','0','18','1','36978','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36978');
- INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','70175','0','18','1','37116','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 37116');
-  INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`)
- VALUES('13','0','70175','0','18','1','37026','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 37026');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','1','70175','0','0','18','0','3','37026','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 37026');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','2','70175','0','0','18','0','3','37116','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 37116');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`)
+ values('13','3','70175','0','0','18','0','3','36978','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36978');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','4','70175','0','0','18','0','3','36948','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36948');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','5','70175','0','0','18','0','3','36969','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36969');
+
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','1','69400','0','0','18','0','3','37026','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 37026');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','2','69400','0','0','18','0','3','37116','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 37116');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','3','69400','0','0','18','0','3','36978','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36978');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','4','69400','0','0','18','0','3','36948','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36948');
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+values('13','5','69400','0','0','18','0','3','36969','0','0','0','','Gunship Battle - Spell 69399 (canon blast) target creature 36969');
 
 -- Texts
 SET @MURADIN := 36948;
