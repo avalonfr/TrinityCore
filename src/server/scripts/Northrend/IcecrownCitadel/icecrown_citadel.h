@@ -107,7 +107,6 @@ enum DataTypes
     DATA_CAPTAIN_RUPERT             = 34,
     DATA_VALITHRIA_TRIGGER          = 35,
     DATA_VALITHRIA_LICH_KING        = 36,
-	DATA_SINDRAGOSA_WARD            = 37,
 
     // Lich King Data
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
@@ -131,7 +130,10 @@ enum DataTypes
 
 	//GUNSHIP
 	DATA_GUNSHIP_EVENT              = 53,
-	DATA_NPC_MAURADIN				= 54,		
+	DATA_NPC_MAURADIN				= 54,
+
+	//OTHERS
+	DATA_SINDRAGOSA_WARD            = 55,
 	
 };
 
