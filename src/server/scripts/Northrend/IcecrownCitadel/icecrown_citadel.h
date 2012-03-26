@@ -107,6 +107,7 @@ enum DataTypes
     DATA_CAPTAIN_RUPERT             = 34,
     DATA_VALITHRIA_TRIGGER          = 35,
     DATA_VALITHRIA_LICH_KING        = 36,
+	DATA_SINDRAGOSA_WARD            = 37,
 
     // Lich King Data
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
@@ -288,6 +289,7 @@ enum CreaturesIds
     NPC_ICY_BLAST                               = 38223,
     NPC_FROST_BOMB                              = 37186,
     NPC_ICE_TOMB                                = 36980,
+	NPC_SINDRAGOSA_WARD                         = 37503,
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
