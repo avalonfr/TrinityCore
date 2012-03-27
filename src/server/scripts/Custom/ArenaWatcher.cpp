@@ -2,90 +2,89 @@
 ## Arena Watcher
 ######*/
 
+#include "CreatureTextMgr.h"
 #include "Player.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
 #include "ArenaTeamMgr.h"
 #include "ArenaTeam.h"
 
-
 enum WatcherData
 {
     GOSSIP_OFFSET = GOSSIP_ACTION_INFO_DEF + 10,
 };
 
+enum WatcherTexts
+{
+    SAY_NOT_FOUND_BRACKET = 0,
+    SAY_ARENA_NOT_IN_PROGRESS = 1,
+    SAY_TARGET_NOT_IN_WORLD = 2,
+    SAY_TARGET_NOT_IN_ARENA = 3,
+    SAY_TARGET_IS_GM = 4,
+};
+
+enum WatcherStrings
+{
+    STRING_ARENA_2v2 = 11200,
+    STRING_ARENA_3v3 = 11201,
+    STRING_ARENA_5v5 = 11202,
+    STRING_FOLLOW = 11203,
+};
+
 class npc_arena_watcher : public CreatureScript
 {
-public:
-    npc_arena_watcher() : CreatureScript("npc_arena_watcher") {}
-    
+    public:
+        npc_arena_watcher() : CreatureScript("npc_arena_watcher") { }
+
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        BattlegroundSet arenasSet = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BATTLEGROUND_AA);
-        uint32 arenasQty[3] = {0, 0, 0};
-        for (BattlegroundSet::const_iterator itr = arenasSet.begin(); itr != arenasSet.end(); ++itr)
+        BattlegroundSet arenas = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BATTLEGROUND_AA);
+        uint32 arenasCount[MAX_ARENA_SLOT] = {0, 0, 0};
+        for (BattlegroundSet::const_iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
             if (Battleground* bg = itr->second)
-                switch (bg->GetArenaType())
-                {
-                    case ARENA_TYPE_2v2:  arenasQty[0]++; break;
-                    case ARENA_TYPE_3v3:  arenasQty[1]++; break;
-                    case ARENA_TYPE_5v5:  arenasQty[2]++; break;
-                }
+					++arenasCount[ArenaTeam::GetSlotByType(bg->GetArenaType())];
 
-        std::stringstream gossip2;
-        std::stringstream gossip3;
-        std::stringstream gossip5;
-        gossip2 << "Observez un match 2v2 . (" << arenasQty[0] << " match(s) en cours)";
-        gossip3 << "Observez un match 3v3 . (" << arenasQty[1] << " match(s) en cours)";
-        gossip5 << "Observez un match 5v5 . (" << arenasQty[2] << " match(s) en cours)";
+				std::string gossipText;
 
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossip2.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossip3.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossip5.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-        player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Observez un Joueur.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4, "", 0, true);
-        
+        for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+{
+            gossipText = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(STRING_ARENA_2v2 + i), arenasCount[i]);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + ArenaTeam::GetTypeBySlot(i));
+        }
+
+        gossipText = sObjectMgr->GetTrinityStringForDBCLocale(STRING_FOLLOW);
+        player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, gossipText.c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4, "", 0, true);
+
         player->PlayerTalkClass->SendGossipMenu(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
 
-        uint8 mode = ARENA_TYPE_2v2;
-        if (action == (GOSSIP_ACTION_INFO_DEF + 3))
-            mode = ARENA_TYPE_3v3;
-        if (action == (GOSSIP_ACTION_INFO_DEF + 5))
-            mode = ARENA_TYPE_5v5;
-
         if (action <= GOSSIP_OFFSET)
         {
-            BattlegroundSet arenasSet = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BATTLEGROUND_AA);
+            BattlegroundSet arenas = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BATTLEGROUND_AA);
 
             bool bracketMatchs = false;
-            for (BattlegroundSet::const_iterator itr = arenasSet.begin(); itr != arenasSet.end(); ++itr)
-            {
+            for (BattlegroundSet::const_iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
                 if (Battleground* bg = itr->second)
-                {
-                    if (bg->GetArenaType() == mode)
+                    if (bg->GetArenaType() == action - GOSSIP_ACTION_INFO_DEF)
                     {
                         bracketMatchs = true;
                         break;
                     }
-                }
-            }
 
             if (!bracketMatchs)
             {
-                std::stringstream errMsg;
-                errMsg << "Désolée " << player->GetName() << ", Aucun Match en cour.";
-                creature->MonsterWhisper(errMsg.str().c_str(), player->GetGUID());
+                sCreatureTextMgr->SendChat(creature, SAY_NOT_FOUND_BRACKET, player->GetGUID());
                 player->PlayerTalkClass->ClearMenus();
                 player->CLOSE_GOSSIP_MENU();
             }
             else
             {
-                for (BattlegroundSet::const_iterator itr = arenasSet.begin(); itr != arenasSet.end(); ++itr)
+                for (BattlegroundSet::const_iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
                 {
                     if (Battleground* bg = itr->second)
                     {
@@ -117,9 +116,7 @@ public:
 
                 if (arenaChosen->GetStatus() != STATUS_NONE && arenaChosen->GetStatus() != STATUS_IN_PROGRESS)
                 {
-                    std::stringstream errMsg;
-                    errMsg << "Désolée " << player->GetName() << ", l'arène choisie est terminée";
-                    creature->MonsterWhisper(errMsg.str().c_str(), player->GetGUID());
+                    sCreatureTextMgr->SendChat(creature, SAY_ARENA_NOT_IN_PROGRESS, player->GetGUID());
                     player->PlayerTalkClass->ClearMenus();
                     player->CLOSE_GOSSIP_MENU();
                     return false;
@@ -127,13 +124,13 @@ public:
 
                 player->SetBattlegroundId(arenaChosen->GetInstanceID(), arenaChosen->GetTypeID());
                 player->SetBattlegroundEntryPoint();
-                float x, y, z;
+                float x = 0.0f, y = 0.0f, z = 0.0f;
                 switch (arenaChosen->GetMapId())
                 {
-                    case 617: x = 1299.046f;    y = 784.825f;     z = 9.338f;     break;
-                    case 618: x = 763.5f;       y = -284;         z = 28.276f;    break;
+                    case 617: x = 1299.046f; y = 784.825f; z = 9.338f; break;
+                    case 618: x = 763.5f; y = -284; z = 28.276f; break;
                     case 572: x = 1285.810547f; y = 1667.896851f; z = 39.957642f; break;
-                    case 562: x = 6238.930176f; y = 262.963470f;  z = 0.889519f;  break;
+                    case 562: x = 6238.930176f; y = 262.963470f; z = 0.889519f; break;
                     case 559: x = 4055.504395f; y = 2919.660645f; z = 13.611241f; break;
                 }
                 player->SetGMVisible(false);
@@ -152,36 +149,37 @@ public:
             switch (uiAction)
             {
                 case GOSSIP_ACTION_INFO_DEF + 4:
-
+                {
                     const char* plrName = code;
                     if (Player* target = sObjectAccessor->FindPlayerByName(plrName))
                     {
                         if (!target->IsInWorld())
                         {
-                            creature->MonsterWhisper("Désolé, je ne peux pas vous permettre de vous téléporter à ce joueur", player->GetGUID());
+                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_NOT_IN_WORLD, player->GetGUID());
                             return true;
                         }
-
-                        if (!target->InArena())
+                        else if (!target->InArena())
                         {
-                            creature->MonsterWhisper("Désolé, ce joueur n'est pas dans l'arène. Bien essayé!", player->GetGUID());
+                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_NOT_IN_ARENA, player->GetGUID());
                             return true;
                         }
-
-                        if (target->isGameMaster())
+                        else if (target->isGameMaster())
                         {
-                            creature->MonsterWhisper("Owned, alors comme ça, on veut ce tp sur un Mj !", player->GetGUID());
+                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_IS_GM, player->GetGUID());
                             return true;
                         }
-
-                        player->SetBattlegroundId(target->GetBattleground()->GetInstanceID(), target->GetBattleground()->GetTypeID());
-                        player->SetBattlegroundEntryPoint();
-                        float x, y, z;
-                        target->GetContactPoint(player, x, y, z);
-                        player->TeleportTo(target->GetMapId(), x, y, z, player->GetAngle(target));
-                        player->SetGMVisible(false);
+                        else
+                        {
+                            player->SetBattlegroundId(target->GetBattleground()->GetInstanceID(), target->GetBattleground()->GetTypeID());
+                            player->SetBattlegroundEntryPoint();
+                            float x, y, z;
+                            target->GetContactPoint(player, x, y, z);
+                            player->TeleportTo(target->GetMapId(), x, y, z, player->GetAngle(target));
+                            player->SetGMVisible(false);
+                        }
                     }
                     return true;
+                }
             }
         }
 
@@ -189,7 +187,7 @@ public:
     }
 };
 
-void AddSC_ArenaWatcher()
+void AddSC_NPC_ArenaWatcher()
 {
-	new npc_arena_watcher; //UPDATE `creature_template` SET `npcflag` = 1, `ScriptName` = 'npc_arena_watcher' WHERE `entry` = 32743; (not blizz)
+    new npc_arena_watcher();
 }
