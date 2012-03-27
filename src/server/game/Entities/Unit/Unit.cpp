@@ -6627,7 +6627,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!GetMisdirectionTarget())
                         return false;
                     triggered_spell_id = 35079;
-                    target = GetMisdirectionTarget();
+                    target = this;
                     break;
                 }
                 case 57870: // Glyph of Mend Pet
