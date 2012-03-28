@@ -32,11 +32,11 @@ enum WatcherStrings
     STRING_FOLLOW = 11203,
 };
 
-bool ArenaWatcherEnable = false;
+bool ArenaWatcherEnable = true;
 bool ArenaWatcherOnlyGM = false;
-bool ArenaWatcherShowNoGames = false;
-bool ArenaWatcherOnlyRated = false;
-bool ArenaWatcherToPlayers = false;
+bool ArenaWatcherShowNoGames = true;
+bool ArenaWatcherOnlyRated = true;
+bool ArenaWatcherToPlayers = true;
 
 std::vector<uint32> ArenaWatcherList;
 
@@ -181,22 +181,25 @@ class npc_arena_watcher : public CreatureScript
                 }
             }
 
-            std::string gossipText;
+            
             
             for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
             {
                 // skip arena type with 0 games
                 if (!ArenaWatcherShowNoGames && arenasCount[i] == 0)
                     continue;
-
-                gossipText = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(STRING_ARENA_2v2 + i), arenasCount[i]);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + ArenaTeam::GetTypeBySlot(i));
+				std::stringstream gossipText;
+				gossipText.clear();
+                gossipText << sObjectMgr->GetTrinityStringForDBCLocale(STRING_ARENA_2v2 + i) << arenasCount[i] << ")";
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + ArenaTeam::GetTypeBySlot(i));
             }
 
             if (ArenaWatcherToPlayers)
             {
-                gossipText = sObjectMgr->GetTrinityStringForDBCLocale(STRING_FOLLOW);
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, gossipText.c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4, "", 0, true);
+				std::stringstream gossipText;
+				gossipText.clear();
+                gossipText << sObjectMgr->GetTrinityStringForDBCLocale(STRING_FOLLOW);
+                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4, "", 0, true);
             }
         }
         
@@ -260,8 +263,9 @@ uint8 playerCount = action - GOSSIP_ACTION_INFO_DEF;
                     }
                     else
                     {
-                        std::string gossipItem = fmtstring("[%u] %s : %u vs. %u", itr->first, bg->GetBgMap()->GetMapName(), playerCount, playerCount);
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipItem.c_str(), GOSSIP_SENDER_MAIN + bgTypeId, itr->first + GOSSIP_OFFSET);
+                        std::stringstream gossipItem;
+						gossipItem << "[" << itr->first << "] " << bg->GetBgMap()->GetMapName() << " : " << playerCount << " vs. " << playerCount ;
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipItem.str(), GOSSIP_SENDER_MAIN + bgTypeId, itr->first + GOSSIP_OFFSET);
                     }
 
                     bracketExists = true;

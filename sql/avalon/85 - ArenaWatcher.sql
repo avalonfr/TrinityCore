@@ -15,12 +15,12 @@ INSERT INTO `locales_creature_text` (`entry`, `textGroup`, `id`, `text_loc2`) VA
 (@NPC, '0', '0', 'Aucuns Matchs actuellement en cours'),
 (@NPC, '1', '0', 'Le Match est terminé'),
 (@NPC, '2', '0', 'le Joueur est déconnecté'),
-(@NPC, '3', '0', 'Le Joueur n\'est pas en Arène'),
+(@NPC, '3', '0', 'Le Joueur n est pas en Arène'),
 (@NPC, '4', '0', 'Le Joueur est un Mj, OWNED');
 
 DELETE FROM `trinity_string` WHERE `entry` BETWEEN 11200 AND 11203;
 INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUES
-('11200', 'Watch the match 2x2 (now games: %u)', 'Observez un match 2v2 (match(s) en cours: %u)'),
-('11201', 'Watch the match 3x3 (now games: %u)', 'Observez un match 3v3 (match(s) en cours: %u)'),
-('11202', 'Watch the match 5x5 (now games: %u)', 'Observez un match 5v5 (match(s) en cours: %u)'),
+('11200', 'Watch the match 2x2 (now games: ', 'Observez un match 2v2 (match(s) en cours: '),
+('11201', 'Watch the match 3x3 (now games: ', 'Observez un match 3v3 (match(s) en cours: '),
+('11202', 'Watch the match 5x5 (now games: ', 'Observez un match 5v5 (match(s) en cours: '),
 ('11203', 'Follow player', 'Suivre un Joueur');
