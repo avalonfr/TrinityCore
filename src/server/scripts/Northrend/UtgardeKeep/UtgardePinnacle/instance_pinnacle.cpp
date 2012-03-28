@@ -64,6 +64,7 @@ public:
         uint64 uiMassiveJormungar;
         uint64 uiPalehoofOrb;
         uint64 uiRitualTarget;
+		uint64 uiSacrificedPlayer;
 
         uint64 uiSvala;
         uint64 uiFlameBrazier_1;
