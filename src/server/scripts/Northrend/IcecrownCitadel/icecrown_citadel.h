@@ -24,7 +24,7 @@
 
 #define ICCScriptName "instance_icecrown_citadel"
 
-uint32 const EncounterCount = 14;
+uint32 const EncounterCount = 15;
 uint32 const WeeklyNPCs = 9;
 uint32 const MaxHeroicAttempts = 50;
 
@@ -133,7 +133,7 @@ enum DataTypes
 	DATA_NPC_MAURADIN				= 54,
 
 	//OTHERS
-	DATA_SINDRAGOSA_WARD            = 55,
+	DATA_SINDRAGOSA_GAUNTLET        = 55,
 	
 };
 
@@ -291,7 +291,6 @@ enum CreaturesIds
     NPC_ICY_BLAST                               = 38223,
     NPC_FROST_BOMB                              = 37186,
     NPC_ICE_TOMB                                = 36980,
-	NPC_SINDRAGOSA_WARD                         = 37503,
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
@@ -320,7 +319,14 @@ enum CreaturesIds
 	//GUNSHIP BATTLE
 	NPC_SAUFRANG_G								= 36939,
 	NPC_MURADIN_BRONZEBEARD						= 36948,
-
+	
+    // Sindragosas Ward
+    NPC_SINDRAGOSAS_WARD                        = 37503,
+    NPC_NERUBAR_WEBWEAVER                       = 37502,
+    NPC_NERUBAR_CHAMPION                        = 37501,
+    NPC_NERUBAR_BROODLING                       = 37232,
+    NPC_FROSTWARDEN_WARRIOR                     = 37228,
+    NPC_FROSTWARDEN_SORCERESS                   = 37229,	
 
 };
 
