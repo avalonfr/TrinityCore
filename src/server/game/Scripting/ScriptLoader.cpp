@@ -499,6 +499,7 @@ void AddSC_icc_trashmobs();
 void AddSC_icecrown_citadel_teleport();
 void AddSC_instance_icecrown_citadel();
 void AddSC_icecrown_citadel();
+void AddSC_sindra_gauntlet();
 void AddSC_instance_ruby_sanctum();      // Ruby Sanctum
 void AddSC_ruby_sanctum();
 void AddSC_boss_baltharus_the_warborn();
@@ -1219,6 +1220,7 @@ void AddNorthrendScripts()
     AddSC_icecrown_citadel_teleport();
     AddSC_instance_icecrown_citadel();
     AddSC_icecrown_citadel();
+	AddSC_sindra_gauntlet();
     AddSC_instance_ruby_sanctum();      // Ruby Sanctum
     AddSC_ruby_sanctum();
     AddSC_boss_baltharus_the_warborn();

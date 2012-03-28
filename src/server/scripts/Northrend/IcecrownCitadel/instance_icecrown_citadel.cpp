@@ -137,6 +137,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SindragosaGUID = 0;
                 SpinestalkerGUID = 0;
                 RimefangGUID = 0;
+				SindragosaWardGUID = 0;
                 DreamwalkerCache = 0;
                 TheLichKingGUID = 0;
 				TerenasMenethilGUID = 0;
@@ -329,6 +330,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_RIMEFANG:
                         RimefangGUID = creature->GetGUID();
+                        break;
+					case NPC_SINDRAGOSA_WARD:
+                        SindragosaWardGUID = creature->GetGUID();
                         break;
                     case NPC_THE_LICH_KING:
                         TheLichKingGUID = creature->GetGUID();
@@ -688,6 +692,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ValithriaTriggerGUID;
                     case DATA_SINDRAGOSA:
                         return SindragosaGUID;
+					case DATA_SINDRAGOSA_WARD:
+                        return SindragosaWardGUID;
                     case DATA_SPINESTALKER:
                         return SpinestalkerGUID;
                     case DATA_RIMEFANG:
@@ -1283,6 +1289,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 				  uint64 SindragosaGUID;
 				  uint64 SpinestalkerGUID;
 				  uint64 RimefangGUID;
+				  uint64 SindragosaWardGUID;
 				  uint64 DreamwalkerCache;
 				  uint64 TheLichKingGUID;
 				  uint64 ArthasPlatformGUID;

@@ -130,7 +130,10 @@ enum DataTypes
 
 	//GUNSHIP
 	DATA_GUNSHIP_EVENT              = 53,
-	DATA_NPC_MAURADIN				= 54,		
+	DATA_NPC_MAURADIN				= 54,
+
+	//OTHERS
+	DATA_SINDRAGOSA_WARD            = 55,
 	
 };
 
@@ -288,6 +291,7 @@ enum CreaturesIds
     NPC_ICY_BLAST                               = 38223,
     NPC_FROST_BOMB                              = 37186,
     NPC_ICE_TOMB                                = 36980,
+	NPC_SINDRAGOSA_WARD                         = 37503,
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
