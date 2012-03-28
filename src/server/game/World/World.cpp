@@ -1250,6 +1250,13 @@ void World::LoadConfigSettings(bool reload)
 	// Guild on start
 	m_bool_configs[CONFIG_GUILD_ON_START_ENABLE] = ConfigMgr::GetBoolDefault("GuildageOnStart.enable", false);
 
+	// Arena Watcher
+	m_bool_configs[CONFIG_AW__ENABLE] = ConfigMgr::GetBoolDefault("ArenaWatcher.Enable", false);
+	m_bool_configs[CONFIG_AW__GM_ONLY] = ConfigMgr::GetBoolDefault("ArenaWatcher.OnlyGM", false);
+	m_bool_configs[CONFIG_AW__NO_GAME] = ConfigMgr::GetBoolDefault("ArenaWatcher.ShowNoGames", false);
+	m_bool_configs[CONFIG_AW__RATED_ONLY] = ConfigMgr::GetBoolDefault("ArenaWatcher.OnlyRated", false);
+	m_bool_configs[CONFIG_AW__TO_PLAYERS] = ConfigMgr::GetBoolDefault("ArenaWatcher.ToPlayers", false);
+
     // misc
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);

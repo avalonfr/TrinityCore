@@ -32,12 +32,6 @@ enum WatcherStrings
     STRING_FOLLOW = 11203,
 };
 
-bool ArenaWatcherEnable = true;
-bool ArenaWatcherOnlyGM = false;
-bool ArenaWatcherShowNoGames = true;
-bool ArenaWatcherOnlyRated = true;
-bool ArenaWatcherToPlayers = true;
-
 std::vector<uint32> ArenaWatcherList;
 
 void ArenaWatcherStart(Player* player)
@@ -108,12 +102,6 @@ class npc_ArenaWatcher_WorldScript : public WorldScript
 
     void OnConfigLoad(bool reload)
     {
-        ArenaWatcherEnable = ConfigMgr::GetBoolDefault("ArenaWatcher.Enable", false);
-        ArenaWatcherOnlyGM = ConfigMgr::GetBoolDefault("ArenaWatcher.OnlyGM", false);
-        ArenaWatcherShowNoGames = ConfigMgr::GetBoolDefault("ArenaWatcher.ShowNoGames", false);
-        ArenaWatcherOnlyRated = ConfigMgr::GetBoolDefault("ArenaWatcher.OnlyRated", false);
-        ArenaWatcherToPlayers = ConfigMgr::GetBoolDefault("ArenaWatcher.ToPlayers", false);
-
         if (!reload)
             ArenaWatcherList.clear();
     }
@@ -126,7 +114,7 @@ class npc_ArenaWatcher_PlayerScript : public PlayerScript
 
     void OnPlayerRemoveFromBattleground(Player* player, Battleground* /*bg*/)
     {
-        if (!ArenaWatcherEnable)
+        if (!sWorld->getBoolConfig(CONFIG_AW__ENABLE))
             return;
 
         ArenaWatcherEnd(player);
@@ -134,7 +122,7 @@ class npc_ArenaWatcher_PlayerScript : public PlayerScript
 
     void OnLogout(Player* player)
     {
-        if (!ArenaWatcherEnable)
+        if (!sWorld->getBoolConfig(CONFIG_AW__ENABLE))
             return;
 
         ArenaWatcherEnd(player);
@@ -148,7 +136,8 @@ class npc_arena_watcher : public CreatureScript
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (ArenaWatcherEnable && (!ArenaWatcherOnlyGM || player->isGameMaster()))
+        if (sWorld->getBoolConfig(CONFIG_AW__ENABLE) 
+			&& (!sWorld->getBoolConfig(CONFIG_AW__GM_ONLY) || player->isGameMaster()))
         {
             uint32 arenasCount[MAX_ARENA_SLOT] = {0, 0, 0};
 
@@ -174,7 +163,7 @@ class npc_arena_watcher : public CreatureScript
                     if (bg->GetArenaType() == 0)
                         continue;
                         
-                    if (ArenaWatcherOnlyRated && !bg->isRated())
+                    if (sWorld->getBoolConfig(CONFIG_AW__RATED_ONLY) && !bg->isRated())
                         continue;
 
                     ++arenasCount[ArenaTeam::GetSlotByType(bg->GetArenaType())];
@@ -186,7 +175,7 @@ class npc_arena_watcher : public CreatureScript
             for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
             {
                 // skip arena type with 0 games
-                if (!ArenaWatcherShowNoGames && arenasCount[i] == 0)
+                if (!sWorld->getBoolConfig(CONFIG_AW__NO_GAME)  && arenasCount[i] == 0)
                     continue;
 				std::stringstream gossipText;
 				gossipText.clear();
@@ -194,7 +183,7 @@ class npc_arena_watcher : public CreatureScript
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + ArenaTeam::GetTypeBySlot(i));
             }
 
-            if (ArenaWatcherToPlayers)
+            if (sWorld->getBoolConfig(CONFIG_AW__TO_PLAYERS))
             {
 				std::stringstream gossipText;
 				gossipText.clear();
@@ -211,14 +200,15 @@ class npc_arena_watcher : public CreatureScript
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (!ArenaWatcherEnable && (!ArenaWatcherOnlyGM || player->isGameMaster()))
+        if (!sWorld->getBoolConfig(CONFIG_AW__ENABLE) 
+			&& (!sWorld->getBoolConfig(CONFIG_AW__GM_ONLY) || player->isGameMaster()))
             return true;
         
         if (action <= GOSSIP_OFFSET)
         {
             bool bracketExists = false;
 
-uint8 playerCount = action - GOSSIP_ACTION_INFO_DEF;
+			uint8 playerCount = action - GOSSIP_ACTION_INFO_DEF;
             
             for (uint32 bgTypeId = 0; bgTypeId < MAX_BATTLEGROUND_TYPE_ID; ++bgTypeId)
             {
@@ -242,7 +232,7 @@ uint8 playerCount = action - GOSSIP_ACTION_INFO_DEF;
                     if (bg->GetArenaType() != playerCount)
                         continue;
 
-                    if (ArenaWatcherOnlyRated && !bg->isRated())
+                    if (sWorld->getBoolConfig(CONFIG_AW__RATED_ONLY) && !bg->isRated())
                         continue;
                         
                     if (bg->isRated())
@@ -323,7 +313,9 @@ uint8 playerCount = action - GOSSIP_ACTION_INFO_DEF;
         player->PlayerTalkClass->ClearMenus();
         player->CLOSE_GOSSIP_MENU();
 
-        if (!ArenaWatcherToPlayers || !ArenaWatcherEnable || (ArenaWatcherOnlyGM && !player->isGameMaster()))
+        if (!sWorld->getBoolConfig(CONFIG_AW__TO_PLAYERS) 
+			|| !sWorld->getBoolConfig(CONFIG_AW__ENABLE) 
+			|| (sWorld->getBoolConfig(CONFIG_AW__GM_ONLY) && !player->isGameMaster()))
             return true;
             
         if (uiSender == GOSSIP_SENDER_MAIN)
