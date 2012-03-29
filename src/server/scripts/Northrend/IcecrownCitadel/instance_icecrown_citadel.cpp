@@ -61,7 +61,8 @@ DoorData const doorData[] =
     {GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE, BOUNDARY_S   },
     {GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE, BOUNDARY_N   },
     {GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE, BOUNDARY_S   },
-    {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,       BOUNDARY_S   },
+    {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA_GAUNTLET,   DOOR_TYPE_PASSAGE,    BOUNDARY_N   },
+	{GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,       BOUNDARY_S   },
     {GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE,    BOUNDARY_E   },
     {GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
     {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,       BOUNDARY_SE  },
@@ -137,7 +138,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SindragosaGUID = 0;
                 SpinestalkerGUID = 0;
                 RimefangGUID = 0;
-				SindragosaWardGUID = 0;
                 DreamwalkerCache = 0;
                 TheLichKingGUID = 0;
 				TerenasMenethilGUID = 0;
@@ -181,6 +181,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningTimer = 0;
                 BloodQuickeningMinutes = 0;
+				SindragosasWardGUID = 0;
             }
 
             void Initialize()
@@ -331,9 +332,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_RIMEFANG:
                         RimefangGUID = creature->GetGUID();
                         break;
-					case NPC_SINDRAGOSA_WARD:
-                        SindragosaWardGUID = creature->GetGUID();
-                        break;
                     case NPC_THE_LICH_KING:
                         TheLichKingGUID = creature->GetGUID();
                         break;
@@ -349,6 +347,10 @@ class instance_icecrown_citadel : public InstanceMapScript
 						break;
 					case NPC_MURADIN_BRONZEBEARD:
 						npc_muradin_bronzebeardGUID = creature->GetGUID();
+						break;
+                    case NPC_SINDRAGOSAS_WARD:
+                        SindragosasWardGUID = creature->GetGUID();
+						break;
                     default:
                         break;
                 }
@@ -692,8 +694,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ValithriaTriggerGUID;
                     case DATA_SINDRAGOSA:
                         return SindragosaGUID;
-					case DATA_SINDRAGOSA_WARD:
-                        return SindragosaWardGUID;
                     case DATA_SPINESTALKER:
                         return SpinestalkerGUID;
                     case DATA_RIMEFANG:
@@ -730,6 +730,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return EdgeDestroyWarning;
 					case DATA_NPC_MAURADIN:
 						return npc_muradin_bronzebeardGUID;
+                    case DATA_SINDRAGOSA_GAUNTLET:
+                        return SindragosasWardGUID;
 					case GO_HORDE_GUNSHIP:
 						return hordeGSGuid;
 						break;
@@ -1289,7 +1291,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 				  uint64 SindragosaGUID;
 				  uint64 SpinestalkerGUID;
 				  uint64 RimefangGUID;
-				  uint64 SindragosaWardGUID;
 				  uint64 DreamwalkerCache;
 				  uint64 TheLichKingGUID;
 				  uint64 ArthasPlatformGUID;
@@ -1338,6 +1339,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 				  bool IsOozeDanceEligible;
 				  bool IsNauseaEligible;
 				  bool IsOrbWhispererEligible;
+				  uint64 SindragosasWardGUID;
         };
 
 };
