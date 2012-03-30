@@ -97,6 +97,7 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
 
     /*SendSysMessage(_FULLVERSION);*/
 	SendSysMessage("Avalon Core Version 2.2");
+	SendSysMessage("REV du 30/03/12");
     PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
