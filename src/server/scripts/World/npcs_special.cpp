@@ -1935,9 +1935,6 @@ public:
     };
 };
 
-
-
-
 class npc_mirror_image : public CreatureScript
 {
 public:
