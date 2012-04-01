@@ -23,6 +23,8 @@ SDComments:
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "ulduar.h"
 
 enum Spells
@@ -33,6 +35,7 @@ enum Spells
     SPELL_FLASH_FREEZE_VISUAL                   = 62148,
     SPELL_BITING_COLD                           = 62038,
     SPELL_BITING_COLD_TRIGGERED                 = 62039,
+	SPELL_BITING_COLD_DAMAGE                    = 62188,
     SPELL_FREEZE                                = 62469,
     SPELL_ICICLE                                = 62234,
     SPELL_ICICLE_SNOWDRIFT                      = 62462,
@@ -102,8 +105,8 @@ enum Yells
     SAY_HARD_MODE_MISSED                        = -1603218
 };
 
-#define EMOTE_FREEZE                            "Hodir begins to cast Flash Freeze!"
-#define EMOTE_BLOWS                             "Hodir gains Frozen Blows!"
+#define EMOTE_FREEZE                            "Hodir commence à jeter Gel Instantané !"
+#define EMOTE_BLOWS                             "Hodir gagne Coups gelés !"
 
 enum HodirChests
 {
@@ -879,6 +882,96 @@ public:
 
 };
 
+class spell_biting_cold : public SpellScriptLoader
+{
+    public:
+        spell_biting_cold() : SpellScriptLoader("spell_biting_cold") { }
+
+        class spell_biting_cold_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_biting_cold_AuraScript);
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+                bool found = false;
+
+                for (TargetList::iterator itr = listOfTargets.begin(); itr != listOfTargets.end(); ++itr)
+                {
+                    if (itr->first != target->GetGUID())
+                        return;
+
+                    if (itr->second >= 4)
+                    {
+                        target->CastSpell(target, SPELL_BITING_COLD_TRIGGERED, true);
+                        itr->second = 1;
+                    }
+                    else
+                    {
+                        if (target->isMoving())
+                            itr->second = 1;
+                        else
+                            itr->second++;
+                    }
+
+                    found = true;
+                    break;
+                }
+
+                if (!found)
+                    listOfTargets.push_back(std::make_pair(target->GetGUID(), 1));
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_biting_cold_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+
+        private:
+            typedef std::list< std::pair<uint64, uint8> > TargetList;
+            TargetList listOfTargets;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_biting_cold_AuraScript();
+        }
+};
+
+class spell_biting_cold_dot : public SpellScriptLoader
+{
+public:
+    spell_biting_cold_dot() : SpellScriptLoader("spell_biting_cold_dot") { }
+
+    class spell_biting_cold_dot_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_biting_cold_dot_AuraScript);
+
+        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            int32 damage = int32(200 * pow(2.0f, GetStackAmount()));
+            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
+
+            if (caster->isMoving())
+                caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_biting_cold_dot_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_biting_cold_dot_AuraScript();
+    }
+};
+
 void AddSC_boss_hodir()
 {
     new boss_hodir();
@@ -891,4 +984,6 @@ void AddSC_boss_hodir()
     new npc_hodir_mage();
     new npc_toasty_fire();
     new npc_flash_freeze();
+    new spell_biting_cold();
+    new spell_biting_cold_dot();
 }
