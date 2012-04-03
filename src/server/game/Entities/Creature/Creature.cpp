@@ -1603,7 +1603,7 @@ void Creature::Respawn(bool force)
         //Re-initialize reactstate that could be altered by movementgenerators
         InitializeReactState();
     }
-
+	sLog->outError("erreur sur pitofsaron ********************************%u",GetEntry());
     UpdateObjectVisibility();
 }
 
