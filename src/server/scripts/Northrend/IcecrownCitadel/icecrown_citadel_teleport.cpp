@@ -35,11 +35,12 @@ class icecrown_citadel_teleport : public GameObjectScript
             {
                 if (instance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Téléportation vers Oratoire des Damnés.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
-                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
+                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE) {
 				    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Téléportation vers le rempart des Cranes.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
-				if (instance->GetBossState(DATA_GUNSHIP_BATTLE_EVENT) == DONE)
+				//if (instance->GetBossState(DATA_GUNSHIP_BATTLE_EVENT) == DONE)
 					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Téléportation vers la hausse du porte-mort.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
-                if (instance->GetData(DATA_COLDFLAME_JETS) == DONE)
+				}
+					if (instance->GetData(DATA_COLDFLAME_JETS) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Téléportation vers la Fleche Haut.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
                 // TODO: Gauntlet event before Sindragosa
                 if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
