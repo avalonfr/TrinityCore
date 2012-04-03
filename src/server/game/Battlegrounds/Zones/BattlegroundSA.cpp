@@ -541,7 +541,7 @@ void BattlegroundSA::EventPlayerDamagedGO(Player* /*player*/, GameObject* go, ui
         if (go->GetGOInfo()->building.destroyedEvent == 19837)
             SendWarningToAll(LANG_BG_SA_CHAMBER_BREACHED);
         else
-            SendWarningToAll(LANG_BG_SA_WAS_DESTROYED, go->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex());
+            SendWarningToAll(LANG_BG_SA_WAS_DESTROYED, go->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex()));
     }
 
     if (eventType == go->GetGOInfo()->building.damageEvent)

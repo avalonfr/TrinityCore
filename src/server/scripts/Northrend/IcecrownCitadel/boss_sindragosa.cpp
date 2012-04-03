@@ -935,6 +935,10 @@ class npc_sindragosa_trash : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+				if( me->GetDistance(me->getVictim()) > 30.0f)
+					return;
+
+
                 _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))

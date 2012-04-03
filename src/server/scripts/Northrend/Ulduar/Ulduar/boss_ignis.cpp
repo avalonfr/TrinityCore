@@ -71,13 +71,13 @@ enum Spells
 
 enum Events
 {
-    EVENT_JET 									=1,
-    EVENT_SCORCH,								=2,
-    EVENT_SLAG_POT,								=3,
-    EVENT_GRAB_POT,								=4,
-    EVENT_CHANGE_POT,							=5,
-    EVENT_CONSTRUCT,							=6,
-    EVENT_BERSERK,								=7,
+    EVENT_JET									=1,
+    EVENT_SCORCH								=2,
+    EVENT_SLAG_POT								=3,
+    EVENT_GRAB_POT								=4,
+    EVENT_CHANGE_POT							=5,
+    EVENT_CONSTRUCT							=6,
+    EVENT_BERSERK								=7,
 	
 	ACTION_REMOVE_BUFF							=20,
 };
