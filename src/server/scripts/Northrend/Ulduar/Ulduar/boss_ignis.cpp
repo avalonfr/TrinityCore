@@ -40,7 +40,7 @@ enum Yells
     SAY_SCORCH_1                                = -1603226,
     SAY_SCORCH_2                                = -1603227,
     SAY_BERSERK                                 = -1603228,
-    EMOTE_JETS                                  = -1603229
+    EMOTE_JETS                                  = -1603229,
 };
 
 enum Spells
@@ -66,34 +66,33 @@ enum Spells
     SPELL_FREEZE_ANIM                           = 63354,
 
     // Scorch Ground
-    SPELL_SCORCH_GROUND                         = 62548
+    SPELL_SCORCH_GROUND                         = 62548,
 };
 
 enum Events
 {
-    EVENT_NONE,
     EVENT_JET 									=1,
-    EVENT_SCORCH,
-    EVENT_SLAG_POT,
-    EVENT_GRAB_POT,
-    EVENT_CHANGE_POT,
-    EVENT_CONSTRUCT,
-    EVENT_BERSERK,
+    EVENT_SCORCH,								=2,
+    EVENT_SLAG_POT,								=3,
+    EVENT_GRAB_POT,								=4,
+    EVENT_CHANGE_POT,							=5,
+    EVENT_CONSTRUCT,							=6,
+    EVENT_BERSERK,								=7,
 	
-	ACTION_REMOVE_BUFF
+	ACTION_REMOVE_BUFF							=20,
 };
 
 enum Npcs
 {
     NPC_IRON_CONSTRUCT                          = 33121,
-    NPC_SCORCH_GROUND                           = 33221
+    NPC_SCORCH_GROUND                           = 33221,
 };
 
 enum Achievements
 {
     ACHIEVEMENT_SHATTERED_10                    = 2925,
     ACHIEVEMENT_SHATTERED_25                    = 2926,
-    ACHIEV_TIMED_START_EVENT                    = 20951
+    ACHIEV_TIMED_START_EVENT                    = 20951,
 };
 
 const Position Pos[20] =
@@ -117,7 +116,7 @@ const Position Pos[20] =
     {543.316f, 337.468f, 360.886f, 6.195920f},
     {543.280f, 239.674f, 360.890f, 6.265730f},
     {543.265f, 217.147f, 360.891f, 0.174533f},
-    {543.256f, 224.831f, 360.891f, 0.122173f}
+    {543.256f, 224.831f, 360.891f, 0.122173f},
 };
 
 
@@ -283,6 +282,8 @@ public:
             }
 
             DoMeleeAttackIfReady();
+			
+			EnterEvadeIfOutOfCombatArea(diff);
         }
 
         void KilledUnit(Unit* /*Victim*/)

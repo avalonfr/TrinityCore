@@ -59,7 +59,9 @@ enum eSpells
     SPELL_CLAW = 67774,
     SPELL_CLAW_H = 67879,
     SPELL_LEAP = 67749,
-    SPELL_LEAP_H = 67880
+    SPELL_LEAP_H = 67880,
+	
+	SPELL_KILL_CREDIT       = 68663
 };
 
 enum eModels
@@ -337,6 +339,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             Talk(SAY_DEATH);
+			DoCast(me, SPELL_KILL_CREDIT);
             if (instance)
                 instance->SetData(BOSS_BLACK_KNIGHT, DONE);
         }
