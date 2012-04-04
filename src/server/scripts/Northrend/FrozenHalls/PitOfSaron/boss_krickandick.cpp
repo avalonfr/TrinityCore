@@ -347,7 +347,7 @@ class boss_krick : public CreatureScript
                     else
                         tyrannusPtr = me->SummonCreature(NPC_TYRANNUS_EVENTS, outroPos[1], TEMPSUMMON_MANUAL_DESPAWN);
 
-                    tyrannusPtr->SetCanFly(true);
+                    tyrannusPtr->SetFlying(true);
                     me->GetMotionMaster()->MovePoint(POINT_KRICK_INTRO, outroPos[0].GetPositionX(), outroPos[0].GetPositionY(), outroPos[0].GetPositionZ());
                     tyrannusPtr->SetFacingToObject(me);
                 }
@@ -459,7 +459,7 @@ class boss_krick : public CreatureScript
                         case EVENT_OUTRO_10:
                             //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR);
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
                             me->GetMotionMaster()->MovePoint(0, outroPos[6]);
                             _events.ScheduleEvent(EVENT_OUTRO_11, 2000);
                             break;
