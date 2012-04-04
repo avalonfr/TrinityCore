@@ -43,6 +43,97 @@ enum eEvents
     EVENT_SHOVELLED             = 5,
 };
 
+const Position spawnPoints1[4] =
+{
+    {877.666199f, 61.523361f, 527.974243f, 3.624145f},
+    {885.715027f, 65.515602f, 533.431030f, 3.857180f},
+    {912.531189f, 63.785076f, 547.925720f, 3.235373f},
+    {909.602722f, 83.248398f, 551.600403f, 3.251082f},
+};
+const Position spawnPoints2[4] =
+{    
+    {879.286743f, 41.535030f, 521.009338f, 3.486701f},
+    {889.974548f, 45.270569f, 527.154236f, 3.612364f},
+    {919.853027f, 88.957771f, 558.705993f, 3.592729f},
+    {921.595520f, 69.234627f, 557.946716f, 3.145053f},    
+};
+const Position spawnPointsYmirjar[2] =
+{
+    {883.150024f, 54.626401f, 528.262024f, 3.678787f},
+    {915.107971f, 75.316299f, 553.531006f, 3.678787f},
+};
+const Position spawnPointsFallenWarrior[8] =
+{
+    {937.606506f, 0.776727f, 578.888000f, 1.090893f},
+    {928.419006f, 8.786335f, 577.693970f, 1.122307f},
+    {924.478699f, -7.662051f, 582.044983f, 1.489874f},
+    {935.244568f, -10.427516f, 583.265503f, 1.358702f},
+    {935.098694f, -24.272480f, 588.035400f, 1.653226f},
+    {921.272644f, -22.194103f, 585.452576f, 1.331212f},
+    {930.109009f, -56.889900f, 591.848999f, 2.353980f},
+    {924.945984f, -60.164799f, 591.879028f, 2.237270f},
+};
+
+const Position spawnPointsWrathboneColdwraith[4] =
+{
+    {925.477234f, -1.383301f, 580.479980f, 1.240126f},
+    {935.6500513f, -6.321967f, 582.133972f, 1.141952f},
+    {920.783020f, -44.854099f, 590.411987f, 1.590680f},
+    {933.810974f, -45.009399f, 591.658997f, 1.582540f},
+};
+
+const Position IceCiclespawnPointsFallenWarrior[8] =
+{
+    {997.252991f, -139.257004f, 615.875000f, 2.722710f},
+    {1000.400024f, -127.873001f, 616.247009f, 3.403390f},
+    {1049.770020f, -113.330002f, 629.814026f, 4.101520f},
+    {1042.160034f, -104.300003f, 630.038025f, 3.892080f},
+    {1062.150024f, -29.850700f, 633.879028f, 4.433140f},
+    {1073.599976f, -31.012199f, 633.408997f, 4.607670f},
+    {1069.910034f, 100.042000f, 631.062012f, 4.869470f},
+    {1059.170044f, 95.906303f, 630.781006f, 4.939280f},
+};
+
+const Position IceCiclespawnPointsWrathboneSkeleton[12] =
+{
+    {1033.609863f, -113.968132f, 627.523987f, 3.794239f},
+    {1043.910034f, -124.613998f, 627.747986f, 3.595380f},
+    {1068.930054f, -88.752602f, 632.828003f, 4.223700f},
+    {1050.0f, -69.646599f, 633.078979f, 4.363320f},
+    {1055.680054f, -52.713402f, 633.510986f, 4.607670f},
+    {1069.369995f, -52.008701f, 633.919983f, 4.520400f},
+    {1069.390015f, -12.805800f, 633.627014f, 4.537860f},
+    {1077.579956f, -14.718200f, 632.726013f, 4.450590f},
+    {1079.089966f, 34.306599f, 629.799988f, 4.607670f},
+    {1071.270020f, 38.016102f, 629.828979f, 4.956740f},
+    {1058.099976f, 92.909897f, 630.413025f, 5.074410f},
+    {1070.369995f, 96.143799f, 631.075012f, 4.910200f},
+};
+
+const Position IceCiclespawnPointsWrathboneSorcerer[2] =
+{
+    {1073.608643f, 49.570923f, 630.635559f, 4.996680f},
+    {1067.034912f, 47.677979f, 630.472473f, 4.851380f},
+};
+
+static const Position MoveLocations2[9] =
+{
+    {1025.534790f, 129.039612f, 628.156189f, 0.000000f},
+    {1035.394897f, 144.298599f, 628.156189f, 0.000000f},
+    {1042.624390f, 156.986679f, 628.156189f, 0.000000f},
+    {1037.534790f, 132.039612f, 628.156189f, 0.000000f},
+    {1050.534790f, 140.039612f, 628.156189f, 0.000000f},
+    {1043.534790f, 141.039612f, 628.156189f, 0.000000f},
+    {1038.534790f, 130.039612f, 628.156189f, 0.000000f},
+    {1029.534790f, 125.039612f, 628.156189f, 0.000000f},
+    {1028.534790f, 158.039612f, 628.156189f, 0.000000f},
+};
+
+static const Position triggerPos1 = {1048.629150f, 110.203377f, 628.224060f, 2.118303f};
+static const Position triggerPos2 = {1063.679932f, 119.296852f, 628.156189f, 2.251821f};
+static const Position sindraPos = {986.353271f, 174.938004f, 670.492798f, 0.000000f};
+static const Position leaderPosOutro2 = {988.998962f, 172.250290f, 628.156128f, 0.000000f};
+
 class mob_ymirjar_flamebearer : public CreatureScript
 {
     public:
@@ -224,58 +315,6 @@ class mob_wrathbone_laborer : public CreatureScript
         }
 };
 
-class mob_geist_ambusher : public CreatureScript
-{
-    public:
-        mob_geist_ambusher() : CreatureScript("mob_geist_ambusher") { }
-
-        struct mob_geist_ambusherAI: public ScriptedAI
-        {
-            mob_geist_ambusherAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
-
-            void Reset()
-            {
-                _leapingFaceMaulCooldown = 9000;
-            }
-
-            void MoveInLineOfSight(Unit* who)
-            {
-                if (who->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (me->IsWithinDistInMap(who, 30.0f))
-                    DoCast(who, SPELL_LEAPING_FACE_MAUL);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (_leapingFaceMaulCooldown < diff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
-                        DoCast(target, SPELL_LEAPING_FACE_MAUL);
-                    _leapingFaceMaulCooldown = urand(9000, 14000);
-                }
-                else
-                    _leapingFaceMaulCooldown -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint32 _leapingFaceMaulCooldown;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_geist_ambusherAI(creature);
-        }
-};
-
 class spell_trash_mob_glacial_strike : public SpellScriptLoader
 {
     public:
@@ -347,45 +386,41 @@ struct startPosition
     Position movePosition;
 } startPositions[] =
 {
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 445.286f, 214.251f, 528.71f, 0.375996f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 447.246f, 208.189f, 528.71f, 0.0264938f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 437.81f,  231.115f, 528.708f, 0.525224f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 437.444f, 225.798f, 528.712f, 0.36029f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 438.941f, 221.784f, 528.708f, 0.30924f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 440.384f, 216.785f, 528.71f, 0.203211f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 441.479f, 211.472f, 528.709f,0.203211f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 443.986f, 222.103f, 528.709f,6.27373f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 448.944f, 204.945f, 528.709f,0.0258984f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 446.613f, 211.37f,  528.709f,0.360472f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 442.647f, 204.635f, 528.707f,0.0887308f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 435.054f, 207.61f,  528.707f,0.173361f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 434.568f, 210.389f, 528.707f,0.173361f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 443.458f, 226.623f, 528.709f,0.232266f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 435.593f, 204.535f, 528.728f,0.173361f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 442.47f,  208.153f, 528.706f,0.259756f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 441.333f, 233.866f, 528.709f,0.255828f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 442.124f, 230.78f,  528.709f,0.244047f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 446.739990f, 228.576996f, 528.830994f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 449.187988f, 226.212006f, 528.830994f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 447.351990f, 222.753998f, 528.830994f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 442.691010f, 223.524994f, 528.830994f} },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 442.967010f, 219.535004f, 528.830994f} },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 447.290009f, 213.916000f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 450.540985f, 212.276993f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 452.884003f, 209.141006f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 449.834991f, 206.682007f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 445.794006f, 206.057007f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 446.541992f, 209.985992f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 446.29299f, 195.046997f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 444.035004f, 197.669006f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 443.346008f, 192.343002f, 528.830994f } },
 
-    { { NPC_KORLAEN, NPC_KORALEN }, { 432.386f, 212.979f, 528.709f, 0.237168f } },
-    { { NPC_ELANDRA, NPC_KILARA }, { 431.65f, 216.976f, 528.709f, 0.20104f } },
-    { { NPC_JAINA_PART1, NPC_SYLVANAS_PART1 }, { 438.84f, 213.502f, 528.709f, 0.1900f } },
+    //{ { NPC_KORLAEN, NPC_KORALEN }, { 438.505005f, 211.539993f, 528.708008f } },
+    //{ { NPC_ELANDRA, NPC_KILARA }, { 438.946014f, 215.427002f, 528.708984f } },
+    //{ { NPC_JAINA_PART1, NPC_SYLVANAS_PART1 }, { 440.787994f, 213.759003f, 528.710022f } },
 
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
 };
 
-class pitofsaron_start : public CreatureScript
+class pos_intro : public CreatureScript
 {
 public:
-    pitofsaron_start() : CreatureScript("pitofsaron_start") { }
+    pos_intro() : CreatureScript("pos_intro") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new pitofsaron_startAI(pCreature);
+        return new pos_introAI(pCreature);
     }
 
-    struct pitofsaron_startAI : public ScriptedAI
+    struct pos_introAI : public ScriptedAI
     {
-        pitofsaron_startAI(Creature *c) : ScriptedAI(c)
+        pos_introAI(Creature *c) : ScriptedAI(c)
         {
             instance = c->GetInstanceScript();
             Reset();
@@ -409,9 +444,9 @@ public:
                     switch (StartPhase)
                     {
                         case 0:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                             {
-                                sTyrannus->SetFlying(true);
+                                sTyrannus->SetCanFly(true);
                                 DoScriptText(SAY_TYRRANUS_1, sTyrannus);
                                 
                                 int32 entryIndex;
@@ -432,7 +467,7 @@ public:
                             StartTimer = 5000;
                             break;
                         case 1:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 DoScriptText(SAY_TYRRANUS_2, sTyrannus);
                             ++StartPhase;
                             StartTimer = 15000;
@@ -445,7 +480,7 @@ public:
 
                             if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             {
-                                GetCreatureListWithEntryInGrid(Champion1, me, NPC_CHAMPION_1_ALLIANCE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion1, me, NPC_CHAMPION_1_ALLIANCE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -453,14 +488,10 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(367880, 150.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                        sChampions->GetMotionMaster()->MovePoint(0, 487.463989f, 246.891006f, 528.708984f);
                                 }
 
-                                GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_ALLIANCE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_ALLIANCE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion2.begin(); itr != Champion2.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -468,16 +499,12 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 150.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                       sChampions->GetMotionMaster()->MovePoint(0, 504.444000f, 211.061996f, 528.710022f);
                                 }
                             }
                             else
                             {
-                                GetCreatureListWithEntryInGrid(Champion1, me, NPC_CHAMPION_1_HORDE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion1, me, NPC_CHAMPION_1_HORDE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -485,14 +512,11 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(367880, 150.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                        sChampions->GetMotionMaster()->MovePoint(0, 487.463989f, 246.891006f, 528.708984f);
+                                        
                                 }
 
-                                GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_HORDE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_HORDE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion2.begin(); itr != Champion2.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -500,14 +524,10 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 150.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                        sChampions->GetMotionMaster()->MovePoint(0, 504.444000f, 211.061996f, 528.710022f);
                                 }
 
-                                GetCreatureListWithEntryInGrid(Champion3, me, NPC_CHAMPION_3_HORDE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion3, me, NPC_CHAMPION_3_HORDE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion3.begin(); itr != Champion3.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -515,24 +535,20 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 150.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                       sChampions->GetMotionMaster()->MovePoint(0, 504.444000f, 211.061996f, 528.710022f);
                                 }
                             }
                             ++StartPhase;
                             StartTimer = 1000;
                             break;
                         case 3:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 DoScriptText(SAY_TYRRANUS_3, sTyrannus);
                             ++StartPhase;
                             StartTimer = 2000;
                             break;
                         case 4:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 DoPlaySoundToSet(sTyrannus, SAY_SOUND);
 
                             for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
@@ -544,7 +560,7 @@ public:
                                 if (sChampions->isAlive())
                                 {
                                     sChampions->AttackStop();
-                                    sChampions->GetMotionMaster()->MoveFall(0);
+                                    sChampions->GetMotionMaster()->MoveFall();
                                 }
                             }
 
@@ -557,7 +573,7 @@ public:
                                 if (sChampions->isAlive())
                                 {
                                     sChampions->AttackStop();
-                                    sChampions->GetMotionMaster()->MoveFall(0);
+                                    sChampions->GetMotionMaster()->MoveFall();
                                 }
                             }
 
@@ -570,14 +586,14 @@ public:
                                 if (sChampions->isAlive())
                                 {
                                     sChampions->AttackStop();
-                                    sChampions->GetMotionMaster()->MoveFall(0);
+                                    sChampions->GetMotionMaster()->MoveFall();
                                 }
                             }
                             ++StartPhase;
                             StartTimer = 5000;
                             break;
                         case 5:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 sTyrannus->CastSpell(sTyrannus, SPELL_NECROMANTIC_POWER, false);
 
                             for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
@@ -666,7 +682,7 @@ public:
                                 sChampions->SetReactState(REACT_PASSIVE);
                             }
 
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 DoScriptText(SAY_TYRRANUS_4, sTyrannus);
 
                             for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
@@ -675,12 +691,12 @@ public:
                                 if (!sChampions)
                                     continue;
 
-                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 150.0f, true))
+                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
                                 }
-                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 150.0f, true))
+                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
@@ -693,12 +709,12 @@ public:
                                 if (!sChampions)
                                     continue;
 
-                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 150.0f, true))
+                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
                                 }
-                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 150.0f, true))
+                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
@@ -711,12 +727,12 @@ public:
                                 if (!sChampions)
                                     continue;
 
-                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 150.0f, true))
+                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
                                 }
-                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 150.0f, true))
+                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
@@ -849,7 +865,7 @@ public:
                             StartTimer = 10000;
                             break;
                         case 12:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 sTyrannus->GetMotionMaster()->MovePoint(0, 938.125f, 93.928f, 585.39f);
                             instance->SetData(DATA_TYRANNUS_START, DONE);
                             event = false;
@@ -872,142 +888,496 @@ public:
         bool event;
     };
 };
-
-
-
-/*Порабощенные солдаты*/
-
-class ball_and_chain : public GameObjectScript
+class at_pos_intro : public AreaTriggerScript
 {
-public:
-    ball_and_chain() : GameObjectScript("ball_and_chain") { }
+    public:
+        at_pos_intro() : AreaTriggerScript("at_pos_intro") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGO)
-    {
-           if (player->getFaction() == HORDE)
-          {
-            Creature* pHordeSlave = pGO->FindNearestCreature(36770, 1.0f);
-            if (pHordeSlave)
-            {
-                pHordeSlave->MonsterTextEmote("делает жест рукой, как бы поднимая бокал за ваше здоровье", player->GetGUID());
-                pHordeSlave->GetMotionMaster()->MovePoint(0, 427.36f, 212.636f, 529.47f);
-                pHordeSlave->DisappearAndDie();
-            }
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+         if (InstanceScript* instance = player->GetInstanceScript())
+         {
+            if(instance->GetData(DATA_TYRANNUS_START) == IN_PROGRESS || instance->GetData(DATA_TYRANNUS_START) == DONE || player->isGameMaster() || !instance)
+                return false;
+
+            instance->SetData(DATA_TYRANNUS_START, IN_PROGRESS);
+
+            return false;
           }
-          else
-           {
-            Creature* pAllianceSlave = pGO->FindNearestCreature(36764, 1.0f);
-            if (pAllianceSlave)
-            {
-                pAllianceSlave->MonsterTextEmote("делает жест рукой, как бы поднимая бокал за ваше здоровье", player->GetGUID());
-                pAllianceSlave->GetMotionMaster()->MovePoint(0, 427.36f, 212.636f, 529.47f);
-                pAllianceSlave->DisappearAndDie();
-            }
-           }
-        return true;
-    }
+          return false;
+        }
 };
 
-/*Порабощенные солдаты, нападение Горгульи */
+enum sTyrannus
+{
+     SAY_TYRANNUS_AMBUSH_1                      = -1658050,
+     SAY_TYRANNUS_AMBUSH_2                      = -1658051,
+     SAY_GAUNTLET_START                         = -1658052,
+     SAY_RESCUED_HORDE_ALLIANCE                 = -1658071, // TODO: sound
+};
 
-class npc_slave_p : public CreatureScript
+class at_ymirjar_flamebearer_pos : public AreaTriggerScript
+{
+    public:
+        at_ymirjar_flamebearer_pos() : AreaTriggerScript("at_ymirjar_flamebearer_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+            InstanceScript* instance = player->GetInstanceScript();
+               if(instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE || player->isGameMaster() || !instance)
+                      return false;
+                      
+                if (instance->GetBossState(DATA_GARFROST) == DONE && instance->GetBossState(DATA_ICK) == DONE)
+                {
+                   instance->SetData(DATA_AREA_TRIGGER_YMIRJAR, DONE);
+                   if(Creature *pTyrannus = player->SummonCreature(NPC_TYRANNUS_EVENTS, 940.076355f, 91.047089f, 576.178040f, 3.596342f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                   {
+                     DoScriptText(SAY_TYRANNUS_AMBUSH_1, pTyrannus);
+                     pTyrannus->SetSpeed(MOVE_FLIGHT, 8.5f, true);
+                     pTyrannus->GetMotionMaster()->MovePoint(0, 916.282104f, -71.079742f, 606.430359f);
+                   }
+                   for (uint8 i = 0; i < 4; i++)
+                   {
+                      player->SummonCreature(NPC_YMIRJAR_FLAMEBEARER, spawnPoints1[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                      player->SummonCreature(NPC_YMIRJAR_WRATBRINGER, spawnPoints2[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   for(uint8 k = 0; k < 2; k++)
+                   {
+                      player->SummonCreature(NPC_YMIRJAR_DEATHBRINGER, spawnPointsYmirjar[k], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   
+                   return false;
+                }
+                return false;
+        }
+};
+class at_fallen_warrior_pos : public AreaTriggerScript
+{
+    public:
+        at_fallen_warrior_pos() : AreaTriggerScript("at_fallen_warrior_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+            InstanceScript* instance = player->GetInstanceScript();
+            if(instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE || player->isGameMaster() || !instance)
+                      return false;
+                      
+                if (instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
+                {
+                   instance->SetData(DATA_AREA_TRIGGER_FALLEN, DONE);
+                   if(Creature *pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
+                   {
+                     DoScriptText(SAY_TYRANNUS_AMBUSH_2, pTyrannus);
+                   }
+                   for (uint8 i = 0; i < 8; i++)
+                   {
+                      player->SummonCreature(NPC_FALLEN_WARRIOR, spawnPointsFallenWarrior[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   for (uint8 i = 0; i < 4; i++)
+                   {
+                      player->SummonCreature(NPC_WRATHBONE_COLDWRAITH, spawnPointsWrathboneColdwraith[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   return false;
+                }
+                
+            return false;
+        }
+};
+class at_ice_cicle_pos : public AreaTriggerScript
+{
+    public:
+        at_ice_cicle_pos() : AreaTriggerScript("at_ice_cicle_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {    
+            InstanceScript* instance = player->GetInstanceScript();
+            if(instance->GetData(DATA_AREA_TRIGGER_ICE_CICLE) == IN_PROGRESS || instance->GetData(DATA_AREA_TRIGGER_ICE_CICLE) == DONE || player->isGameMaster() || !instance)
+                      return false;
+            if (instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE && instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
+            {
+                instance->SetData(DATA_AREA_TRIGGER_ICE_CICLE, IN_PROGRESS);
+                if (Creature* pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                {
+                    DoScriptText(SAY_GAUNTLET_START, pTyrannus);
+                    pTyrannus->DespawnOrUnsummon();
+                }
+                for (uint8 i = 0; i < 8; i++)
+                {
+                   player->SummonCreature(NPC_FALLEN_WARRIOR, IceCiclespawnPointsFallenWarrior[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                }
+                for (uint8 i = 0; i < 12; i++)
+                {
+                   player->SummonCreature(NPC_WRATHBONE_SKELETON, IceCiclespawnPointsWrathboneSkeleton[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                }
+                for (uint8 i = 0; i < 2; i++)
+                {
+                   player->SummonCreature(NPC_WRATHBONE_SORCERER, IceCiclespawnPointsWrathboneSorcerer[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                }
+                return false;
+            }
+              return false;   
+        }    
+};
+
+class at_slave_rescued_pos : public AreaTriggerScript
+{
+    public:
+        at_slave_rescued_pos() : AreaTriggerScript("at_slave_rescued_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+          InstanceScript* instance = player->GetInstanceScript();
+         
+          if(instance->GetData(DATA_SLAVE_OUTRO_GARFROST) == DONE || player->isGameMaster() || !instance)
+               return false;
+               
+           if(instance->GetData(DATA_SLAVE_OUTRO_GARFROST) == IN_PROGRESS)
+           {
+               instance->SetData(DATA_SLAVE_OUTRO_GARFROST, DONE);
+               if(Creature *rSlave = player->FindNearestCreature(36888, 50.0f, true))
+               {
+                     DoScriptText(SAY_RESCUED_HORDE_ALLIANCE, rSlave);
+                     rSlave->GetMotionMaster()->MovePoint(0, 831.654968f, 6.049870f, 509.910583f); // not correct 
+               }
+               uint8 i = 0;
+               GetCreatureListWithEntryInGrid(Rescued1, player, 36889, 50.0f);
+                for(std::list<Creature*>::iterator itr = Rescued1.begin(); itr != Rescued1.end(); ++itr)
+                {
+                   Creature *rescued = *itr;
+                    if(!rescued)
+                     continue;
+
+                   if (rescued->isAlive())
+                      rescued->GetMotionMaster()->MovePoint(0, 840.661987f, 5.974489f, 510.107910f);
+                      ++i;
+               }            
+               return false;
+            }
+            
+          return false;
+        }
+        
+        private:
+        std::list<Creature*> Rescued1;
+};
+
+class at_geist_ambusher_pos : public AreaTriggerScript
+{
+    public:
+        at_geist_ambusher_pos() : AreaTriggerScript("at_geist_ambusher_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+          InstanceScript* instance = player->GetInstanceScript();
+         
+          if(player->isGameMaster() || !instance)
+               return false;
+               
+           if(instance->GetData(DATA_SLAVE_OUTRO_GARFROST) == DONE)
+           {
+               uint8 i = 0;
+               GetCreatureListWithEntryInGrid(Geist, player, 36886, 300.0f);
+                for(std::list<Creature*>::iterator itr = Geist.begin(); itr != Geist.end(); ++itr)
+                {
+                   Creature *geist = *itr;
+                    if(!geist)
+                     continue;
+
+                   if (geist->isAlive())  //TODO sound.
+                      geist->GetMotionMaster()->MoveJump(835.122620f, 1.335451f, 509.846619f, 30.0f, 20.0f);
+                      ++i;
+               } 
+               return true;
+            }
+            
+          return false;
+        }
+        
+        private:
+        std::list<Creature*> Geist;
+};
+
+enum SAYPosOutro
+{
+    SAY_GORKUN_OUTRO_1              = -1658064,
+    SAY_GORKUN_OUTRO_2              = -1658065,
+    SAY_JAYNA_OUTRO_3               = -1658066,
+    SAY_SYLVANAS_OUTRO_3            = -1658067,
+    SAY_JAYNA_OUTRO_4               = -1658068,
+    SAY_SYLVANAS_OUTRO_4            = -1658069,
+    SAY_JAYNA_OUTRO_5               = -1658070,
+};
+
+class pos_outro : public CreatureScript
 {
 public:
-    npc_slave_p() : CreatureScript("npc_slave_p") { }
+    pos_outro() : CreatureScript("pos_outro") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new npc_slave_pAI(pCreature);
+        return new pos_outroAI(pCreature);
     }
 
-    struct npc_slave_pAI : public ScriptedAI
+    struct pos_outroAI : public ScriptedAI
     {
-        npc_slave_pAI(Creature *c) : ScriptedAI(c)
+        pos_outroAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-			instance = c->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             Reset();
         }
-
+		
         void Reset()
         {
-            Stage = 0;
-            Time = 4000;
+            uiIntroTimer1 = 0;
+            uiIntroPhase1 = 0;
+            me->SetVisible(false);
+            Champions1.clear();
+            Champions2.clear();
+            Champions3.clear();
         }
 
         void UpdateAI(const uint32 diff)
         {
-                if (Time <= diff)
+            if(instance->GetBossState(DATA_TYRANNUS) == DONE)
+            {
+                if (uiIntroTimer1 <= diff)
                 {
-                    switch (Stage)
+                    switch (uiIntroPhase1)
                     {
-                      case 0:
-                            if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        case 0:
+                            if (Creature* GorkunOrVictus = me->GetCreature(*me, instance->GetData64(DATA_VICTUS_OR_GORKUN_FREED)))
+                                GorkunOrVictus->GetMotionMaster()->MovePoint(0, leaderPosOutro2);
+
+                            if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             {
-                                GetCreatureListWithEntryInGrid(gargoyle, me, 36896, 50.0f);
-                                for(std::list<Creature*>::iterator itr = gargoyle.begin(); itr != gargoyle.end(); ++itr)
+                                uint8 i = 0;
+                                GetCreatureListWithEntryInGrid(Champions1, me, NPC_FREED_SLAVE_3_ALLIANCE, 100.0f);
+                                for(std::list<Creature*>::iterator itr = Champions1.begin(); itr != Champions1.end(); ++itr)
                                 {
-                                    Creature *sGargoyle = *itr;
-                                    if (!sGargoyle)
+                                    Creature *slave = *itr;
+                                    if(!slave)
                                         continue;
 
-                                    if (sGargoyle->isAlive())
-                                        if (Creature* sSlave = me->FindNearestCreature(36771, 50.0f, true))
-                                       {
-                                          if(sGargoyle->isAlive())
-                                          {
-                                            sGargoyle->Attack(sSlave, true);
-                                            sGargoyle->GetMotionMaster()->MoveChase(sSlave);
-                                            DoPlaySoundToSet(sSlave, 17152);
-                                            sSlave->Kill(sSlave);
-                                          }
-                                       }
+                                    if (slave->isAlive())
+                                        slave->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                    ++i;
+                                }
+
+                                i = 4;
+                                GetCreatureListWithEntryInGrid(Champions2, me, NPC_FREED_SLAVE_1_ALLIANCE, 100.0f);
+                                for(std::list<Creature*>::iterator itr = Champions2.begin(); itr != Champions2.end(); ++itr)
+                                {
+                                    Creature *slave = *itr;
+                                    if(!slave)
+                                        continue;
+
+                                    if (slave->isAlive())
+                                        slave->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                    ++i;
+                                }
+
+                                i = 7;
+                                GetCreatureListWithEntryInGrid(Champions3, me, NPC_FREED_SLAVE_2_ALLIANCE, 100.0f);
+                                for(std::list<Creature*>::iterator itr = Champions3.begin(); itr != Champions3.end(); ++itr)
+                                {
+                                    Creature *slave = *itr;
+                                    if(!slave)
+                                        continue;
+
+                                    if (slave->isAlive())
+                                        slave->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                    ++i;
                                 }
                             }
                             else
-                           {
-                            GetCreatureListWithEntryInGrid(gargoyle, me, 36896, 50.0f);
-                                for(std::list<Creature*>::iterator itr = gargoyle.begin(); itr != gargoyle.end(); ++itr)
+                            {
+                                uint8 i = 0;
+                                GetCreatureListWithEntryInGrid(Champions1, me, NPC_FREED_SLAVE_3_HORDE, 100.0f);
+                                for(std::list<Creature*>::iterator itr = Champions1.begin(); itr != Champions1.end(); ++itr)
                                 {
-                                    Creature *sGargoyle = *itr;
-                                    if (!sGargoyle)
+                                    Creature *slave = *itr;
+                                    if(!slave)
                                         continue;
 
-                                    if (sGargoyle->isAlive())
-                                        if (Creature* sSlave = me->FindNearestCreature(36765, 50.0f, true))
-                                       {
-                                          if(sSlave->isAlive())
-                                          {
-                                            sGargoyle->Attack(sSlave, true);
-                                            sGargoyle->GetMotionMaster()->MoveChase(sSlave);
-                                            sSlave->Kill(sSlave);
-                                          }
-                                       }
+                                    if (slave->isAlive())
+                                        slave->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                    ++i;
+                                }
+
+                                i = 4;
+                                GetCreatureListWithEntryInGrid(Champions2, me, NPC_FREED_SLAVE_1_HORDE, 100.0f);
+                                for(std::list<Creature*>::iterator itr = Champions2.begin(); itr != Champions2.end(); ++itr)
+                                {
+                                    Creature *slave = *itr;
+                                    if(!slave)
+                                        continue;
+
+                                    if (slave->isAlive())
+                                        slave->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                    ++i;
+                                }
+
+                                i = 7;
+                                GetCreatureListWithEntryInGrid(Champions3, me, NPC_FREED_SLAVE_2_HORDE, 100.0f);
+                                for(std::list<Creature*>::iterator itr = Champions3.begin(); itr != Champions3.end(); ++itr)
+                                {
+                                    Creature *slave = *itr;
+                                    if(!slave)
+                                        continue;
+
+                                    if (slave->isAlive())
+                                        slave->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                    ++i;
                                 }
                             }
-                       ++Stage;
-                        Time = 4000;
-                       break;
-                    
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 15000;
+                            break;
+                        case 1:
+                            if (Creature* GorkunOrVictus = me->GetCreature(*me, instance->GetData64(DATA_VICTUS_OR_GORKUN_FREED)))
+                                DoScriptText(SAY_GORKUN_OUTRO_1, GorkunOrVictus);
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 15000;
+                            break;
+                        case 2:
+                            if (Creature* GorkunOrVictus = me->GetCreature(*me, instance->GetData64(DATA_VICTUS_OR_GORKUN_FREED)))
+                                DoScriptText(SAY_GORKUN_OUTRO_2, GorkunOrVictus);
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 5000;
+                            break;
+                        case 3:
+                            me->SetVisible(true);
+                            if(Creature* pSindragosa = me->SummonCreature(NPC_SINDRAGOSA, sindraPos, TEMPSUMMON_CORPSE_DESPAWN, 3000))
+                                pSindragosa->SetCanFly(true);
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 5000;
+                            break;
+                        case 4:
+                            if (Creature* portal = me->SummonCreature(22517, triggerPos1, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                            {
+                                portal->CastSpell(portal, 51807, false);
+                                portal->SetDisplayId(17612);
+                            }
+                            if (Creature* portal = me->SummonCreature(22517, triggerPos2, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                            {
+                                portal->CastSpell(portal, 51807, false);
+                                portal->SetDisplayId(17612);
+                            }
+                            if(me->GetEntry() == NPC_SYLVANAS_PART2)
+                                DoScriptText(SAY_SYLVANAS_OUTRO_3, me);
+                            else
+                                DoScriptText(SAY_JAYNA_OUTRO_3, me);
+
+                            if(instance)
+                            {
+                                Map* pMap = me->GetMap();
+                                if(!pMap)
+                                    return;
+
+                                Map::PlayerList const &lPlayers = pMap->GetPlayers();
+                                for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+                                {
+                                    if(!itr->getSource()->isAlive())
+                                        continue;
+                                    me->CastSpell(itr->getSource(), 36937, true);
+                                    itr->getSource()->NearTeleportTo(1065.114746f, 96.392105f, 630.999573f, 2.063386f);
+                                }
+                            }
+                            if (Creature* GorkunOrVictus = me->GetCreature(*me, instance->GetData64(DATA_VICTUS_OR_GORKUN_FREED)))
+                                if (Creature* pSindragosa = me->GetCreature(*me, instance->GetData64(DATA_SINDRAGOSA)))
+                                    pSindragosa->CastSpell(GorkunOrVictus, 70521, true);
+
+                            if (Creature* GorkunOrVictus = me->GetCreature(*me, instance->GetData64(DATA_VICTUS_OR_GORKUN_FREED)))
+                                if (GorkunOrVictus->isAlive() && GorkunOrVictus->IsInWorld())
+                                    me->Kill(GorkunOrVictus, false);
+
+                            for(std::list<Creature*>::iterator itr = Champions1.begin(); itr != Champions1.end(); ++itr)
+                            {
+                                Creature *slave = *itr;
+                                if(!slave)
+                                    continue;
+
+                                if (slave->isAlive() && slave->IsInWorld())
+                                    slave->Kill(slave, false);
+                            }
+
+                            for(std::list<Creature*>::iterator itr = Champions2.begin(); itr != Champions2.end(); ++itr)
+                            {
+                                Creature *slave = *itr;
+                                if(!slave)
+                                    continue;
+
+                                if (slave->isAlive() && slave->IsInWorld())
+                                    slave->Kill(slave, false);
+                            }
+
+                            for(std::list<Creature*>::iterator itr = Champions3.begin(); itr != Champions3.end(); ++itr)
+                            {
+                                Creature *slave = *itr;
+                                if(!slave)
+                                    continue;
+
+                                if (slave->isAlive() && slave->IsInWorld())
+                                    slave->Kill(slave, false);
+                            }
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 5000;
+                            break;
+                        case 5:
+                            if (Creature* pSindragosa = me->GetCreature(*me, instance->GetData64(DATA_SINDRAGOSA)))
+                                pSindragosa->GetMotionMaster()->MoveCharge(804.957214f, 102.497406f, 728.966370f, 42.00f, 0);
+
+                            if(me->GetEntry() == NPC_SYLVANAS_PART2)
+                                DoScriptText(SAY_SYLVANAS_OUTRO_4, me);
+                            else
+                                DoScriptText(SAY_JAYNA_OUTRO_4, me);
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 7000;
+                            break;
+                        case 6:
+                            if(me->GetEntry() == NPC_JAINA_PART2)
+                                DoScriptText(SAY_JAYNA_OUTRO_5, me);
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 7000;
+                            break;
+                        case 7:
+                            if (Creature* jainaOrSylvanas = me->GetCreature(*me, instance->GetData64(DATA_JAINA_SYLVANAS_2)))
+                                jainaOrSylvanas->GetMotionMaster()->MovePoint(0, 1100.734497f, 246.650696f, 628.182190f);
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 20000;
+                            break;
+                        case 8:
+                            instance->HandleGameObject(instance->GetData64(GO_HALLS_OF_REFLECT_PORT), true);
+                            ++uiIntroPhase1;
+                            uiIntroTimer1 = 25000;
+                            break;                            
+                    return;					
                     }
-                }else Time -= diff;
+                } else uiIntroTimer1 -= diff;
+            }
         }
-        
-        private:
-		InstanceScript* instance;
-        std::list<Creature*> gargoyle;
-        uint32 Time;
-        uint8 Stage;
+
+    private:
+        InstanceScript* instance;
+        uint32 uiIntroTimer1;
+        uint8 uiIntroPhase1;
+        std::list<Creature*> Champions1;
+        std::list<Creature*> Champions2;
+        std::list<Creature*> Champions3;
     };
 };
-
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
     new mob_wrathbone_laborer();
     new mob_iceborn_protodrake();
-    new mob_geist_ambusher();
     new spell_trash_mob_glacial_strike();
-    new pitofsaron_start();
-    new ball_and_chain();
-    new npc_slave_p();
+    new pos_intro();
+    new at_pos_intro();
+    new at_ymirjar_flamebearer_pos();
+    new at_fallen_warrior_pos();
+    new at_ice_cicle_pos();
+    new at_slave_rescued_pos();
+    new at_geist_ambusher_pos();
+    new pos_outro();
 }

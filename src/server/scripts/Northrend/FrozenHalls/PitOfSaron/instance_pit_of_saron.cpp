@@ -18,10 +18,34 @@
 #include "ScriptPCH.h"
 #include "pit_of_saron.h"
 
-// positions for Martin Victus (37591) and Gorkun Ironskull (37592)
-Position const SlaveLeaderPos  = {689.7158f, -104.8736f, 513.7360f, 0.0f};
 // position for Jaina and Sylvanas
 Position const EventLeaderPos2 = {1054.368f, 107.14620f, 628.4467f, 0.0f};
+//Slaves For Alliance and Horde. Martin Victus and Gorkun Ironskull 
+const uint32 NpcSlaveAlliance[3] = {37591, 37572, 37575 };
+const uint32 NpcSlaveHorde[3] = {37592, 37578, 37579};
+const uint32 NpcSlaveIfDeadGarfrost[2] = {36888, 36889};
+//Dead Garfrost from sniff
+static const Position SlaveLeaderPos[3] =
+{
+    {693.281555f, -169.690872f, 526.965454f, 1.485173f}, 
+    {696.024902f, -169.953308f, 526.870850f, 1.603771f}, 
+    {690.887512f, -169.970963f, 526.891357f, 1.269191f},
+};
+// if Dead IckandKrick from sniff
+static const Position SlaveLeaderPos2[3] =
+{
+    {849.804016f, -9.097073f, 509.900574f, 2.183652f},
+    {851.979919f, -7.567026f, 509.982391f, 2.040709f}, 
+    {847.959351f, -11.114618f, 509.794922f, 2.366650f},
+};
+// Slaves Alliance and Horde If Gargrost Dead For Events  from sniff
+const Position spawnPoints1[3] =
+{
+    {768.920044f, -38.462135f, 508.355469f, 3.903403f},
+    {766.413635f, -36.130611f, 508.346466f, 4.056557f},
+    {770.746033f, -40.480698f, 508.355469f, 3.915185f},
+};
+Position const spawnPoints2 = {773.266174f, -43.121738f, 508.355469f, 3.954455f};
 
 class instance_pit_of_saron : public InstanceMapScript
 {
@@ -40,16 +64,22 @@ class instance_pit_of_saron : public InstanceMapScript
                 _rimefangGUID = 0;
                 _jainaOrSylvanas1GUID = 0;
                 _jainaOrSylvanas2GUID = 0;
+                _sindragosaGUID = 0;
                 _teamInInstance = 0;
+                _uiHorp =0;
+                _victusOrGorkunFreedGUID = 0;
                 _tyrannusEventStart = NOT_STARTED;
+                _areaTriggerYmirjar = NOT_STARTED;
+                _areaTriggerFallen  = NOT_STARTED;
+                _areaTriggerIceCicle = NOT_STARTED;
+                _areaTriggerSlaveOutroFargrost = NOT_STARTED;
+                _areTriggerGeistAmbusher = NOT_STARTED;
             }
 
             void OnPlayerEnter(Player* player)
             {
                 if (!_teamInInstance)
                     _teamInInstance = player->GetTeam();
-                if(GetData(DATA_TYRANNUS_START) != DONE)
-                SetData(DATA_TYRANNUS_START, IN_PROGRESS);
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -152,22 +182,32 @@ class instance_pit_of_saron : public InstanceMapScript
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_MARTIN_VICTUS_2, ALLIANCE);
                         break;
+                    case NPC_GORKUN_IRONSKULL_1:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_MARTIN_VICTUS_2, ALLIANCE);
+                          _victusOrGorkunFreedGUID = creature->GetGUID();
+                    case NPC_SINDRAGOSA:
+                         _sindragosaGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
             }
             
             void OnGameObjectCreate(GameObject* go)
-			{
-				switch (go->GetEntry())
-				{
-				case GO_ICE_WALL:
-					uiIceWall = go->GetGUID();
-					if(GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
-						HandleGameObject(NULL,true,go);
-					break;
-				}
-			}
+            {
+               switch (go->GetEntry())
+               {
+                    case GO_ICE_WALL:
+                        uiIceWall = go->GetGUID();
+                        if (GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
+                            HandleGameObject(NULL,true,go);
+                         break;
+                    case GO_HALLS_OF_REFLECT_PORT:
+                         _uiHorp = go->GetGUID();
+                         break;
+                }
+            }
 
             bool SetBossState(uint32 type, EncounterState state)
             {
@@ -177,25 +217,43 @@ class instance_pit_of_saron : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_ICK:
-                    	if (state == DONE)
-	                	{
-		                	if(GetBossState(DATA_GARFROST)==DONE)
-			                	HandleGameObject(uiIceWall,true,NULL);
-						}
-		                	break;
-                    case DATA_GARFROST:
-                        if (state == DONE)
+                        if(state == DONE)
                         {
+                            if (Creature* summoner = instance->GetCreature(_ickGUID))
+                            {
+                               for (int i = 0; i < 3; ++i)
+                               {
+                                if (_teamInInstance == ALLIANCE)
+                                    summoner->SummonCreature(NpcSlaveAlliance[i], SlaveLeaderPos2[i], TEMPSUMMON_MANUAL_DESPAWN);
+                                else
+                                    summoner->SummonCreature(NpcSlaveHorde[i], SlaveLeaderPos2[i], TEMPSUMMON_MANUAL_DESPAWN);
+                               }
+                            }
+                            if(GetBossState(DATA_GARFROST) == DONE)
+                                HandleGameObject(uiIceWall, true, NULL);
+                        }
+                        break;
+                    case DATA_GARFROST:
+                        if(state == DONE)
+                        {
+                            SetData(DATA_SLAVE_OUTRO_GARFROST, IN_PROGRESS);
                             if (Creature* summoner = instance->GetCreature(_garfrostGUID))
                             {
+                               for (int i = 0; i < 3; ++i)
+                               {
                                 if (_teamInInstance == ALLIANCE)
-                                    summoner->SummonCreature(NPC_MARTIN_VICTUS_1, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
+                                    summoner->SummonCreature(NpcSlaveAlliance[i], SlaveLeaderPos[i], TEMPSUMMON_MANUAL_DESPAWN);
                                 else
-                                    summoner->SummonCreature(NPC_GORKUN_IRONSKULL_2, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
+                                    summoner->SummonCreature(NpcSlaveHorde[i], SlaveLeaderPos[i], TEMPSUMMON_MANUAL_DESPAWN);
+                               }
+                               summoner->SummonCreature(36888, spawnPoints2, TEMPSUMMON_MANUAL_DESPAWN);
+                               for (uint8 i = 0; i < 3; i++)
+                               {
+                               summoner->SummonCreature(36889, spawnPoints1[i], TEMPSUMMON_MANUAL_DESPAWN);
+                               }
                             }
-                            
-                            if(GetBossState(DATA_ICK)==DONE)
-                                     HandleGameObject(uiIceWall,true,NULL);
+                            if(GetBossState(DATA_ICK) == DONE)
+                                HandleGameObject(uiIceWall, true, NULL);
                         }
                         break;
                     case DATA_TYRANNUS:
@@ -224,7 +282,17 @@ class instance_pit_of_saron : public InstanceMapScript
                     case DATA_TEAM_IN_INSTANCE:
                         return _teamInInstance;
                     case DATA_TYRANNUS_START:
-                    return _tyrannusEventStart;
+                        return _tyrannusEventStart;
+                    case DATA_AREA_TRIGGER_YMIRJAR:
+                        return _areaTriggerYmirjar;
+                    case DATA_AREA_TRIGGER_FALLEN:
+                        return _areaTriggerFallen;
+                    case DATA_AREA_TRIGGER_ICE_CICLE:
+                        return _areaTriggerIceCicle;
+                    case DATA_SLAVE_OUTRO_GARFROST:
+                        return _areaTriggerSlaveOutroFargrost;
+                    case DATA_GEIST_AMBUSHER:
+                        return _areTriggerGeistAmbusher;
                     default:
                         break;
                 }
@@ -252,6 +320,12 @@ class instance_pit_of_saron : public InstanceMapScript
                         return _jainaOrSylvanas1GUID;
                     case DATA_JAINA_SYLVANAS_2:
                         return _jainaOrSylvanas2GUID;
+                    case DATA_VICTUS_OR_GORKUN_FREED:
+                        return _victusOrGorkunFreedGUID;
+                    case DATA_SINDRAGOSA:
+                         return _sindragosaGUID;
+                    case GO_HALLS_OF_REFLECT_PORT:
+                         return _uiHorp;
                     default:
                         break;
                 }
@@ -263,6 +337,16 @@ class instance_pit_of_saron : public InstanceMapScript
            {
             if(type == DATA_TYRANNUS_START)
                 _tyrannusEventStart = data;
+            if(type == DATA_AREA_TRIGGER_YMIRJAR)
+                _areaTriggerYmirjar = data;
+            if(type == DATA_AREA_TRIGGER_FALLEN)
+                _areaTriggerFallen = data;
+            if(type == DATA_AREA_TRIGGER_ICE_CICLE)
+                _areaTriggerIceCicle = data;
+            if(type == DATA_SLAVE_OUTRO_GARFROST)
+                _areaTriggerSlaveOutroFargrost = data;
+            if(type == DATA_GEIST_AMBUSHER)
+                _areTriggerGeistAmbusher = data;
            }
             std::string GetSaveData()
             {
@@ -319,9 +403,17 @@ class instance_pit_of_saron : public InstanceMapScript
             uint64 _jainaOrSylvanas1GUID;
             uint64 _jainaOrSylvanas2GUID;
             uint64 uiIceWall;
+            uint64 _victusOrGorkunFreedGUID;
+            uint64 _sindragosaGUID;
+            uint64 _uiHorp;
 
             uint32 _teamInInstance;
             uint8  _tyrannusEventStart;
+            uint8  _areaTriggerYmirjar;
+            uint8  _areaTriggerFallen;
+            uint8  _areaTriggerIceCicle;
+            uint8  _areaTriggerSlaveOutroFargrost;
+            uint8  _areTriggerGeistAmbusher;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

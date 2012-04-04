@@ -36,6 +36,13 @@ enum DataTypes
     DATA_TYRANNUS_EVENT     = 7,
     DATA_TEAM_IN_INSTANCE   = 8,
     DATA_TYRANNUS_START     = 9,
+    DATA_AREA_TRIGGER_YMIRJAR = 10,
+    DATA_AREA_TRIGGER_FALLEN = 11,
+    DATA_AREA_TRIGGER_ICE_CICLE = 12,
+    DATA_VICTUS_OR_GORKUN_FREED = 13,
+    DATA_SLAVE_OUTRO_GARFROST   = 14,
+    DATA_GEIST_AMBUSHER         = 15,
+    DATA_SINDRAGOSA             = 16,
 };
 
 enum CreatureIds
@@ -81,10 +88,18 @@ enum CreatureIds
     NPC_MARTIN_VICTUS_2                         = 37580,
     NPC_GORKUN_IRONSKULL_1                      = 37581,
     NPC_GORKUN_IRONSKULL_2                      = 37592,
+    NPC_YMIRJAR_DEATHBRINGER                    = 36892,
+    NPC_YMIRJAR_FLAMEBEARER                     = 36893,
+    NPC_YMIRJAR_WRATBRINGER                     = 36840,
+    NPC_FALLEN_WARRIOR                          = 36841,
+    NPC_WRATHBONE_COLDWRAITH                    = 36842,
+    NPC_WRATHBONE_REAVER                        = 37729,
+    NPC_WRATHBONE_SORCERER                      = 37728,
+    NPC_WRATHBONE_SKELETON                      = 36877,
+    NPC_SINDRAGOSA                              = 37755,
 
     NPC_FORGEMASTER_STALKER                     = 36495,
     NPC_EXPLODING_ORB                           = 36610,
-    NPC_YMIRJAR_DEATHBRINGER                    = 36892,
     NPC_ICY_BLAST                               = 36731
 };
 
@@ -92,6 +107,7 @@ enum GameObjectIds
 {
     GO_SARONITE_ROCK                            = 196485,
     GO_ICE_WALL                                 = 201885,
+    GO_HALLS_OF_REFLECT_PORT                    = 201848, // unlocked by jaina/sylvanas at last outro
 };
 
 #endif
