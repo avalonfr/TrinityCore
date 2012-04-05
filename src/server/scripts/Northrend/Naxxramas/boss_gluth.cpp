@@ -113,8 +113,22 @@ public:
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-                        // TODO : Add missing text
                         DoCastAOE(SPELL_DECIMATE);
+
+                        for(SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                        {
+                            if (Unit* summon = Unit::GetUnit((*me), (*itr)))
+                            {
+                                if (summon->GetEntry() == MOB_ZOMBIE)
+                                {
+                                    // Set health manually to 5%, Decimate does not work since 3.3.3a
+                                    summon->SetHealth(summon->CountPctFromMaxHealth(5));
+                                    summon->ToCreature()->AI()->AttackStart(me);
+                                    summon->ToCreature()->SetReactState(REACT_PASSIVE);
+                                }
+                            }
+                        }
+
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
                     case EVENT_BERSERK:
