@@ -133,7 +133,7 @@ enum Creatures
     NPC_WASTE                                              = 16427, // Soldiers of the Frozen Wastes
     NPC_ABOMINATION                                        = 16428, // Unstoppable Abominations
     NPC_WEAVER                                             = 16429, // Soul Weavers
-    NPC_ICECROWN                                           = 16441 // Guardians of Icecrown
+    NPC_ICECROWN                                           = 16441, // Guardians of Icecrown
 	NPC_SHADOW_FISSURE                                     = 16129 // Shadow Fissure
 };
 
