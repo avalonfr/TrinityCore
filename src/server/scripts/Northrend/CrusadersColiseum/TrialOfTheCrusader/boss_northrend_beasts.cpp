@@ -1028,7 +1028,7 @@ public:
         uint32 m_uiWhirlTimer;
         uint32 m_uiMassiveCrashTimer;
         uint32 m_uiTrampleTimer;
-		uint32 m_uiChargeTimer;
+		//uint32 m_uiChargeTimer;
         float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
         uint64 m_uiTrampleTargetGUID;
         bool   m_bMovementStarted;
@@ -1043,7 +1043,7 @@ public:
             m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             m_uiWhirlTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
-            m_uiTrampleTimer = 4*IN_MILLISECONDS;
+            m_uiTrampleTimer = IN_MILLISECONDS;
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
@@ -1052,7 +1052,7 @@ public:
             m_fTrampleTargetY = 0;
             m_fTrampleTargetZ = 0;
             m_uiStage = 0;
-			m_uiChargeTimer = 2*IN_MILLISECONDS;
+			//m_uiChargeTimer = 2*IN_MILLISECONDS;
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1079,7 +1079,8 @@ public:
                         // Landed from Hop backwards (start trample)
                         if (Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
                         {
-							m_uiChargeTimer = 2*IN_MILLISECONDS;
+							
+							//m_uiChargeTimer = 4*IN_MILLISECONDS;
                             m_uiStage = 4;
                         }
                         else
@@ -1171,7 +1172,7 @@ public:
 
                     if (m_uiMassiveCrashTimer <= diff)
                     {
-                        me->GetMotionMaster()->MoveJump(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 10.0f, 20.0f); // 1: Middle of the room
+                        me->GetMotionMaster()->MoveJump(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 20.0f, 20.0f); // 1: Middle of the room
                         m_uiStage = 7; //Invalid (Do nothing more than move)
                         m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
                     } else m_uiMassiveCrashTimer -= diff;
@@ -1179,6 +1180,11 @@ public:
                     DoMeleeAttackIfReady();
                     break;
                 case 1:
+					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+					SetCombatMovement(false);
+					me->StopMoving();
+					me->GetMotionMaster()->Clear();
+					me->GetMotionMaster()->MoveIdle();
                     DoCastAOE(SPELL_MASSIVE_CRASH);
                     m_uiStage = 2;
                     break;
@@ -1189,8 +1195,8 @@ public:
                         me->SetTarget(m_uiTrampleTargetGUID);
                         DoScriptText(SAY_TRAMPLE_STARE, me, target);
                         m_bTrampleCasted = false;
-                        SetCombatMovement(false);
-                        me->GetMotionMaster()->MoveIdle();
+                       // SetCombatMovement(false);
+                        //me->GetMotionMaster()->MoveIdle();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         m_uiTrampleTimer = 4*IN_MILLISECONDS;
                         m_uiStage = 3;
@@ -1209,19 +1215,18 @@ public:
                             me->GetMotionMaster()->MoveJump(2*me->GetPositionX()-m_fTrampleTargetX,
                                 2*me->GetPositionY()-m_fTrampleTargetY,
                                 me->GetPositionZ(),
-                                10.0f, 20.0f); // 2: Hop Backwards
+                                20.0f, 20.0f); // 2: Hop Backwards
                             m_uiStage = 7; //Invalid (Do nothing more than move)
                         } else m_uiStage = 6;
                     } else m_uiTrampleTimer -= diff;
                     break;
                 case 4:
-					if (m_uiChargeTimer <= diff)
-					{
 						DoScriptText(SAY_TRAMPLE_START, me);
+						me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+						SetCombatMovement(true);
 						me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
 						me->SetTarget(0);
 						m_uiStage = 5;
-					} else m_uiChargeTimer -= diff;
                     break;
                 case 5:
                     if (m_bMovementFinish)
