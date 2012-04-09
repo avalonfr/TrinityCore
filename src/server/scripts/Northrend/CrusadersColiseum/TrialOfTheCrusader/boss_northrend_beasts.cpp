@@ -389,7 +389,7 @@ public:
             if (m_instance)
                 m_uiBossGUID = m_instance->GetData64(NPC_GORMOK);
             //Workaround for Snobold
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
             Summons.DespawnAll();
         }
@@ -636,7 +636,7 @@ struct boss_jormungarAI : public ScriptedAI
             {
                m_instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
             }
-        }
+		}
 
         if (m_instance)
         {
@@ -835,7 +835,7 @@ void boss_jormungarAI::UpdateAI(const uint32 diff)
     {
         DoScriptText(SAY_EMERGE, me);
         me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE /*| UNIT_FLAG_IMMUNE_TO_PC */| UNIT_FLAG_NOT_SELECTABLE);
         DoCast(SPELL_ENRAGE);
         m_bEnraged = true;
         DoScriptText(SAY_BERSERK, me);
@@ -937,7 +937,7 @@ void boss_jormungarAI::UpdateAI(const uint32 diff)
             break;
         case 5: // Submerge
             me->SetDisplayId(11686);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE/* | UNIT_FLAG_IMMUNE_TO_PC*/ | UNIT_FLAG_NOT_SELECTABLE);
             DoCast(me, SPELL_SUBMERGE_0);
             DoScriptText(SAY_SUBMERGE, me);
             me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionY()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionZ());
@@ -953,7 +953,7 @@ void boss_jormungarAI::UpdateAI(const uint32 diff)
             DoScriptText(SAY_EMERGE, me);
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
             DoCast(me, SPELL_EMERGE_0);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE/* | UNIT_FLAG_IMMUNE_TO_PC */| UNIT_FLAG_NOT_SELECTABLE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             SetCombatMovement(true);
             me->GetMotionMaster()->MoveChase(me->getVictim());
@@ -1028,6 +1028,7 @@ public:
         uint32 m_uiWhirlTimer;
         uint32 m_uiMassiveCrashTimer;
         uint32 m_uiTrampleTimer;
+		uint32 m_uiChargeTimer;
         float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
         uint64 m_uiTrampleTargetGUID;
         bool   m_bMovementStarted;
@@ -1042,7 +1043,7 @@ public:
             m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             m_uiWhirlTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
-            m_uiTrampleTimer = IN_MILLISECONDS;
+            m_uiTrampleTimer = 4*IN_MILLISECONDS;
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
@@ -1051,6 +1052,7 @@ public:
             m_fTrampleTargetY = 0;
             m_fTrampleTargetZ = 0;
             m_uiStage = 0;
+			m_uiChargeTimer = 2*IN_MILLISECONDS;
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1077,6 +1079,7 @@ public:
                         // Landed from Hop backwards (start trample)
                         if (Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
                         {
+							m_uiChargeTimer = 2*IN_MILLISECONDS;
                             m_uiStage = 4;
                         }
                         else
@@ -1212,10 +1215,13 @@ public:
                     } else m_uiTrampleTimer -= diff;
                     break;
                 case 4:
-                    DoScriptText(SAY_TRAMPLE_START, me);
-                    me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
-                    me->SetTarget(0);
-                    m_uiStage = 5;
+					if (m_uiChargeTimer <= diff)
+					{
+						DoScriptText(SAY_TRAMPLE_START, me);
+						me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
+						me->SetTarget(0);
+						m_uiStage = 5;
+					} else m_uiChargeTimer -= diff;
                     break;
                 case 5:
                     if (m_bMovementFinish)
@@ -1253,6 +1259,8 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     m_uiStage = 0;
                     break;
+				default :
+					break;
             }
         }
     };
