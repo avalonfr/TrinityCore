@@ -79,6 +79,7 @@ enum BossSpells
     SPELL_STAGGERING_STOMP  = 67648,
     SPELL_RISING_ANGER      = 66636,
     //Snobold
+	SPELL_SNOBOLLED         = 66406,
     SPELL_BATTER            = 66408,
     SPELL_FIRE_BOMB         = 66313,
     SPELL_FIRE_BOMB_DOT     = 66318,
@@ -429,6 +430,7 @@ public:
             UnitAI::AttackStart(who);
             m_uiTargetGUID = who->GetGUID();
             me->AddThreat(who, 5000000.0f);
+			DoCast(who, SPELL_SNOBOLLED);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
@@ -445,7 +447,9 @@ public:
         void JustDied(Unit* killer)
         {
             Summons.DespawnAll();
-
+            if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
+                if (target->isAlive())
+                    target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
             if (m_instance)
                 m_instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
         }
@@ -878,7 +882,7 @@ void boss_jormungarAI::UpdateAI(const uint32 diff)
             break;
         case 1: // Submerge
             me->SetDisplayId(11686);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE /*| UNIT_FLAG_IMMUNE_TO_PC*/ | UNIT_FLAG_NOT_SELECTABLE);
             DoCast(me, SPELL_SUBMERGE_0);
             DoScriptText(SAY_SUBMERGE, me);
             me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionY()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionZ());
@@ -894,7 +898,7 @@ void boss_jormungarAI::UpdateAI(const uint32 diff)
             DoScriptText(SAY_EMERGE, me);
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
             DoCast(me, SPELL_EMERGE_0);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE /*| UNIT_FLAG_IMMUNE_TO_PC*/ | UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             SetCombatMovement(false);
             me->StopMoving();

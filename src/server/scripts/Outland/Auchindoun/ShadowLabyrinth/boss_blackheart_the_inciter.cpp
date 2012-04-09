@@ -111,6 +111,14 @@ public:
             if (instance)
                 instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
         }
+		
+        void EnterEvadeMode()
+        {
+            if (InciteChaos)
+                return;
+
+            ScriptedAI::EnterEvadeMode();
+        }		
 
         void UpdateAI(const uint32 diff)
         {
