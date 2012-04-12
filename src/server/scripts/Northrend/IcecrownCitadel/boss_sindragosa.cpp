@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -23,137 +23,137 @@
 
 enum Texts
 {
-    SAY_AGGRO                           = 0, // You are fools to have come to this place! The icy winds of Northrend will consume your souls!
-    SAY_UNCHAINED_MAGIC                 = 1, // Suffer, mortals, as your pathetic magic betrays you!
-    EMOTE_WARN_BLISTERING_COLD          = 2, // %s prepares to unleash a wave of blistering cold!
-    SAY_BLISTERING_COLD                 = 3, // Can you feel the cold hand of death upon your heart?
-    SAY_RESPITE_FOR_A_TORMENTED_SOUL    = 4, // Aaah! It burns! What sorcery is this?!
-    SAY_AIR_PHASE                       = 5, // Your incursion ends here! None shall survive!
-    SAY_PHASE_2                         = 6, // Now feel my master's limitless power and despair!
-    EMOTE_WARN_FROZEN_ORB               = 7, // %s fires a frozen orb towards $N!
-    SAY_KILL                            = 8, // Perish!
+    SAY_AGGRO = 0, // You are fools to have come to this place! The icy winds of Northrend will consume your souls!
+    SAY_UNCHAINED_MAGIC = 1, // Suffer, mortals, as your pathetic magic betrays you!
+    EMOTE_WARN_BLISTERING_COLD = 2, // %s prepares to unleash a wave of blistering cold!
+    SAY_BLISTERING_COLD = 3, // Can you feel the cold hand of death upon your heart?
+    SAY_RESPITE_FOR_A_TORMENTED_SOUL = 4, // Aaah! It burns! What sorcery is this?!
+    SAY_AIR_PHASE = 5, // Your incursion ends here! None shall survive!
+    SAY_PHASE_2 = 6, // Now feel my master's limitless power and despair!
+    EMOTE_WARN_FROZEN_ORB = 7, // %s fires a frozen orb towards $N!
+    SAY_KILL = 8, // Perish!
                                              // A flaw of mortality...
-    SAY_BERSERK                         = 9, // Enough! I tire of these games!
-    SAY_DEATH                           = 10, // Free...at last...
+    SAY_BERSERK = 9, // Enough! I tire of these games!
+    SAY_DEATH = 10, // Free...at last...
 };
 
 enum Spells
 {
     // Sindragosa
-    SPELL_SINDRAGOSA_S_FURY     = 70608,
-    SPELL_TANK_MARKER           = 71039,
-    SPELL_FROST_AURA            = 70084,
-    SPELL_PERMAEATING_CHILL     = 70109,
-    SPELL_CLEAVE                = 19983,
-    SPELL_TAIL_SMASH            = 71077,
-    SPELL_FROST_BREATH_P1       = 69649,
-    SPELL_FROST_BREATH_P2       = 73061,
-    SPELL_UNCHAINED_MAGIC       = 69762,
-    SPELL_BACKLASH              = 69770,
-    SPELL_ICY_GRIP              = 70117,
-    SPELL_ICY_GRIP_JUMP         = 70122,
-    SPELL_BLISTERING_COLD       = 70123,
-    SPELL_FROST_BEACON          = 70126,
-    SPELL_ICE_TOMB_TARGET       = 69712,
-    SPELL_ICE_TOMB_DUMMY        = 69675,
+    SPELL_SINDRAGOSA_S_FURY = 70608,
+    SPELL_TANK_MARKER = 71039,
+    SPELL_FROST_AURA = 70084,
+    SPELL_PERMAEATING_CHILL = 70109,
+    SPELL_CLEAVE = 19983,
+    SPELL_TAIL_SMASH = 71077,
+    SPELL_FROST_BREATH_P1 = 69649,
+    SPELL_FROST_BREATH_P2 = 73061,
+    SPELL_UNCHAINED_MAGIC = 69762,
+    SPELL_BACKLASH = 69770,
+    SPELL_ICY_GRIP = 70117,
+    SPELL_ICY_GRIP_JUMP = 70122,
+    SPELL_BLISTERING_COLD = 70123,
+    SPELL_FROST_BEACON = 70126,
+    SPELL_ICE_TOMB_TARGET = 69712,
+    SPELL_ICE_TOMB_DUMMY = 69675,
     SPELL_ICE_TOMB_UNTARGETABLE = 69700,
-    SPELL_ICE_TOMB_DAMAGE       = 70157,
-    SPELL_ASPHYXIATION          = 71665,
-    SPELL_FROST_BOMB_TRIGGER    = 69846,
-    SPELL_FROST_BOMB_VISUAL     = 70022,
-	SPELL_BIRTH_NO_VISUAL       = 40031,
-    SPELL_FROST_BOMB            = 69845,
-    SPELL_MYSTIC_BUFFET         = 70128,
+    SPELL_ICE_TOMB_DAMAGE = 70157,
+    SPELL_ASPHYXIATION = 71665,
+    SPELL_FROST_BOMB_TRIGGER = 69846,
+    SPELL_FROST_BOMB_VISUAL = 70022,
+SPELL_BIRTH_NO_VISUAL = 40031,
+    SPELL_FROST_BOMB = 69845,
+    SPELL_MYSTIC_BUFFET = 70128,
 
     // Spinestalker
-    SPELL_BELLOWING_ROAR        = 36922,
-    SPELL_CLEAVE_SPINESTALKER   = 40505,
-    SPELL_TAIL_SWEEP            = 71370,
+    SPELL_BELLOWING_ROAR = 36922,
+    SPELL_CLEAVE_SPINESTALKER = 40505,
+    SPELL_TAIL_SWEEP = 71370,
 
     // Rimefang
-    SPELL_FROST_BREATH          = 71386,
-    SPELL_FROST_AURA_RIMEFANG   = 71387,
-    SPELL_ICY_BLAST             = 71376,
-    SPELL_ICY_BLAST_AREA        = 71380,
+    SPELL_FROST_BREATH = 71386,
+    SPELL_FROST_AURA_RIMEFANG = 71387,
+    SPELL_ICY_BLAST = 71376,
+    SPELL_ICY_BLAST_AREA = 71380,
 
     // Frostwarden Handler
-    SPELL_FOCUS_FIRE            = 71350,
-    SPELL_ORDER_WHELP           = 71357,
-    SPELL_CONCUSSIVE_SHOCK      = 71337,
+    SPELL_FOCUS_FIRE = 71350,
+    SPELL_ORDER_WHELP = 71357,
+    SPELL_CONCUSSIVE_SHOCK = 71337,
 };
 
 enum Events
 {
     // Sindragosa
-    EVENT_BERSERK                   = 1,
-    EVENT_CLEAVE                    = 2,
-    EVENT_TAIL_SMASH                = 3,
-    EVENT_FROST_BREATH              = 4,
-    EVENT_UNCHAINED_MAGIC           = 5,
-    EVENT_ICY_GRIP                  = 6,
-    EVENT_BLISTERING_COLD           = 7,
-    EVENT_BLISTERING_COLD_YELL      = 8,
-    EVENT_AIR_PHASE                 = 9,
-    EVENT_ICE_TOMB                  = 10,
-    EVENT_FROST_BOMB                = 11,
-    EVENT_LAND                      = 12,
-    EVENT_AIR_MOVEMENT              = 21,
-    EVENT_THIRD_PHASE_CHECK         = 22,
-	EVENT_ICE_TOMB_TARGET			= 23,
+    EVENT_BERSERK = 1,
+    EVENT_CLEAVE = 2,
+    EVENT_TAIL_SMASH = 3,
+    EVENT_FROST_BREATH = 4,
+    EVENT_UNCHAINED_MAGIC = 5,
+    EVENT_ICY_GRIP = 6,
+    EVENT_BLISTERING_COLD = 7,
+    EVENT_BLISTERING_COLD_YELL = 8,
+    EVENT_AIR_PHASE = 9,
+    EVENT_ICE_TOMB = 10,
+    EVENT_FROST_BOMB = 11,
+    EVENT_LAND = 12,
+    EVENT_AIR_MOVEMENT = 21,
+    EVENT_THIRD_PHASE_CHECK = 22,
+	EVENT_SUMMON_TOMB = 23,
 
     // Spinestalker
-    EVENT_BELLOWING_ROAR            = 13,
-    EVENT_CLEAVE_SPINESTALKER       = 14,
-    EVENT_TAIL_SWEEP                = 15,
+    EVENT_BELLOWING_ROAR = 13,
+    EVENT_CLEAVE_SPINESTALKER = 14,
+    EVENT_TAIL_SWEEP = 15,
 
     // Rimefang
-    EVENT_FROST_BREATH_RIMEFANG     = 16,
-    EVENT_ICY_BLAST                 = 17,
-    EVENT_ICY_BLAST_CAST            = 18,
+    EVENT_FROST_BREATH_RIMEFANG = 16,
+    EVENT_ICY_BLAST = 17,
+    EVENT_ICY_BLAST_CAST = 18,
 
     // Trash
-    EVENT_FROSTWARDEN_ORDER_WHELP   = 19,
-    EVENT_CONCUSSIVE_SHOCK          = 20,
+    EVENT_FROSTWARDEN_ORDER_WHELP = 19,
+    EVENT_CONCUSSIVE_SHOCK = 20,
 
     // event groups
-    EVENT_GROUP_LAND_PHASE          = 1,
+    EVENT_GROUP_LAND_PHASE = 1,
 };
 
 enum FrostwingData
 {
-    DATA_MYSTIC_BUFFET_STACK    = 0,
-    DATA_FROSTWYRM_OWNER        = 1,
-    DATA_WHELP_MARKER           = 2,
-    DATA_LINKED_GAMEOBJECT      = 3,
-    DATA_TRAPPED_PLAYER         = 4,
+    DATA_MYSTIC_BUFFET_STACK = 0,
+    DATA_FROSTWYRM_OWNER = 1,
+    DATA_WHELP_MARKER = 2,
+    DATA_LINKED_GAMEOBJECT = 3,
+    DATA_TRAPPED_PLAYER = 4,
 };
 
 enum MovementPoints
 {
-    POINT_FROSTWYRM_FLY_IN  = 1,
-    POINT_FROSTWYRM_LAND    = 2,
-    POINT_AIR_PHASE         = 3,
-    POINT_TAKEOFF           = 4,
-    POINT_LAND              = 5,
+    POINT_FROSTWYRM_FLY_IN = 1,
+    POINT_FROSTWYRM_LAND = 2,
+    POINT_AIR_PHASE = 3,
+    POINT_TAKEOFF = 4,
+    POINT_LAND = 5,
 };
 
 enum Shadowmourne
 {
-    QUEST_FROST_INFUSION        = 24757,
-    ITEM_SHADOW_S_EDGE          = 49888,
+    QUEST_FROST_INFUSION = 24757,
+    ITEM_SHADOW_S_EDGE = 49888,
 
-    SPELL_FROST_INFUSION        = 72292,
-    SPELL_FROST_IMBUED_BLADE    = 72290,
+    SPELL_FROST_INFUSION = 72292,
+    SPELL_FROST_IMBUED_BLADE = 72290,
 };
 
-Position const RimefangFlyPos      = {4413.309f, 2456.421f, 233.3795f, 2.890186f};
-Position const RimefangLandPos     = {4413.309f, 2456.421f, 203.3848f, 2.890186f};
-Position const SpinestalkerFlyPos  = {4418.895f, 2514.233f, 230.4864f, 3.396045f};
+Position const RimefangFlyPos = {4413.309f, 2456.421f, 233.3795f, 2.890186f};
+Position const RimefangLandPos = {4413.309f, 2456.421f, 203.3848f, 2.890186f};
+Position const SpinestalkerFlyPos = {4418.895f, 2514.233f, 230.4864f, 3.396045f};
 Position const SpinestalkerLandPos = {4418.895f, 2514.233f, 203.3848f, 3.396045f};
-Position const SindragosaSpawnPos  = {4818.700f, 2483.710f, 287.0650f, 3.089233f};
-Position const SindragosaFlyPos    = {4475.190f, 2484.570f, 234.8510f, 3.141593f};
-Position const SindragosaLandPos   = {4419.190f, 2484.570f, 203.3848f, 3.141593f};
-Position const SindragosaAirPos    = {4475.990f, 2484.430f, 247.9340f, 3.141593f};
+Position const SindragosaSpawnPos = {4818.700f, 2483.710f, 287.0650f, 3.089233f};
+Position const SindragosaFlyPos = {4475.190f, 2484.570f, 234.8510f, 3.141593f};
+Position const SindragosaLandPos = {4419.190f, 2484.570f, 203.3848f, 3.141593f};
+Position const SindragosaAirPos = {4475.990f, 2484.430f, 247.9340f, 3.141593f};
 
 class FrostwyrmLandEvent : public BasicEvent
 {
@@ -215,7 +215,6 @@ class boss_sindragosa : public CreatureScript
                 _mysticBuffetStack = 0;
                 _isInAirPhase = false;
                 _isThirdPhase = false;
-				
 
                 if (instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) != 255)
                 {
@@ -309,7 +308,8 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
                         break;
                     case POINT_AIR_PHASE:
-						events.ScheduleEvent(EVENT_ICE_TOMB_TARGET,1000);
+                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
+                        events.ScheduleEvent(EVENT_FROST_BOMB, 8000);
                         break;
                     case POINT_LAND:
                         me->SetFlying(false);
@@ -395,6 +395,31 @@ class boss_sindragosa : public CreatureScript
                     }
                 }
 
+				if(spell->Id == SPELL_FROST_BEACON)
+				{
+
+					FrostTargetList.push_back(target->GetGUID());
+					events.ScheduleEvent(EVENT_SUMMON_TOMB,6000);
+				}
+            }
+
+			void SummonTomb(Unit *pTarget)
+            {
+                Position pos;
+                pTarget->GetPosition(&pos);
+				me->CastSpell(pTarget,SPELL_ICE_TOMB_DAMAGE,true);
+				pTarget->AddAura(SPELL_ICE_TOMB_DAMAGE,pTarget);
+                if (TempSummon* summon = me->SummonCreature(NPC_ICE_TOMB, pos))
+                {
+                    summon->AI()->SetGUID(pTarget->GetGUID(), DATA_TRAPPED_PLAYER);
+                    if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                    {
+						go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
+                        summon->AddGameObject(go);
+						go->setActive(true);
+						go->EnableCollision(false);
+                    }
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -466,40 +491,29 @@ class boss_sindragosa : public CreatureScript
                         case EVENT_AIR_MOVEMENT:
                             me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE, SindragosaAirPos);
                             break;
-
-						case EVENT_ICE_TOMB_TARGET :
-							if(!_isThirdPhase)
-								me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
-							else 
-							{
-								me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, 1, NULL);
-								events.ScheduleEvent(EVENT_ICE_TOMB_TARGET,25000);
-							}
-							 events.ScheduleEvent(EVENT_FROST_BOMB, 9000);
-							events.ScheduleEvent(EVENT_ICE_TOMB,5000);
-							break;
                         case EVENT_ICE_TOMB:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
+                            {
+                                Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
+                                DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
+                            }
+                            events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
+                            break;
+						case EVENT_SUMMON_TOMB :
+							if (FrostTargetList.empty())
+								return;
+							for (std::deque<uint64>::iterator itr = FrostTargetList.begin(); itr != FrostTargetList.end();)
 							{
-								Player* target;
-								Map::PlayerList const &players = me->GetMap()->GetPlayers();
-								if(!players.isEmpty())
-									for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-									{
-										sLog->outError("ds EVENT_ICE_TOMB avent spell et exclu ********************************");
-										target = itr->getSource();
-										if(me->GetDistance(target) > 100.0f || !target->HasAura(70126))
-											continue;
-									sLog->outError("ds EVENT_ICE_TOMB apres  exclu ********************************");
-										Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
-										DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
-									}
-								//events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
-								break;
+								
+								if (Unit *target = ObjectAccessor::GetUnit(*me, *itr))
+									SummonTomb(target);
+								itr++;
 							}
+							FrostTargetList.clear();
+							break;
                         case EVENT_FROST_BOMB:
                         {
                             float destX, destY, destZ;
-
                             destX = float(rand_norm()) * 75.0f + 4350.0f;
                             destY = float(rand_norm()) * 75.0f + 2450.0f;
 
@@ -540,6 +554,7 @@ class boss_sindragosa : public CreatureScript
             uint8 _mysticBuffetStack;
             bool _isInAirPhase;
             bool _isThirdPhase;
+			std::deque<uint64> FrostTargetList;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -601,7 +616,7 @@ class npc_ice_tomb : public CreatureScript
                 if (_existenceCheckTimer <= diff)
                 {
                     Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID);
-                    if (!player || player->isDead() || !player->HasAura(SPELL_ICE_TOMB_DAMAGE))
+                    if (!player || player->isDead())// || !player->HasAura(SPELL_ICE_TOMB_DAMAGE))
                     {
                         // Remove object
                         JustDied(me);
@@ -642,7 +657,7 @@ class npc_spinestalker : public CreatureScript
                 if (!me->isDead())
                 {
                     if (_instance)
-                        _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                        _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1); // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -665,7 +680,7 @@ class npc_spinestalker : public CreatureScript
             void JustRespawned()
             {
                 ScriptedAI::JustRespawned();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1); // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/)
@@ -768,7 +783,7 @@ class npc_rimefang : public CreatureScript
                 if (!me->isDead())
                 {
                     if (_instance)
-                        _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                        _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1); // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -791,7 +806,7 @@ class npc_rimefang : public CreatureScript
             void JustRespawned()
             {
                 ScriptedAI::JustRespawned();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1); // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/)
@@ -923,7 +938,7 @@ class npc_sindragosa_trash : public CreatureScript
                 if (!me->isDead())
                 {
                     if (_instance)
-                        _instance->SetData(_frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
+                        _instance->SetData(_frostwyrmId, 1); // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -945,7 +960,7 @@ class npc_sindragosa_trash : public CreatureScript
                 ScriptedAI::JustRespawned();
 
                 // Increase add count
-                _instance->SetData(_frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData(_frostwyrmId, 1); // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/)
