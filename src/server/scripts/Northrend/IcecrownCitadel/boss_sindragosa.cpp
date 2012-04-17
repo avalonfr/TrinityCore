@@ -204,6 +204,7 @@ class boss_sindragosa : public CreatureScript
             {
                 BossAI::Reset();
                 me->SetReactState(REACT_DEFENSIVE);
+				UnSummon();
                 DoCast(me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
@@ -211,8 +212,9 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_FROST_BREATH, urand(8000, 12000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
+                
                 _mysticBuffetStack = 0;
+				_isFirstPhase = true;
                 _isInAirPhase = false;
                 _isThirdPhase = false;
 
@@ -225,6 +227,7 @@ class boss_sindragosa : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+				UnSummon();
                 BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
             }
@@ -312,16 +315,40 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_FROST_BOMB, 8000);
                         break;
                     case POINT_LAND:
-                        me->SetFlying(false);
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        me->SetReactState(REACT_DEFENSIVE);
-                        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-                            me->GetMotionMaster()->MovementExpired();
-                        DoStartMovement(me->getVictim());
-                        _isInAirPhase = false;
-                        // trigger Asphyxiation
-                        summons.DoAction(NPC_ICE_TOMB, ACTION_TRIGGER_ASPHYXIATION);
-                        break;
+						{
+							me->SetFlying(false);
+							me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+							me->SetReactState(REACT_DEFENSIVE);
+							if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+							    me->GetMotionMaster()->MovementExpired();
+							//seems sindra reset Threat with ice tomb
+							me->getThreatManager().resetAllAggro();
+							Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+							if( !PlayerList.isEmpty())
+							{
+								for(Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+								{
+									if( Player *pTarget = itr->getSource())
+										if(pTarget->HasAura(SPELL_ICE_TOMB_DAMAGE) || me->GetDistance(pTarget) > 100.0f)
+											continue;
+										else
+										{
+											sLog->outError("select victim ************************************************%s",pTarget->GetName());
+											
+											me->AddThreat(pTarget,100.0f);
+											me->GetMotionMaster()->MoveChase(pTarget);
+											me->Attack(pTarget,true);
+											return;
+										}
+								}
+							}
+
+							//DoStartMovement(me->getVictim());
+							_isInAirPhase = false;
+							// trigger Asphyxiation
+							summons.DoAction(NPC_ICE_TOMB, ACTION_TRIGGER_ASPHYXIATION);
+							break;
+						}
                     default:
                         break;
                 }
@@ -329,6 +356,12 @@ class boss_sindragosa : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
+
+				if(me->GetHealthPct() < 85  && me->GetHealthPct() > 35 && _isFirstPhase)
+				{
+					_isFirstPhase = false;
+					events.ScheduleEvent(EVENT_AIR_PHASE, 1000);
+				}
                 if (!_isThirdPhase && !HealthAbovePct(35))
                 {
                     events.CancelEvent(EVENT_AIR_PHASE);
@@ -336,6 +369,24 @@ class boss_sindragosa : public CreatureScript
                     _isThirdPhase = true;
                 }
             }
+
+			void UnSummon()
+			{
+				if(summons.empty())
+					return;
+
+				for (std::list<uint64>::iterator itr = summons.begin(); itr != summons.end();)
+				{
+					if(Creature *Csummon = ObjectAccessor::GetCreature(*me,*itr))
+					{
+						if (Csummon->GetEntry() == NPC_ICE_TOMB)
+							Csummon->AI()->JustDied(Csummon->ToUnit());
+						else
+							Csummon->DisappearAndDie();
+					}
+				}
+					
+			}
 
             void JustSummoned(Creature* summon)
             {
@@ -348,13 +399,13 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDespawn(Creature* summon)
+            /*void SummonedCreatureDespawn(Creature* summon)
             {
                 BossAI::SummonedCreatureDespawn(summon);
                 if (summon->GetEntry() == NPC_ICE_TOMB)
                     summon->AI()->JustDied(summon);
             }
-
+			*/
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
@@ -424,7 +475,7 @@ class boss_sindragosa : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim() /*|| !CheckInRoom()*/)
                     return;
 
                 events.Update(diff);
@@ -483,9 +534,10 @@ class boss_sindragosa : public CreatureScript
                             pos.m_positionZ += 17.0f;
                             me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos, 8.30078125f);
                             events.DelayEvents(45000, EVENT_GROUP_LAND_PHASE);
-                            events.ScheduleEvent(EVENT_AIR_PHASE, 110000);
                             events.RescheduleEvent(EVENT_UNCHAINED_MAGIC, urand(55000, 60000), EVENT_GROUP_LAND_PHASE);
                             events.ScheduleEvent(EVENT_LAND, 45000);
+							if (!_isThirdPhase)
+								events.ScheduleEvent(EVENT_AIR_PHASE, 110000);
                             break;
                         }
                         case EVENT_AIR_MOVEMENT:
@@ -553,6 +605,7 @@ class boss_sindragosa : public CreatureScript
         private:
             uint8 _mysticBuffetStack;
             bool _isInAirPhase;
+			bool _isFirstPhase;
             bool _isThirdPhase;
 			std::deque<uint64> FrostTargetList;
         };
@@ -606,6 +659,7 @@ class npc_ice_tomb : public CreatureScript
                     player->RemoveAurasDueToSpell(SPELL_ICE_TOMB_DAMAGE);
                     player->RemoveAurasDueToSpell(SPELL_ASPHYXIATION);
                 }
+				me->DespawnOrUnsummon();
             }
 
             void UpdateAI(uint32 const diff)
