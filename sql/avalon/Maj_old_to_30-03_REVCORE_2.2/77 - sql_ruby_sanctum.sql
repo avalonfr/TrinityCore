@@ -61,7 +61,9 @@ UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432 WHERE `entry` IN(40001, 40135); -- 40001 & 40135 - Combustion & Consumption
 
 -- 40469, 40468, 40083 & 40100 - Shadow Orb
-UPDATE `creature_template` SET `InhabitType`=7,`flags_extra`=2,`unit_flags`=33554432,`baseattacktime`=2000,`speed_walk`=2.4,`speed_run`=0.85714,`faction_A`=14,`faction_H`=14,`exp`=2,`maxlevel`=80,`minlevel`=80, `ScriptName`= '' WHERE `entry` IN (40469, 40468, 40083, 40100);
+UPDATE `creature_template` SET `InhabitType`=7,`flags_extra`=2,`unit_flags`=33554432,`baseattacktime`=2000,`speed_walk`=2.4,`speed_run`=0.85714,`faction_A`=14,`faction_H`=14,`exp`=2,`maxlevel`=80,`minlevel`=80,`HoverHeight`=6.25, `ScriptName`= '' WHERE `entry` IN (40469, 40468, 40083, 40100);
+
+UPDATE `creature_template` SET `speed_walk`=3.2,`speed_run`=1.71428573131561, /*`faction_H`=834,`faction_A`=834,*/`unit_flags`=0x40 WHERE `entry` IN (40683,40681); -- Living Inferno & Living Ember
 
 -- Script Names
 UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion' WHERE `entry`=40142; -- Twilight Halion
@@ -71,13 +73,20 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial' WHERE `
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike' WHERE `entry` IN (40041, 40042, 40043, 40044);
 
 -- Model info update
-UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
+UPDATE `creature_model_info` SET `bounding_radius`=1, `combat_reach`=2 WHERE `modelid`=16946;
+UPDATE `creature_model_info` SET `combat_reach`=18 WHERE `modelid`=31952;
+UPDATE `creature_model_info` SET `combat_reach`=12.25 WHERE `modelid`=32179;
 
 -- Template addon updates
-DELETE FROM `creature_template_addon` WHERE `entry` IN (39863, 40142);
-INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
-(40142,0,0,0,0,0, '75476 78243'), -- Twilight Halion: Twilight Precision + Dusk Shroud
-(39863,0,0,0,0,0, '78243');       -- Halion: Twilight Precision
+DELETE FROM `creature_template_addon` WHERE `entry` IN (39863,40142,40469,40468,40083,40100,40091);
+INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`auras`) VALUES
+(40142,0,0x0,0x1, '75476'),  -- Twilight Halion - Dusk Shroud
+(39863,0,0x0,0x1, '78243'),  -- Halion: Twilight Precision
+(40469,0,0x2000000,0x1, ''), -- Shadow Orb
+(40468,0,0x2000000,0x1, ''), -- Shadow Orb
+(40083,0,0x2000000,0x1, ''), -- Shadow Orb
+(40100,0,0x2000000,0x1, ''), -- Shadow Orb
+(40091,0,0x0,0x1, '');       -- Orb Rotation Focus
 
 -- Spell 75074 cannot be found in any DBC file and is not found in sniffs.
 -- thus leaving us with no other choice than editing a WDB field (kids, do not try this at home)
@@ -96,7 +105,6 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_enter_twiligh
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_phasing';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_clear_debuffs';
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_copy_damage';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74641, 'spell_halion_meteor_strike_marker'),
 (74562, 'spell_halion_fiery_combustion'),
@@ -112,7 +120,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (77844, 'spell_halion_twilight_cutter'),
 (77845, 'spell_halion_twilight_cutter'),
 (75396, 'spell_halion_clear_debuffs'),
-(74810, 'spell_halion_copy_damage'),
 (77846, 'spell_halion_twilight_cutter');
 
 -- Texts
@@ -148,11 +155,11 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`
 (@OGUID,203624,724,15,0x20,3157.372,533.9948,72.8887,1.034892,0,0,0.4946623,0.8690853,120,0,0); -- GO_TWILIGHT_FLAME_RING
 
 SET @GUID = X; -- Set guid (3 required)
-DELETE FROM `creature` WHERE `id` IN (40081,40091,40151);
+DELETE FROM `creature` WHERE `id` IN (40081,40091); -- ,40151);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@GUID,40091,724,1,0x20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
-(@GUID+1,40081,724,1,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0), -- Orb Carrier
-(@GUID+2,40151,724,1,0x21,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Combat Stalker
+(@GUID+1,40081,724,1,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Orb Carrier
+-- (@GUID+2,40151,724,1,0x21,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Combat Stalker (TODO: move to cpp. sniff prooves it is not spawned pre fight)
 
 -- Pathing for Orb Rotation Focus Entry: 40091
 SET @PATH = @GUID * 10;
@@ -188,13 +195,13 @@ INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`m
 
 (40471,40083,0,1, 'Orb Carrier',6,30000),
 (40471,40100,1,1, 'Orb Carrier',6,30000),
-(40471,40468,2,1, 'Orb Carrier (seat guessed)',6,30000),
-(40471,40469,3,1, 'Orb Carrier (seat guessed)',6,30000),
+(40471,40468,2,1, 'Orb Carrier',6,30000),
+(40471,40469,3,1, 'Orb Carrier',6,30000),
 
 (40472,40083,0,1, 'Orb Carrier',6,30000),
 (40472,40100,1,1, 'Orb Carrier',6,30000),
-(40472,40468,2,1, 'Orb Carrier (seat guessed)',6,30000),
-(40472,40469,3,1, 'Orb Carrier (seat guessed)',6,30000);
+(40472,40468,2,1, 'Orb Carrier',6,30000),
+(40472,40469,3,1, 'Orb Carrier',6,30000);
 
 -- Vehicle spellclicks
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (40081,40470,40471,40472);
@@ -207,10 +214,11 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_t
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=74758;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75509;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75866;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75886;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13,1,75886,0,0,31,0,3,40683,0,0,0, "", "Blazing Aura can only target Living Embers"),
 (13,1,75886,0,0,31,0,3,40684,0,0,0, "", "Blazing Aura can only target Living Embers"),
 (13,3,75509,0,0,31,0,3,40142,0,0,0, "", "Twilight Mending can only target Halion"),
 (13,3,75509,0,0,31,0,3,39863,0,0,0, "", "Twilight Mending can only target Halion"),
 (13,1,74758,0,0,31,0,3,40091,0,0,0, "", "Track Rotation can only target Orb Rotation Focus");
+
