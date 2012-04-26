@@ -61,7 +61,7 @@ enum Spells
     SPELL_ASPHYXIATION = 71665,
     SPELL_FROST_BOMB_TRIGGER = 69846,
     SPELL_FROST_BOMB_VISUAL = 70022,
-SPELL_BIRTH_NO_VISUAL = 40031,
+	SPELL_BIRTH_NO_VISUAL = 40031,
     SPELL_FROST_BOMB = 69845,
     SPELL_MYSTIC_BUFFET = 70128,
 
@@ -204,7 +204,7 @@ class boss_sindragosa : public CreatureScript
             {
                 BossAI::Reset();
                 me->SetReactState(REACT_DEFENSIVE);
-				UnSummon();
+				UnSummonTomb();
                 DoCast(me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
@@ -227,7 +227,7 @@ class boss_sindragosa : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-				UnSummon();
+				UnSummonTomb();
                 BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
             }
@@ -278,7 +278,7 @@ class boss_sindragosa : public CreatureScript
                     float moveTime = me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
                     me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                     me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SindragosaFlyPos);
-                    DoCast(me, SPELL_SINDRAGOSA_S_FURY);
+                    //DoCast(me, SPELL_SINDRAGOSA_S_FURY);
                 }
             }
 
@@ -317,6 +317,7 @@ class boss_sindragosa : public CreatureScript
                     case POINT_LAND:
 						{
 							me->SetFlying(false);
+							//_isInAirPhase = false;
 							me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
 							me->SetReactState(REACT_DEFENSIVE);
 							if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
@@ -333,12 +334,10 @@ class boss_sindragosa : public CreatureScript
 											continue;
 										else
 										{
-											sLog->outError("select victim ************************************************%s",pTarget->GetName());
-											
 											me->AddThreat(pTarget,100.0f);
 											me->GetMotionMaster()->MoveChase(pTarget);
 											me->Attack(pTarget,true);
-											return;
+											break;
 										}
 								}
 							}
@@ -370,25 +369,25 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-			void UnSummon()
+			void UnSummonTomb()
 			{
-				if(summons.empty())
+				/*if(summons.empty())
+					return;*/
+
+				std::list<Creature*> tombs;
+				GetCreatureListWithEntryInGrid(tombs, me, NPC_ICE_TOMB, 200.0f);
+				if (tombs.empty())
 					return;
 
-				for (std::list<uint64>::iterator itr = summons.begin(); itr != summons.end();)
+				for (std::list<Creature*>::iterator itr = tombs.begin() ; itr != tombs.end(); itr++)
 				{
-					if(Creature *Csummon = ObjectAccessor::GetCreature(*me,*itr))
-					{
-						if (Csummon->GetEntry() == NPC_ICE_TOMB)
-							Csummon->AI()->JustDied(Csummon->ToUnit());
-						else
-							Csummon->DisappearAndDie();
-					}
+					if((*itr)->isAlive())
+						(*itr)->AI()->JustDied((*itr)->ToUnit());
 				}
 					
 			}
 
-            void JustSummoned(Creature* summon)
+			void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
                 if (summon->GetEntry() == NPC_FROST_BOMB)
@@ -399,13 +398,6 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            /*void SummonedCreatureDespawn(Creature* summon)
-            {
-                BossAI::SummonedCreatureDespawn(summon);
-                if (summon->GetEntry() == NPC_ICE_TOMB)
-                    summon->AI()->JustDied(summon);
-            }
-			*/
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
@@ -448,7 +440,6 @@ class boss_sindragosa : public CreatureScript
 
 				if(spell->Id == SPELL_FROST_BEACON)
 				{
-
 					FrostTargetList.push_back(target->GetGUID());
 					events.ScheduleEvent(EVENT_SUMMON_TOMB,6000);
 				}
@@ -544,12 +535,14 @@ class boss_sindragosa : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE, SindragosaAirPos);
                             break;
                         case EVENT_ICE_TOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
+							FrostTargetList.clear();
+							if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
                             {
                                 Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
-                                DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
-                            }
-                            events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
+                                me->CastSpell(target,SPELL_FROST_BEACON);
+                                events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
+							}
+							else events.ScheduleEvent(EVENT_ICE_TOMB, 3000);
                             break;
 						case EVENT_SUMMON_TOMB :
 							if (FrostTargetList.empty())
@@ -569,7 +562,7 @@ class boss_sindragosa : public CreatureScript
                             destX = float(rand_norm()) * 75.0f + 4350.0f;
                             destY = float(rand_norm()) * 75.0f + 2450.0f;
 
-                            destZ = 205.0f; // random number close to ground, get exact in next call
+                            destZ = 206.0f; // random number close to ground, get exact in next call
                             me->UpdateGroundPositionZ(destX, destY, destZ);
 							me->CastSpell(destX, destY, destZ, SPELL_FROST_BOMB_TRIGGER, false);
                             events.ScheduleEvent(EVENT_FROST_BOMB, urand(5000, 10000));
@@ -583,6 +576,7 @@ class boss_sindragosa : public CreatureScript
                         }
                         case EVENT_THIRD_PHASE_CHECK:
                         {
+
                             if (!_isInAirPhase)
                             {
                                 Talk(SAY_PHASE_2);
@@ -1616,6 +1610,7 @@ class achievement_all_you_can_eat : public AchievementCriteriaScript
             return target->GetAI()->GetData(DATA_MYSTIC_BUFFET_STACK) <= 5;
         }
 };
+
 
 void AddSC_boss_sindragosa()
 {
