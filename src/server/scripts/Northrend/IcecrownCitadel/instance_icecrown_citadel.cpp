@@ -384,9 +384,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_SPIRIT_WARDEN:
                         SpiritWarden = creature->GetGUID();
 						break;
-					case NPC_MURADIN_BRONZEBEARD:
-						npc_muradin_bronzebeardGUID = creature->GetGUID();
-						break;
+//					case NPC_MURADIN_BRONZEBEARD:
+//						npc_muradin_bronzebeardGUID = creature->GetGUID();
+//						break;
                     case NPC_SINDRAGOSAS_WARD:
                         SindragosasWardGUID = creature->GetGUID();
 						break;
@@ -765,28 +765,28 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return FrostyEdgeInner;
                     case DATA_EDGE_DESTROY_WARNING:
                         return EdgeDestroyWarning;
-					case DATA_NPC_MAURADIN:
-						return npc_muradin_bronzebeardGUID;
+//					case DATA_NPC_MAURADIN:
+//						return npc_muradin_bronzebeardGUID;
                     case DATA_SINDRAGOSA_GAUNTLET:
                         return SindragosasWardGUID;
-					case GO_HORDE_GUNSHIP:
-						return hordeGSGuid;
-						break;
-					case GO_ALLI_GUNSHIP:
-						return alliGSGuid;
-						break;
-					case GO_HORDE_GUNSHIP_2:
-						return hordeGS2Guid;
-						break;
-					case GO_ALLI_GUNSHIP_2:
-						return alliGS2Guid;
-						break;
-					case GO_HORDE_GUNSHIP_BATTLE :
-						return hordeGSBattleGuid;
-						break;
-					case GO_ALLI_GUNSHIP_BATTLE :
-						return alliGSBattleGuid;
-						break;
+//					case GO_HORDE_GUNSHIP:
+//						return hordeGSGuid;
+//						break;
+//					case GO_ALLI_GUNSHIP:
+//						return alliGSGuid;
+//						break;
+//					case GO_HORDE_GUNSHIP_2:
+//						return hordeGS2Guid;
+//						break;
+//					case GO_ALLI_GUNSHIP_2:
+//						return alliGS2Guid;
+//						break;
+//					case GO_HORDE_GUNSHIP_BATTLE :
+//						return hordeGSBattleGuid;
+//						break;
+//					case GO_ALLI_GUNSHIP_BATTLE :
+//						return alliGSBattleGuid;
+//						break;
                     default:
                         break;
                 }
@@ -828,7 +828,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
 
-                    case DATA_GUNSHIP_BATTLE_EVENT:
+/*                    case DATA_GUNSHIP_BATTLE_EVENT:
                         switch(state)
                         {
                             case DONE:
@@ -839,7 +839,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 								SetBossState(DATA_GUNSHIP_BATTLE_EVENT, NOT_STARTED);
 								break;
                         }
-                        break;
+                        break;*/
                     case DATA_FESTERGUT:
                         if (state == DONE)
                         {
