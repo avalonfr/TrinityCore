@@ -50,7 +50,7 @@ enum Creatures
     CREATURE_MARNAK                                        = 30897,
     CREATURE_KADDRAK                                       = 30898,
     CREATURE_ABEDNEUM                                      = 30899,
-    CREATURE_BRANN                                         = 28070
+    CREATURE_BRANN                                         = 28070,
     CREATURE_TRIBUNAL_CONTROLLER                           = 28234
 };
 enum GameObjects

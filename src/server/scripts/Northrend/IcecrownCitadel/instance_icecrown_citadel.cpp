@@ -600,24 +600,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_DOODAD_ICECROWN_SNOWEDGEWARNING01:
                         FrozenThroneWarningGUID = go->GetGUID();
                         break;
-					case GO_HORDE_GUNSHIP:
-						hordeGSGuid = go->GetGUID();
-						break;
-					case GO_ALLI_GUNSHIP:
-						alliGSGuid = go->GetGUID();
-						break;
-					case GO_HORDE_GUNSHIP_2:
-						hordeGS2Guid = go->GetGUID();
-						break;
-					case GO_ALLI_GUNSHIP_2:
-						alliGS2Guid = go->GetGUID();
-						break;
-					case GO_HORDE_GUNSHIP_BATTLE :
-						hordeGSBattleGuid = go->GetGUID();
-						break;
-					case GO_ALLI_GUNSHIP_BATTLE	:
-						alliGSBattleGuid = go->GetGUID();
-						break;
                     default:
                         break;
                 }
