@@ -70,7 +70,7 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
-    DATA_GUNSHIP_BATTLE_EVENT       = 2,
+	DATA_GUNSHIP_EVENT				= 2,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -348,11 +348,6 @@ enum CreaturesIds
     NPC_VILE_SPIRIT								= 37799,
     NPC_WICKED_SPIRIT							= 39190,
 	NPC_SPIRIT_BOMB                             = 39189,
-
-
-	//GUNSHIP BATTLE
-	NPC_SAUFRANG_G								= 36939,
-	NPC_MURADIN_BRONZEBEARD						= 36948,
 	
     // Sindragosas Ward
     NPC_SINDRAGOSAS_WARD                        = 37503,

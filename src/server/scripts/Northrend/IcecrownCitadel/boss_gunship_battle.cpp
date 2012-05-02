@@ -951,7 +951,7 @@ class npc_muradin_gunship : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                 
                 if (!HealthAbovePct(75))
@@ -1333,7 +1333,7 @@ class npc_korkron_axethrower_rifleman : public CreatureScript
                 if (_instance->GetBossState(DATA_GUNSHIP_EVENT) != IN_PROGRESS)
                     return;
                 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                     
                 me->AI()->AttackStart(SelectRandomPlayerInTheMaps(me->GetMap()));
@@ -1439,7 +1439,7 @@ class npc_sergeant : public CreatureScript
                 if(_instance->GetBossState(DATA_GUNSHIP_EVENT) != IN_PROGRESS)
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                     
                 events.Update(diff);
@@ -1570,7 +1570,7 @@ class npc_marine_or_reaver : public CreatureScript
                 if(_instance->GetBossState(DATA_GUNSHIP_EVENT) != IN_PROGRESS)
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -1713,7 +1713,7 @@ class npc_gunship_mage : public CreatureScript
                 if(_instance->GetBossState(DATA_GUNSHIP_EVENT) != IN_PROGRESS)
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                     
                 if (me->GetGUID() == _instance->GetData64(DATA_GB_BATTLE_MAGE))
@@ -1846,7 +1846,7 @@ class npc_mortar_soldier_or_rocketeer : public CreatureScript
                 if(_instance->GetBossState(DATA_GUNSHIP_EVENT) != IN_PROGRESS)
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                     
                 events.Update(diff);
@@ -2149,7 +2149,7 @@ class npc_saurfang_gunship : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                     
                 if(_instance->GetBossState(DATA_GUNSHIP_EVENT) == IN_PROGRESS)
@@ -2498,7 +2498,7 @@ class npc_korkron_primalist: public CreatureScript
                 if (!instance)
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -2617,7 +2617,7 @@ class npc_korkron_defender: public CreatureScript
                 if (!instance)
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -2730,7 +2730,7 @@ class npc_skybreaker_vindicator: public CreatureScript
                 if (!instance)
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -2837,7 +2837,7 @@ class npc_skybreaker_protector: public CreatureScript
                 if (!instance)
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -2960,7 +2960,7 @@ class npc_icc_spire_frostwyrm: public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
