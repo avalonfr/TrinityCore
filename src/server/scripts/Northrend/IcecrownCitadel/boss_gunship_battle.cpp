@@ -755,12 +755,12 @@ class npc_muradin_gunship : public CreatureScript
             {
                 if ((!player->GetGroup() || !player->GetGroup()->IsLeader(player->GetGUID())) && !player->isGameMaster())
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'm not the raid leader...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Je ne suis pas le chef de raid...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                     player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
                     return true;
                 }
 
-                player->ADD_GOSSIP_ITEM(0, "My companions are all accounted for, Muradin. Let's go!", 631, 1001);
+                player->ADD_GOSSIP_ITEM(0, "Mes compagnons sont tous comptabilisés, Muradin. Allons-y!", 631, 1001);
                 player->SEND_GOSSIP_MENU(player->GetGossipTextId(pCreature), pCreature->GetGUID());
                 return true;
             }
@@ -774,7 +774,7 @@ class npc_muradin_gunship : public CreatureScript
             player->CLOSE_GOSSIP_MENU();
 
             if (action == GOSSIP_ACTION_INFO_DEF+2)
-                pCreature->MonsterSay("I'll wait for the raid leader.", LANG_UNIVERSAL, player->GetGUID());
+                pCreature->MonsterSay("Je vais attendre le chef de raid", LANG_UNIVERSAL, player->GetGUID());
 
             if (action == 1001)
             {
@@ -1908,7 +1908,7 @@ class npc_zafod_boombox : public CreatureScript
         {
             // Maybe this isn't blizzlike but I can't find any spell in the DBCs
             if (pPlayer->GetItemCount(49278, false) == 0)
-                pPlayer->ADD_GOSSIP_ITEM(0, "Yeah, I'm sure safety is your top priority. Give me a rocket pack.", 631, 1);
+                pPlayer->ADD_GOSSIP_ITEM(0, "Yeah, je suis sûr que la sécurité est votre priorité absolue. Donnez-moi un jetpack.", 631, 1);
             pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
             return true;
         }
@@ -1923,7 +1923,7 @@ class npc_zafod_boombox : public CreatureScript
                 uint32 curItemCount = player->GetItemCount(49278, false);
                 if (curItemCount >= 1)
                 {
-                    pCreature->MonsterWhisper("You already have my rocket pack!", player->GetGUIDLow());
+                    pCreature->MonsterWhisper("Vous avez déjà mon jetpack!", player->GetGUIDLow());
                     return false;
                 }
 
@@ -1936,7 +1936,7 @@ class npc_zafod_boombox : public CreatureScript
                 }
                 else
                 {
-                    pCreature->MonsterWhisper("You don't have any empty space for my rocket pack!", player->GetGUIDLow());
+                    pCreature->MonsterWhisper("Vous ne disposez pas d'espace vide pour mon jet-pack! NOOB", player->GetGUIDLow());
                     return false;
                 }
             }
@@ -1958,12 +1958,12 @@ class npc_saurfang_gunship : public CreatureScript
             {
                 if ((!player->GetGroup() || !player->GetGroup()->IsLeader(player->GetGUID())) && !player->isGameMaster())
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'm not the raid leader...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Je ne suis pas le chef de raid...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                     player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
                     return true;
                 }
 
-                player->ADD_GOSSIP_ITEM(0, "My companions are all accounted for, Saurfang. Let's go!", 631, 1001);
+                player->ADD_GOSSIP_ITEM(0, "Mes compagnons sont tous comptabilisés, Saurcroc. Allons-y!", 631, 1001);
                 player->SEND_GOSSIP_MENU(player->GetGossipTextId(pCreature), pCreature->GetGUID());
                 return true;
             }
@@ -1977,7 +1977,7 @@ class npc_saurfang_gunship : public CreatureScript
             player->CLOSE_GOSSIP_MENU();
 
             if (action == GOSSIP_ACTION_INFO_DEF+2)
-                pCreature->MonsterSay("I'll wait for the raid leader.", LANG_UNIVERSAL, player->GetGUID());
+                pCreature->MonsterSay("Je vais attendre le chef de raid.", LANG_UNIVERSAL, player->GetGUID());
 
             if (action == 1001)
             {
