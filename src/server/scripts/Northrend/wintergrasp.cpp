@@ -59,14 +59,15 @@ bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint3
     pPlayer->CLOSE_GOSSIP_MENU();
     if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
     {
-        switch(uiAction - GOSSIP_ACTION_INFO_DEF)
-        {
-            case 0: pPlayer->CastSpell(pPlayer, 56663, false, NULL, NULL, pCreature->GetGUID()); break;
-            case 1: pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, pCreature->GetGUID()); break;
-            case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID()); break;
-        }
-       if (Creature* pCreature = pCreature->FindNearestCreature(27852, 30.0f, true))
-           pCreature->CastSpell(pCreature, 49899, true);
+		if (Creature *ControlArm = pCreature->FindNearestCreature(27852,50.0f,true))
+			switch(uiAction - GOSSIP_ACTION_INFO_DEF)
+			{
+			    case 0: pPlayer->CastSpell(ControlArm, 56663, true, NULL, NULL, pCreature->GetGUID()); break;
+			    case 1: pPlayer->CastSpell(ControlArm, 56575, true, NULL, NULL, pCreature->GetGUID()); break;
+			    case 2: pPlayer->CastSpell(ControlArm, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID()); break;
+			}
+       if (Creature* eCreature = pCreature->FindNearestCreature(27852, 50.0f, true))
+           pCreature->CastSpell(eCreature, 49899, true);
     }
 
     return true;
