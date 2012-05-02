@@ -3060,6 +3060,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 59372: // Energize Cores
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
+            case 50988: // Glare of the Tribunal
+            case 59870: // Glare of the Tribunal
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
+                break;
             case 8494: // Mana Shield (rank 2)
                 // because of bug in dbc
                 spellInfo->procChance = 0;
@@ -3127,6 +3131,11 @@ void SpellMgr::LoadDbcDataCorrections()
             case 54171: // Divine Storm
 			case 61693: // Arcane Storm
                 spellInfo->MaxAffectedTargets = 3;
+                break;
+            case 68645: // Rocket Pack! Hack untill movejump will be implemented properly
+                spellInfo->Effect[0] = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->EffectMiscValue[0] = -250;
+                spellInfo->EffectBasePoints[0] = 150;
                 break;
             case 38310: // Multi-Shot
             case 53385: // Divine Storm (Damage)
