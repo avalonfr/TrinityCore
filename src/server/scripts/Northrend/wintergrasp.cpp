@@ -70,25 +70,12 @@ bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint3
     pPlayer->CLOSE_GOSSIP_MENU();
     if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
     {
-		if (Creature *ControlArm = pCreature->FindNearestCreature(27852,50.0f,true))
-			switch(uiAction - GOSSIP_ACTION_INFO_DEF)
-			{
-			    /*case 0: ControlArm->CastSpell(ControlArm, 56663, true); break;
-			    case 1: ControlArm->CastSpell(ControlArm, 56575, true); break;
-			    case 2: ControlArm->CastSpell(ControlArm, pPlayer->GetTeamId() ? 61408 : 56661, true); break;*/
-                    case 0:
-                        ControlArm->CastSpell(ControlArm, SPELL_BUILD_CATAPULT_FORCE, true);
-                        break;
-                    case 1:
-                        ControlArm->CastSpell(ControlArm, SPELL_BUILD_DEMOLISHER_FORCE, true);
-                        break;
-                    case 2:
-                        ControlArm->CastSpell(ControlArm, pPlayer->GetTeamId() == TEAM_ALLIANCE ? SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE : SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE, true);
-                        break;
-
-			}
-       if (Creature* ControlArm = pCreature->FindNearestCreature(27852, 50.0f, true))
-           ControlArm->CastSpell(ControlArm, 49899, false);
+        switch(uiAction - GOSSIP_ACTION_INFO_DEF)
+        {
+            case 0: pPlayer->CastSpell(pPlayer, 56663, false, NULL, NULL, pCreature->GetGUID()); break;
+            case 1: pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, pCreature->GetGUID()); break;
+            case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID()); break;
+        }
     }
 
     return true;
