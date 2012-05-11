@@ -38,7 +38,9 @@ enum Data64
     DATA_GO_ABEDNEUM,
     DATA_GO_SKY_FLOOR,
     DATA_SJONNIR_DOOR,
-    DATA_MAIDEN_DOOR
+    DATA_MAIDEN_DOOR,
+    DATA_TRIBUNAL_CONTROLLER,
+    DATA_BRANN
 };
 enum Creatures
 {
@@ -48,7 +50,8 @@ enum Creatures
     CREATURE_MARNAK                                        = 30897,
     CREATURE_KADDRAK                                       = 30898,
     CREATURE_ABEDNEUM                                      = 30899,
-    CREATURE_BRANN                                         = 28070
+    CREATURE_BRANN                                         = 28070,
+    CREATURE_TRIBUNAL_CONTROLLER                           = 28234
 };
 enum GameObjects
 {

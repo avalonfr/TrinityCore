@@ -472,10 +472,38 @@ public:
 
 };
 
+/*######
+## npc_woodlands_walker
+######*/
+ 
+enum woodwalkerQuests
+{
+    QUEST_ANCIENTS_ALLINACE  = 12092,
+    QUEST_ANCIENTS_HORDE     = 12096
+};
+ 
+//This function is called when the player opens the gossip menubool
+ 
+class npc_woodlands_walker : public CreatureScript
+{
+public:
+    npc_woodlands_walker() : CreatureScript("npc_woodlands_walker") { }
+ 
+    bool OnGossipHello(Player *player, Creature *pCreature)
+    {
+        if (player->GetQuestStatus(QUEST_ANCIENTS_ALLINACE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_ANCIENTS_HORDE) == QUEST_STATUS_INCOMPLETE)
+            pCreature->setFaction(16);
+ 
+        player->CLOSE_GOSSIP_MENU();
+        return true;
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
 	new npc_no_mercy_for_the_captured;
 	new npc_devout_bodyguard;
 	new npc_high_abbot_landgren;
+	new npc_woodlands_walker;
 }

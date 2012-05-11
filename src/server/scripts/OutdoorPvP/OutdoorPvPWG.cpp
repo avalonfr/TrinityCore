@@ -763,6 +763,7 @@ OutdoorPvPWGCreType OutdoorPvPWG::GetCreatureType(uint32 entry) const
             return CREATURE_TURRET;
         case CRE_ENG_A: // Alliance Engineer
         case CRE_ENG_H: // Horde Engineer
+		case 27852 :    //Control arms
             return CREATURE_ENGINEER;
         case 30739:case 30740: // Champions
         case 32307:case 32308: // Guards
