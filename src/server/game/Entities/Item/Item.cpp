@@ -1029,15 +1029,14 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
         if (pItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), item, player))
         {
 
-            /** World of Warcraft Armory **/
-            if (pProto->Quality > 2 && pProto->Flags != 2048 && (pProto->Class == ITEM_CLASS_WEAPON || pProto->Class == ITEM_CLASS_ARMOR) && player)
-            {
-                std::ostringstream ss;
-                sLog->outDetail("WoWArmory: write feed log (guid: %u, type: 2, data: %u)", player->GetGUIDLow(), item);
-                ss << "REPLACE INTO character_feed_log (guid, type, data, date, counter, item_guid) VALUES (" << player->GetGUIDLow() << ", 2, " << item << ", UNIX_TIMESTAMP(NOW()), 1," << pItem->GetGUIDLow()  << ")";
-                CharacterDatabase.PExecute( ss.str().c_str() );
-            }
-            /** World of Warcraft Armory **/
+    /* World of Warcraft Armory */
+    if (itemProto->Quality > 2 && itemProto->Flags != 2048 && (itemProto->Class == ITEM_CLASS_WEAPON || itemProto->Class == ITEM_CLASS_ARMOR))
+    {
+        if (!GetOwner())
+            return true;
+        GetOwner()->CreateWowarmoryFeed(2, itemid, guidlow, itemProto->Quality);
+    }
+    /* World of Warcraft Armory */
 
             pItem->SetCount(count);
             return pItem;
