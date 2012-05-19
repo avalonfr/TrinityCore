@@ -798,7 +798,7 @@ public:
     {
         PrepareSpellScript(spell_shredder_delivery_SpellScript);
 
-        void HandleKillCredit()
+        void HandleKillCredit(SpellEffIndex effIndex)
         {
             if (GetCaster()->GetVehicleKit()->GetPassenger(0) && GetCaster()->GetVehicleKit()->GetPassenger(0)->GetTypeId() == TYPEID_PLAYER)
                 if (Player* player = GetCaster()->GetVehicleKit()->GetPassenger(0)->ToPlayer())
@@ -807,7 +807,7 @@ public:
 
         void Register()
         {
-             OnHit += SpellHitFn(spell_shredder_delivery_SpellScript::HandleKillCredit);
+             OnEffectHit += SpellEffectFn(spell_shredder_delivery_SpellScript::HandleKillCredit, EFFECT_1, SPELL_EFFECT_KILL_CREDIT2);
         }
     };
 
