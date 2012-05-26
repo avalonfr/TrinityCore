@@ -105,6 +105,7 @@ enum Spells
     SPELL_LEAVE_TWILIGHT_REALM          = 74812,
     SPELL_TWILIGHT_PHASING              = 74808, // Phase spell from phase 1 to phase 2
     SPELL_SUMMON_TWILIGHT_PORTAL        = 74809, // Summons go 202794
+    SPELL_SUMMON_EXIT_PORTAL            = 0, // Temp
     SPELL_TWILIGHT_MENDING              = 75509,
     SPELL_TWILIGHT_REALM                = 74807,
 
@@ -136,16 +137,6 @@ enum Events
     // Twilight Halion
     EVENT_DARK_BREATH           = 15,
     EVENT_SOUL_CONSUMPTION      = 16,
-
-    // Living Ember
-    EVENT_EMBER_ENRAGE          = 17,
-
-    // Misc
-    EVENT_CHECK_THREAT          = 18,
-    // This is all shitty for now. Halion, Twilight Halion, and Halion Controller will check their threat list
-    // every two seconds and if they find out that either one of the NPCs lost aggro on any player, that would
-    // mean that the encounter has to reset. Not yet implemented, this comment block is rather some way for me
-    // to brain a bit about this fubarish stuff.
 };
 
 enum Actions
@@ -231,7 +222,7 @@ class boss_halion : public CreatureScript
 
             void Reset()
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _Reset();
             }
 
@@ -239,7 +230,7 @@ class boss_halion : public CreatureScript
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me, 1);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
@@ -261,7 +252,7 @@ class boss_halion : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->Reset();
@@ -274,7 +265,7 @@ class boss_halion : public CreatureScript
 
             void JustReachedHome()
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
 
@@ -443,7 +434,7 @@ class boss_twilight_halion : public CreatureScript
                     if (whoCreature->GetEntry() == NPC_COMBAT_STALKER)
                         return;
 
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me, 2);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
                 events.Reset();
                 events.SetPhase(PHASE_TWO);
                 //! All of Twilight Halion's abilities are not phase dependant as he is never on Phase One.
@@ -478,12 +469,12 @@ class boss_twilight_halion : public CreatureScript
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->CastSpell(controller, SPELL_CLEAR_DEBUFFS);
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
             void JustReachedHome()
             {
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->CastSpell(controller, SPELL_CLEAR_DEBUFFS);
                 ScriptedAI::JustReachedHome();
@@ -1077,7 +1068,8 @@ class npc_orb_carrier : public CreatureScript
 
         struct npc_orb_carrierAI : public ScriptedAI
         {
-            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature)
+            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature),
+                _instance(creature->GetInstanceScript())
             {
                 ASSERT(creature->GetVehicleKit());
                 me->setActive(true);
@@ -1089,7 +1081,8 @@ class npc_orb_carrier : public CreatureScript
                 //! However, refreshing it looks bad, so just cast the spell if
                 //! we are not channeling it.
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    me->CastSpell((Unit*)NULL, SPELL_TRACK_ROTATION, false);
+                    if (Creature* rotationFocus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_ROTATION_FOCUS)))
+                        me->CastSpell(rotationFocus, SPELL_TRACK_ROTATION, false);
             }
 
             void DoAction(int32 const action)
@@ -1126,6 +1119,9 @@ class npc_orb_carrier : public CreatureScript
                     }
                 }
             }
+
+            private:
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1241,25 +1237,20 @@ class npc_living_ember : public CreatureScript
             void Reset()
             {
                 _hasEnraged = false;
+                DoZoneInCombat();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_EMBER_ENRAGE, 20000);
+                _enrageTimer = 20000;
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() || !me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                _events.Update(diff);
-
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (!_hasEnraged && _events.ExecuteEvent() == EVENT_EMBER_ENRAGE)
+                if (!_hasEnraged && _enrageTimer <= diff)
                 {
                     _hasEnraged = true;
                     DoCast(me, SPELL_BERSERK);
@@ -1269,13 +1260,62 @@ class npc_living_ember : public CreatureScript
             }
 
         private:
-            EventMap _events;
+            uint32 _enrageTimer;
             bool _hasEnraged;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
             return GetRubySanctumAI<npc_living_emberAI>(creature);
+        }
+};
+
+class go_twilight_portal : public GameObjectScript
+{
+    public:
+        go_twilight_portal() : GameObjectScript("go_twilight_portal") { }
+
+        struct go_twilight_portalAI : public GameObjectAI
+        {
+            go_twilight_portalAI(GameObject* go) : GameObjectAI(go),
+                _instance(go->GetInstanceScript())
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_HALION_PORTAL_EXIT:
+                        go->SetPhaseMask(0x20, true);
+                        break;
+                    case GO_HALION_PORTAL_1:
+                    case GO_HALION_PORTAL_2:
+                        go->SetPhaseMask(0x1, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            bool GossipHello(Player* player)
+            {
+                if (uint32 spellID = go->GetGOInfo()->goober.spellId)
+                    player->CastSpell(player, spellID, true);
+                return false;
+            }
+
+            void UpdateAI(uint32 /*diff*/)
+            {
+                if (_instance->GetBossState(DATA_HALION) == IN_PROGRESS)
+                    return;
+
+                go->Delete();
+            }
+
+        private:
+            InstanceScript* _instance;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const
+        {
+            return GetRubySanctumAI<go_twilight_portalAI>(go);
         }
 };
 
@@ -1310,114 +1350,95 @@ class spell_halion_meteor_strike_marker : public SpellScriptLoader
         }
 };
 
-class spell_halion_fiery_combustion : public SpellScriptLoader
+class spell_halion_combustion_consumption : public SpellScriptLoader
 {
     public:
-        spell_halion_fiery_combustion() : SpellScriptLoader("spell_halion_fiery_combustion") { }
+        spell_halion_combustion_consumption(char const* scriptName, uint32 spell) : SpellScriptLoader(scriptName), _spellID(spell) { }
 
-        class spell_halion_fiery_combustion_AuraScript : public AuraScript
+        class spell_halion_combustion_consumption_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_fiery_combustion_AuraScript);
+            PrepareAuraScript(spell_halion_combustion_consumption_AuraScript);
+
+        public:
+            spell_halion_combustion_consumption_AuraScript(uint32 spellID) : AuraScript(), _spellID(spellID) { }
 
             bool Validate(SpellEntry const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_COMBUSTION))
+                if (!sSpellMgr->GetSpellInfo(_spellID))
                     return false;
                 return true;
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTarget()->HasAura(SPELL_MARK_OF_COMBUSTION))
-                    GetTarget()->RemoveAurasDueToSpell(SPELL_MARK_OF_COMBUSTION, 0, 0, AURA_REMOVE_BY_EXPIRE);
+                if (GetTarget()->HasAura(_spellID))
+                    GetTarget()->RemoveAurasDueToSpell(_spellID, 0, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_COMBUSTION, true);
+                GetTarget()->CastSpell(GetTarget(), _spellID, true);
             }
 
             void AddMarkStack(AuraEffect const* /*aurEff*/)
             {
-                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_COMBUSTION, true);
+                GetTarget()->CastSpell(GetTarget(), _spellID, true);
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_halion_fiery_combustion_AuraScript::AddMarkStack, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                AfterEffectApply += AuraEffectApplyFn(spell_halion_fiery_combustion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_fiery_combustion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_halion_combustion_consumption_AuraScript::AddMarkStack, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                AfterEffectApply += AuraEffectApplyFn(spell_halion_combustion_consumption_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_combustion_consumption_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
+
+            uint32 _spellID;
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_halion_fiery_combustion_AuraScript();
+            return new spell_halion_combustion_consumption_AuraScript(_spellID);
         }
+
+    private:
+        uint32 _spellID;
 };
 
-class spell_halion_soul_consumption : public SpellScriptLoader
+class spell_halion_marks : public SpellScriptLoader
 {
     public:
-        spell_halion_soul_consumption() : SpellScriptLoader("spell_halion_soul_consumption") { }
+        spell_halion_marks(char const* scriptName, uint32 summonSpell) : SpellScriptLoader(scriptName), _summonSpell(summonSpell) { }
 
-        class spell_halion_soul_consumption_AuraScript : public AuraScript
+        class spell_halion_marks_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_soul_consumption_AuraScript);
+            PrepareAuraScript(spell_halion_marks_AuraScript);
+
+        public:
+            spell_halion_marks_AuraScript(uint32 summonSpell) : AuraScript(), _summonSpell(summonSpell) { }
 
             bool Validate(SpellEntry const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_CONSUMPTION))
+                if (!sSpellMgr->GetSpellInfo(_summonSpell))
                     return false;
                 return true;
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            //! We were purged. Force removed stacks to zero
+            //! and trigger the appropriated remove handler.
+            //! See spell_halion_combustion_consumption_AuraScript::OnRemove
+            void BeforeDispel(DispelInfo* dispelData)
             {
-                if (GetTarget()->HasAura(SPELL_MARK_OF_CONSUMPTION))
-                    GetTarget()->RemoveAurasDueToSpell(SPELL_MARK_OF_CONSUMPTION, 0, 0, AURA_REMOVE_BY_EXPIRE);
-            }
+                Unit* dispelledUnit = dispelData->GetDispelled();
+                // Prevent any stack from being removed at this point.
+                dispelData->SetRemovedCharges(0);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_CONSUMPTION, true);
-            }
+                if (!dispelledUnit) // Should never be false. Just checking.
+                    return;
 
-            void AddMarkStack(AuraEffect const* /*aurEff*/)
-            {
-                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_CONSUMPTION, true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_halion_soul_consumption_AuraScript::AddMarkStack, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                AfterEffectApply += AuraEffectApplyFn(spell_halion_soul_consumption_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_soul_consumption_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_halion_soul_consumption_AuraScript();
-        }
-};
-
-class spell_halion_mark_of_combustion : public SpellScriptLoader
-{
-    public:
-        spell_halion_mark_of_combustion() : SpellScriptLoader("spell_halion_mark_of_combustion") { }
-
-        class spell_halion_mark_of_combustion_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_halion_mark_of_combustion_AuraScript);
-
-            bool Validate(SpellEntry const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FIERY_COMBUSTION_SUMMON))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_FIERY_COMBUSTION_EXPLOSION))
-                    return false;
-                return true;
+                if (dispelledUnit->HasAura(SPELL_FIERY_COMBUSTION))
+                    dispelledUnit->RemoveAurasDueToSpell(SPELL_FIERY_COMBUSTION, 0, 0, AURA_REMOVE_BY_EXPIRE);
+                else if (dispelledUnit->HasAura(SPELL_SOUL_CONSUMPTION))
+                    dispelledUnit->RemoveAurasDueToSpell(SPELL_SOUL_CONSUMPTION, 0, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1433,73 +1454,28 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
-                // Keep track of stacks when dispelling, there's only one effect in the spell.
                 CustomSpellValues values;
                 values.AddSpellMod(SPELLVALUE_BASE_POINT1, stacks);
 
-                target->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, values, target, true, NULL, NULL, GetCasterGUID());
+                target->CastCustomSpell(_summonSpell, values, target, true, NULL, NULL, GetCasterGUID());
             }
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_mark_of_combustion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnDispel += AuraDispelFn(spell_halion_marks_AuraScript::BeforeDispel);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_marks_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
+
+            uint32 _summonSpell;
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_halion_mark_of_combustion_AuraScript();
+            return new spell_halion_marks_AuraScript(_summonSpell);
         }
-};
 
-class spell_halion_mark_of_consumption : public SpellScriptLoader
-{
-    public:
-        spell_halion_mark_of_consumption() : SpellScriptLoader("spell_halion_mark_of_consumption") { }
-
-        class spell_halion_mark_of_consumption_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_halion_mark_of_consumption_AuraScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_SUMMON))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_EXPLOSION))
-                    return false;
-                return true;
-            }
-
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-                    return;
-
-                InstanceScript* instance = target->GetInstanceScript();
-                if (!instance)
-                    return;
-
-                uint8 stacks = aurEff->GetBase()->GetStackAmount();
-
-                // Keep track of stacks when dispelling, there's only one effect in the spell.
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_BASE_POINT1, stacks);
-
-                target->CastCustomSpell(SPELL_SOUL_CONSUMPTION_SUMMON, values, target, true, NULL, NULL, GetCasterGUID());
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_mark_of_consumption_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_halion_mark_of_consumption_AuraScript();
-        }
+    private:
+        uint32 _summonSpell;
 };
 
 class spell_halion_combustion_consumption_summon : public SpellScriptLoader
@@ -1539,6 +1515,43 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_halion_combustion_consumption_summon_SpellScript();
+        }
+};
+
+// Do not fapfap, its not yet used.
+class spell_halion_summon_exit_portals : public SpellScriptLoader
+{
+    public:
+        spell_halion_summon_exit_portals() : SpellScriptLoader("spell_halion_summon_exit_portals") { }
+
+        class spell_halion_summon_exit_portals_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halion_summon_exit_portals_SpellScript);
+
+            void OnSummon(SpellEffIndex effIndex)
+            {
+                WorldLocation summonPos = *GetExplTargetDest();
+                // Guessed offsets, looks fine, maybe its using static coordinates
+                Position offset = {0.0f, 15.0f, 0.0f, 0.0f};
+                if (effIndex == EFFECT_1)
+                    offset.m_positionY = -15.0f;
+                
+                summonPos.RelocateOffset(offset);
+
+                SetExplTargetDest(summonPos);
+                GetHitDest()->RelocateOffset(offset);
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_0, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+                OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_1, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_halion_summon_exit_portals_SpellScript();
         }
 };
 
@@ -1746,6 +1759,7 @@ void AddSC_boss_halion()
 {
     new boss_halion();
     new boss_twilight_halion();
+
     new npc_halion_controller();
     new npc_meteor_strike_initial();
     new npc_meteor_strike();
@@ -1753,12 +1767,15 @@ void AddSC_boss_halion()
     new npc_orb_carrier();
     new npc_living_inferno();
     new npc_living_ember();
+
+    new go_twilight_portal();
+
     new spell_halion_meteor_strike_marker();
+    new spell_halion_combustion_consumption("spell_halion_soul_consumption", SPELL_MARK_OF_CONSUMPTION);
+    new spell_halion_combustion_consumption("spell_halion_fiery_combustion", SPELL_MARK_OF_COMBUSTION);
+    new spell_halion_marks("spell_halion_mark_of_combustion", SPELL_FIERY_COMBUSTION_SUMMON);
+    new spell_halion_marks("spell_halion_mark_of_consumption", SPELL_SOUL_CONSUMPTION_SUMMON);
     new spell_halion_combustion_consumption_summon();
-    new spell_halion_mark_of_combustion();
-    new spell_halion_mark_of_consumption();
-    new spell_halion_fiery_combustion();
-    new spell_halion_soul_consumption();
     new spell_halion_leave_twilight_realm();
     new spell_halion_enter_twilight_realm();
     new spell_halion_twilight_phasing();
