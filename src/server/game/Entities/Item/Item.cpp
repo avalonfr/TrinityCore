@@ -1030,11 +1030,13 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
         {
 
     /* World of Warcraft Armory */
-    if (itemProto->Quality > 2 && itemProto->Flags != 2048 && (itemProto->Class == ITEM_CLASS_WEAPON || itemProto->Class == ITEM_CLASS_ARMOR))
+    if (pProto->Quality > 2 && pProto->Flags != 2048 && (pProto->Class == ITEM_CLASS_WEAPON || pProto->Class == ITEM_CLASS_ARMOR))
     {
-        if (!GetOwner())
-            return true;
-        GetOwner()->CreateWowarmoryFeed(2, itemid, guidlow, itemProto->Quality);
+        if (!player)
+            return NULL;
+		// CreateWowarmoryFeed don t accept player const
+		Player* playerarmory =  sObjectMgr->GetPlayerByLowGUID(player->GetGUIDLow());
+        playerarmory->CreateWowarmoryFeed(2, item, pItem->GetGUIDLow(), pProto->Quality);
     }
     /* World of Warcraft Armory */
 

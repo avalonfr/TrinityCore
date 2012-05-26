@@ -2354,7 +2354,7 @@ class Player : public Unit, public GridObject<Player>
         WorldLocation GetStartPosition() const;
 
 		/** World of Warcraft Armory **/
-        void WriteWowArmoryDatabaseLog(uint32 type, uint32 data);
+       // void WriteWowArmoryDatabaseLog(uint32 type, uint32 data);
 		/** World of Warcraft Armory **/
 
         // currently visible objects at player client

@@ -38,7 +38,7 @@ public:
     {
         static ChatCommand npcAddCommandTable[] =
         {
-            { "formation",      SEC_MODERATOR,      false, &HandleNpcAddFormationCommand,      "", NULL },
+            //{ "formation",      SEC_MODERATOR,      false, &HandleNpcAddFormationCommand,      "", NULL },
             { "item",           SEC_GAMEMASTER,     false, &HandleNpcAddVendorItemCommand,     "", NULL },
             { "move",           SEC_GAMEMASTER,     false, &HandleNpcAddMoveCommand,           "", NULL },
             { "temp",           SEC_GAMEMASTER,     false, &HandleNpcAddTempSpawnCommand,      "", NULL },
@@ -133,23 +133,25 @@ public:
 
             if (!map->ToInstanceMap())
             {
-                if (creature = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO()))
-                {
-                    uint32 tguid = creature->GetGUID();
+				if (chr->GetTransport())
+				{
+				    uint32 tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+				    if (tguid > 0)
+				    {
+				        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_TRANSPORT);
 
-                    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_TRANSPORT);
+				        stmt->setInt32(0, int32(tguid));
+				        stmt->setInt32(1, int32(id));
+				        stmt->setInt32(2, int32(chr->GetTransport()->GetEntry()));
+				        stmt->setFloat(3, chr->GetTransOffsetX());
+				        stmt->setFloat(4, chr->GetTransOffsetY());
+				        stmt->setFloat(5, chr->GetTransOffsetZ());
+				        stmt->setFloat(6, chr->GetTransOffsetO());
 
-                    stmt->setInt32(0, int32(tguid));
-                    stmt->setInt32(1, int32(id));
-                    stmt->setInt32(2, int32(chr->GetTransport()->GetEntry()));
-                    stmt->setFloat(3, chr->GetTransOffsetX());
-                    stmt->setFloat(4, chr->GetTransOffsetY());
-                    stmt->setFloat(5, chr->GetTransOffsetZ());
-                    stmt->setFloat(6, chr->GetTransOffsetO());
-
-                    WorldDatabase.Execute(stmt);
-                }
-            }
+				        WorldDatabase.Execute(stmt);
+				    }
+				}
+			}
             else
             {
                 if (creature = chr->GetTransport()->AddNPCPassengerInInstance(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO()))
@@ -1239,7 +1241,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcAddFormationCommand(ChatHandler* handler, const char* args)
+ /*   static bool HandleNpcAddFormationCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
@@ -1273,7 +1275,7 @@ public:
         group_member->leaderGUID     = leaderGUID;
         group_member->groupAI        = 0;
 
-        sFormationMgr->CreatureGroupMap[lowguid] = group_member;
+        FormationMgr::CreatureGroupMap[lowguid] = group_member;
         creature->SearchFormation();
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
@@ -1290,7 +1292,7 @@ public:
 
         return true;
     }
-
+*/
     static bool HandleNpcSetLinkCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)

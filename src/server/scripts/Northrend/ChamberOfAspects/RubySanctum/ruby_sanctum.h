@@ -129,7 +129,7 @@ enum InstanceSpell
     SPELL_BERSERK                       = 26662,
 };
 
-template<class AI>
+template <class AI>
 CreatureAI* GetRubySanctumAI(Creature* creature)
 {
     if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
@@ -139,6 +139,7 @@ CreatureAI* GetRubySanctumAI(Creature* creature)
     return NULL;
 }
 
+template <class AI>
 GameObjectAI* GetRubySanctumAI(GameObject* go)
 {
     if (InstanceMap* instance = go->GetMap()->ToInstanceMap())

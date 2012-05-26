@@ -15659,7 +15659,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                     {
                          ((InstanceMap *)instanceMap)->PermBindAllPlayers(creditedPlayer);
                         /** World of Warcraft Armory **/
-                        creditedPlayer->WriteWowArmoryDatabaseLog(3, creature->GetCreatureTemplate()->Entry);
+						 //miss the fonction
+                       // creditedPlayer->WriteWowArmoryDatabaseLog(3, creature->GetCreatureTemplate()->Entry);
                         /** World of Warcraft Armory **/
                     }
                 }

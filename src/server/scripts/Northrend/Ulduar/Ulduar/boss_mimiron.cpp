@@ -1900,7 +1900,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
                             return;
                         }
 
-                    DoAttackerAreaInCombat(me, 100.0f);
+                    //DoAttackerAreaInCombat(me, 100.0f);
 
                     if (Player* nearest = me->SelectNearestPlayer(100.0f))
                     {

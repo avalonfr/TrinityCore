@@ -222,7 +222,7 @@ class boss_halion : public CreatureScript
 
             void Reset()
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 _Reset();
             }
 
@@ -230,7 +230,7 @@ class boss_halion : public CreatureScript
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me, 1);
 
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
@@ -252,7 +252,7 @@ class boss_halion : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->Reset();
@@ -265,7 +265,7 @@ class boss_halion : public CreatureScript
 
             void JustReachedHome()
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
 
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
 
@@ -434,7 +434,7 @@ class boss_twilight_halion : public CreatureScript
                     if (whoCreature->GetEntry() == NPC_COMBAT_STALKER)
                         return;
 
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me, 2);
                 events.Reset();
                 events.SetPhase(PHASE_TWO);
                 //! All of Twilight Halion's abilities are not phase dependant as he is never on Phase One.
@@ -469,12 +469,12 @@ class boss_twilight_halion : public CreatureScript
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->CastSpell(controller, SPELL_CLEAR_DEBUFFS);
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
             }
 
             void JustReachedHome()
             {
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->CastSpell(controller, SPELL_CLEAR_DEBUFFS);
                 ScriptedAI::JustReachedHome();
@@ -1275,48 +1275,48 @@ class go_twilight_portal : public GameObjectScript
     public:
         go_twilight_portal() : GameObjectScript("go_twilight_portal") { }
 
-        struct go_twilight_portalAI : public GameObjectAI
-        {
-            go_twilight_portalAI(GameObject* go) : GameObjectAI(go),
-                _instance(go->GetInstanceScript())
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_HALION_PORTAL_EXIT:
-                        go->SetPhaseMask(0x20, true);
-                        break;
-                    case GO_HALION_PORTAL_1:
-                    case GO_HALION_PORTAL_2:
-                        go->SetPhaseMask(0x1, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
+  //      struct go_twilight_portalAI : public GameObjectAI
+//        {
+ //           go_twilight_portalAI(GameObject* go) : GameObjectAI(go),
+ //               _instance(go->GetInstanceScript())
+ //           {
+  //              switch (go->GetEntry())
+  //              {
+  //                  case GO_HALION_PORTAL_EXIT:
+  //                      go->SetPhaseMask(0x20, true);
+  //                      break;
+ //                   case GO_HALION_PORTAL_1:
+ //                   case GO_HALION_PORTAL_2:
+ //                       go->SetPhaseMask(0x1, true);
+ //                       break;
+ //                   default:
+ //                       break;
+ //               }
+ //           }
             
-            bool GossipHello(Player* player)
-            {
-                if (uint32 spellID = go->GetGOInfo()->goober.spellId)
-                    player->CastSpell(player, spellID, true);
-                return false;
-            }
+ //           bool GossipHello(Player* player)
+ //           {
+  //              if (uint32 spellID = go->GetGOInfo()->goober.spellId)
+  //                  player->CastSpell(player, spellID, true);
+  //              return false;
+//            }
 
-            void UpdateAI(uint32 /*diff*/)
-            {
-                if (_instance->GetBossState(DATA_HALION) == IN_PROGRESS)
-                    return;
+  //          void UpdateAI(uint32 /*diff*/)
+  //          {
+  //              if (_instance->GetBossState(DATA_HALION) == IN_PROGRESS)
+  //                  return;
 
-                go->Delete();
-            }
+  //              go->Delete();
+  //          }
 
-        private:
-            InstanceScript* _instance;
-        };
+ //       private:
+ //           InstanceScript* _instance;
+ //       };
 
-        GameObjectAI* GetAI(GameObject* go) const
-        {
-            return GetRubySanctumAI<go_twilight_portalAI>(go);
-        }
+ //       GameObjectAI* GetAI(GameObject* go) const
+ //       {
+ //           return GetRubySanctumAI<go_twilight_portalAI>(go);
+ //       }
 };
 
 class spell_halion_meteor_strike_marker : public SpellScriptLoader
@@ -1519,7 +1519,7 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
 };
 
 // Do not fapfap, its not yet used.
-class spell_halion_summon_exit_portals : public SpellScriptLoader
+/*class spell_halion_summon_exit_portals : public SpellScriptLoader
 {
     public:
         spell_halion_summon_exit_portals() : SpellScriptLoader("spell_halion_summon_exit_portals") { }
@@ -1554,7 +1554,7 @@ class spell_halion_summon_exit_portals : public SpellScriptLoader
             return new spell_halion_summon_exit_portals_SpellScript();
         }
 };
-
+*/
 class spell_halion_leave_twilight_realm : public SpellScriptLoader
 {
     public:

@@ -1132,7 +1132,7 @@ class npc_hodirs_fury : public CreatureScript
                             _timer = 7*IN_MILLISECONDS;
                             break;
                         case 3:
-                            DoAttackerAreaInCombat(me, 200.0f);
+                            //DoAttackerAreaInCombat(me, 200.0f);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                             {
                                 _targetGUID = target->GetGUID();

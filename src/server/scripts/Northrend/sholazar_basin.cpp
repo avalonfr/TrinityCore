@@ -1229,7 +1229,7 @@ private:
     uint64 tartekGUID;
 };
 
-//*######
+/*######
 ## Artruis the Heartless
 ######*/
 

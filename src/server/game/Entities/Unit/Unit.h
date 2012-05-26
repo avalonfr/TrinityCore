@@ -794,6 +794,7 @@ class DispelInfo
 {
 private:
     Unit* const m_dispelled;
+	Unit* const m_dispeller;
     uint32 const m_dispellerSpellId;
     uint8 m_chargesRemoved;
 public:
@@ -801,6 +802,7 @@ public:
     m_dispeller(_dispeller), m_dispelled(dispelled), m_dispellerSpellId(_dispellerSpellId), m_chargesRemoved(_chargesRemoved) {}
 
     Unit* GetDispelled() { return m_dispelled; }
+	Unit* GetDispeller() { return m_dispeller; }
     uint32 GetDispellerSpellId() { return m_dispellerSpellId; }
     uint8 GetRemovedCharges() { return m_chargesRemoved; }
     void SetRemovedCharges(uint8 amount)
