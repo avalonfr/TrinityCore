@@ -33,6 +33,7 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/Ulduar/boss_xt002.cpp
   Northrend/Ulduar/Ulduar/boss_mimiron.cpp
   Northrend/Ulduar/Ulduar/ulduar.h
+  Northrend/Ulduar/Ulduar/ulduar.cpp
   Northrend/Ulduar/Ulduar/boss_freya.cpp
   Northrend/Ulduar/Ulduar/boss_razorscale.cpp
   Northrend/Ulduar/Ulduar/boss_kologarn.cpp
@@ -168,7 +169,6 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/icecrown_citadel_teleport.cpp
   Northrend/IcecrownCitadel/boss_lord_marrowgar.cpp
   Northrend/IcecrownCitadel/boss_lady_deathwhisper.cpp
-  Northrend/IcecrownCitadel/boss_gunship_battle.cpp
   Northrend/IcecrownCitadel/boss_deathbringer_saurfang.cpp
   Northrend/IcecrownCitadel/boss_festergut.cpp
   Northrend/IcecrownCitadel/boss_rotface.cpp
@@ -177,6 +177,7 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_blood_queen_lana_thel.cpp
   Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
   Northrend/IcecrownCitadel/boss_sindragosa.cpp
+  Northrend/IcecrownCitadel/boss_gunship_battle.cpp
   Northrend/IcecrownCitadel/boss_the_lich_king.cpp
   Northrend/IcecrownCitadel/icc_trashmobs.cpp
   Northrend/zuldrak.cpp
