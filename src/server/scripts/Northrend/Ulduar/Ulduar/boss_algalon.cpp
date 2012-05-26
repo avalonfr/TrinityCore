@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,1281 +15,1638 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "MapManager.h"
 #include "ulduar.h"
 
-#define GAMEOBJECT_GIVE_OF_THE_OBSERVER 194821
+#define MAXSTARS                        4
+#define POINT_OUTRO                     1
+#define DATA_HERALD                     2
+
+enum Factions
+{
+    FACTION_NEUTRAL     =   15,
+    FACTION_HOSTILE     =   16, //actually not needed - some spells won't hit the raid in neutral though.
+    FACTION_FRIENDLY    =   35
+};
 
 enum Spells
 {
-    SPELL_ASCEND                    = 64487,
-    SPELL_BERSERK                   = 47008,
+    //Visuals
+    SPELL_BLUE_BEAM                 = 63773,
+    SPELL_ARRIVAL                   = 64997,
+    SPELL_REORIGINATION             = 64996,
+    SPELL_SUMMON_AZEROTH            = 64994,
+    SPELL_HOVER_FALL                = 60425,
+    SPELL_TELEPORT_VISUAL           = 62940,
+
     SPELL_BIG_BANG                  = 64443,
+    SPELL_H_BIG_BANG                = 64584,
+    SPELL_REMOVE_FROM_PHASE         = 64445,
     H_SPELL_BIG_BANG                = 64584,
     SPELL_COSMIC_SMASH              = 62301,
     H_SPELL_COSMIC_SMASH            = 64598,
-    SPELL_PHASE_PUNCH               = 64412,
+    SPELL_COSMIC_SMASH_MISSLE       = 62304,
+    SPELL_COSMIC_SMASH_DAMAGE       = 62311,
     SPELL_QUANTUM_STRIKE            = 64395,
     H_SPELL_QUANTUM_STRIKE          = 64592,
-    SPELL_BLACK_HOLE_EXPLOSION      = 64122,
-    SPELL_ARCANE_BARAGE             = 64599,
-    H_SPELL_ARCANE_BARAGE           = 64607
-};
+    //summons
 
-enum Creatures
-{
-    CREATURE_COLLAPSING_STAR        = 32955,
-    CREATURE_BLACK_HOLE             = 32953,
-    CREATURE_LIVING_CONSTELLATION   = 33052,
-    CREATURE_DARK_MATTER            = 33089
-};
-
-enum Yells
-{
-    SAY_AGGRO                                   = -1603000,
-    SAY_SLAY_1                                  = -1603001,
-    SAY_SLAY_2                                  = -1603002,
-    SAY_ENGADED_FOR_FIRTS_TIME                  = -1603003,
-    SAY_PHASE_2                                 = -1603004,
-    SAY_SUMMON_COLLAPSING_STAR                  = -1603005,
-    SAY_DEATH_1                                 = -1603006,
-    SAY_DEATH_2                                 = -1603007,
-    SAY_DEATH_3                                 = -1603008,
-    SAY_DEATH_4                                 = -1603009,
-    SAY_DEATH_5                                 = -1603010,
-    SAY_BERSERK                                 = -1603011,
-    SAY_BIG_BANG_1                              = -1603012,
-    SAY_BIG_BANG_2                              = -1603013,
-    SAY_TIMER_1                                 = -1603014,
-    SAY_TIMER_2                                 = -1603015,
-    SAY_TIMER_3                                 = -1603016,
-    SAY_SUMMON_1                                = -1603017,
-    SAY_SUMMON_2                                = -1603018,
-    SAY_SUMMON_3                                = -1603019,
-};
-
-class boss_algalon : public CreatureScript
-{
-public:
-    boss_algalon() : CreatureScript("boss_algalon") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new boss_algalonAI(pCreature);
-    }
-
-    struct boss_algalonAI : public ScriptedAI
-    {
-        boss_algalonAI(Creature *c) : ScriptedAI(c)
-        {
-            pInstance = c->GetInstanceScript();
-            Summon = false; // not in reset. intro speech done only once.
-        }
-
-        InstanceScript* pInstance;
-
-        std::list<uint64> m_lCollapsingStarGUIDList;
-
-        uint32 Phase;
-        uint32 Ascend_Timer;
-        uint32 Berserk_Timer;
-        uint32 BigBang_Timer;
-        uint32 CosmicSmash_Timer;
-        uint32 PhasePunch_Timer;
-        uint32 QuantumStrike_Timer;
-        uint32 CollapsingStar_Timer;
-        uint32 uiPhase_timer;
-        uint32 uiStep;
-
-        uint64 BlackHoleGUID;
-
-        bool Enrage;
-        bool Summon;
-
-        void EnterCombat(Unit* who)
-        {
-            if (Summon)
-            {
-                DoScriptText(SAY_AGGRO, me);
-                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                DoZoneInCombat(who->ToCreature());
-            }
-            else
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetReactState(REACT_PASSIVE);
-                uiStep = 1;
-            }
-
-            if (pInstance)
-                pInstance->SetData(BOSS_ALGALON, IN_PROGRESS);
-        }
-
-        void KilledUnit(Unit * /*victim*/
-/*)
-        {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
-        }
-
-        void Reset()
-        {
-            Phase = 1;
-
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            if (pInstance)
-                pInstance->SetData(BOSS_ALGALON, NOT_STARTED);
-
-            BlackHoleGUID = 0;
-
-            uiPhase_timer = 0;
-            Ascend_Timer = 480000; //8 minutes
-            QuantumStrike_Timer = 4000 + rand()%10000;
-            Berserk_Timer = 360000; //6 minutes
-            CollapsingStar_Timer = urand(15000, 20000); //Spawns between 15 to 20 seconds
-            BigBang_Timer = 90000;
-            PhasePunch_Timer = 8000;
-            CosmicSmash_Timer = urand(30000, 60000);
-            Enrage = false;
-        }
-
-        void JumpToNextStep(uint32 uiTimer)
-        {
-            uiPhase_timer = uiTimer;
-            ++uiStep;
-        }
-
-        void DespawnCollapsingStar()
-        {
-            if (m_lCollapsingStarGUIDList.empty())
-                return;
-
-            for (std::list<uint64>::const_iterator itr = m_lCollapsingStarGUIDList.begin(); itr != m_lCollapsingStarGUIDList.end(); ++itr)
-            {
-                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
-                {
-                    if (pTemp->isAlive())
-                        pTemp->DespawnOrUnsummon();
-                }
-            }
-            m_lCollapsingStarGUIDList.clear();
-        }
-
-        void JustSummoned(Creature* pSummoned)
-        {
-            if (pSummoned->GetEntry() == CREATURE_COLLAPSING_STAR)
-            {
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (me->getVictim())
-                    pSummoned->AI()->AttackStart(pTarget ? pTarget : me->getVictim());
-                m_lCollapsingStarGUIDList.push_back(pSummoned->GetGUID());
-            }
-        }
-
-        void SummonCollapsingStar(Unit* target)
-        {
-            DoScriptText(SAY_SUMMON_COLLAPSING_STAR, me);
-            me->SummonCreature(CREATURE_COLLAPSING_STAR, target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 100000);
-            me->SummonCreature(CREATURE_BLACK_HOLE, target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 27000);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (Phase == 1 && HealthBelowPct(20))
-            {
-                Phase = 2;
-                DoScriptText(SAY_PHASE_2, me);
-            }
-
-            if (HealthBelowPct(2))
-            {
-                me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667f, -295.101166f, 417.321381f, 0, 0, 0, 0, 0, 0);
-
-                // All of them. or random?
-                DoScriptText(SAY_DEATH_1, me);
-                DoScriptText(SAY_DEATH_2, me);
-                DoScriptText(SAY_DEATH_3, me);
-                DoScriptText(SAY_DEATH_4, me);
-                DoScriptText(SAY_DEATH_5, me);
-
-                me->DisappearAndDie();
-
-                if (pInstance)
-                    pInstance->SetData(BOSS_ALGALON, DONE);
-
-                return;
-            }
-
-            if (Phase == 1)
-            {
-                if (!Summon)
-                {
-                    if (uiPhase_timer <= diff)
-                    {
-                        switch(uiStep)
-                        {
-                            case 1:
-                                DoScriptText(SAY_SUMMON_1, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 2:
-                                DoScriptText(SAY_SUMMON_2, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 3:
-                                DoScriptText(SAY_SUMMON_3, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 4:
-                                DoScriptText(SAY_ENGADED_FOR_FIRTS_TIME, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 5:
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                me->SetReactState(REACT_AGGRESSIVE);
-                                Summon = true;
-                                break;
-                        }
-                    } else uiPhase_timer -= diff;
-
-                    return;
-                }
-
-                if (QuantumStrike_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE, H_SPELL_QUANTUM_STRIKE), true);
-
-                    QuantumStrike_Timer = urand(4000, 14000);
-                } else QuantumStrike_Timer -= diff;
-
-                if (BigBang_Timer <= diff)
-                {
-                    DoScriptText(RAND(SAY_BIG_BANG_1, SAY_BIG_BANG_2), me);
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_BIG_BANG, H_SPELL_BIG_BANG), true);
-
-                    BigBang_Timer = 90000;
-                } else BigBang_Timer -= diff;
-
-                if (Ascend_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_ASCEND, true);
-
-                    Ascend_Timer = 480000;
-                } else Ascend_Timer -= diff;
-
-                if (PhasePunch_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_PHASE_PUNCH, true);
-
-                    PhasePunch_Timer = 8000;
-                } else PhasePunch_Timer -= diff;
-
-                if (CosmicSmash_Timer <= diff)
-                {
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), RAID_MODE(SPELL_COSMIC_SMASH, H_SPELL_COSMIC_SMASH), true);
-
-                    CosmicSmash_Timer = urand(30000, 60000);
-                } else CosmicSmash_Timer -= diff;
-
-                if (Berserk_Timer <= diff)
-                {
-                    DoScriptText(SAY_BERSERK, me);
-                    DoCast(me->getVictim(), SPELL_BERSERK, true);
-
-                    Berserk_Timer = 360000;
-                } else Berserk_Timer -= diff;
-
-                DoMeleeAttackIfReady();
-
-                EnterEvadeIfOutOfCombatArea(diff);
-            }
-
-            if (Phase == 2)
-            {
-                if (Enrage)
-                {
-                    if (Ascend_Timer <= diff)
-                    {
-                        DoCast(me, SPELL_ASCEND);
-                        DoScriptText(SAY_BERSERK, me);
-                        Ascend_Timer = urand(360000, 365000);
-                        Enrage = false;
-                    } else Ascend_Timer -= diff;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
-
-//Collapsing Star
-class mob_collapsing_star : public CreatureScript
-{
-public:
-    mob_collapsing_star() : CreatureScript("mob_collapsing_star") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mob_collapsing_starAI(pCreature);
-    }
-
-    struct mob_collapsing_starAI : public ScriptedAI
-    {
-        mob_collapsing_starAI(Creature *pCreature) : ScriptedAI(pCreature)
-        {
-            pInstance = pCreature->GetInstanceScript();
-        }
-
-        InstanceScript* pInstance;
-
-        uint32 BlackHoleExplosion_Timer;
-
-        void Reset()
-        {
-            BlackHoleExplosion_Timer = 0;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (BlackHoleExplosion_Timer <= diff)
-            {
-                me->CastSpell(me, SPELL_BLACK_HOLE_EXPLOSION, false);
-                BlackHoleExplosion_Timer = 0;
-            } else BlackHoleExplosion_Timer -= diff;
-        }
-    };
-
-};
-
-void AddSC_boss_algalon()
-{
-    new boss_algalon();
-    new mob_collapsing_star();
-}
-*/
-
-
-/*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-#include "ScriptPCH.h"
-#include "ulduar.h"
-
-#define GAMEOBJECT_GIFT_OF_THE_OBSERVER 194821
-
-enum Spells
-{
-    SPELL_ASCEND                    = 64487,
-    SPELL_BIG_BANG                  = 64443,
-    H_SPELL_BIG_BANG                = 64584,
-	SPELL_BERSERK                   = 47008,
-    SPELL_COSMIC_SMASH              = 62301,
-    H_SPELL_COSMIC_SMASH            = 64598,
-    SPELL_PHASE_PUNCH               = 64412,
-    SPELL_QUANTUM_STRIKE            = 64395,
-    H_SPELL_QUANTUM_STRIKE          = 64592,
-    SPELL_BLACK_HOLE_EXPLOSION      = 64122,
-	H_SPELL_BLACK_HOLE_EXPLOSION    = 65108,
     SPELL_ARCANE_BARAGE             = 64599,
     H_SPELL_ARCANE_BARAGE           = 64607,
-    SPELL_BLACK_HOLE_PASSIVE        = 46228,
-    SPELL_BLACK_HOLE_EFFECT         = 46230,
-    SPELL_PHASE_PUNCH_EFFECT        = 64417,
-    SPELL_SINGULARITY               = 46238,
-
-    SPELL_BLACK_HOLE_PHASE          = 62168,
-    SPELL_BLACK_HOLE_DAMAGE         = 62169,
-    SPELL_BLACK_HOLE_SPAWN_VISUAL   = 62003,
+    SPELL_COSMIC_SMASH_VISUAL       = 62300,
     SPELL_SUMMON_BLACK_HOLE         = 62189,
+    SPELL_DESPAWN_BLACK_HOLE        = 64391,
+    SPELL_BLACK_HOLE_EXPLOSION      = 64122,
+    SPELL_BLACK_HOLE_AURA           = 62168,
+    SPELL_BLACK_HOLE_DAMAGE         = 62169,
+    SPELL_BLACK_HOLE_COSMETIC       = 64135,
+    SPELL_BLACK_HOLE_TRIGGER        = 62185, //Buggy. Seems to reset the Black hole after it hits a player.
+    SPELL_BLACK_HOLE_KILL_CREDIT    = 65312,
+    SPELL_BLACK_HOLE_SPAWN_VISUAL   = 62003,
+    SPELL_VISUAL_VOID_ZONE          = 64469,
+    SPELL_UNLEASHED_DARK_MATTER     = 64450,
 
-    SPELL_ALGALON_EVENT_CLIMAX      = 64580,
-    SPELL_COSMIC_SMASH_EFFECT       = 62311,
-    H_SPELL_COSMIC_SMASH_EFFECT     = 64596,
-    SPELL_SUMMON_AZEROTH            = 64994,
-    SPELL_ALGALON_EVENT_BEAM        = 64367
+    SPELL_PHASE_PUNCH               = 64412,
+    SPELL_PHASE_PUNCH_SHIFT         = 64417,
+    SPELL_PHASE_PUNCH_ALPHA_1       = 64435, //Transparency effects for Phase Punch.
+    SPELL_PHASE_PUNCH_ALPHA_2       = 64434,
+    SPELL_PHASE_PUNCH_ALPHA_3       = 64428,
+    SPELL_PHASE_PUNCH_ALPHA_4       = 64421,
+
+    SPELL_ASCEND                    = 64487,
+    SPELL_BERSERK                   = 64238,
+    SPELL_I_DIED                    = 65082, //Must be related to an achievement.
+    SPELL_KILL_CREDIT               = 65184
 };
 
 enum Creatures
 {
+    CREATURE_ALGALON                = 32871,
     CREATURE_COLLAPSING_STAR        = 32955,
     CREATURE_BLACK_HOLE             = 32953,
     CREATURE_LIVING_CONSTELLATION   = 33052,
     CREATURE_DARK_MATTER            = 33089,
     CREATURE_UNLEASHED_DARK_MATTER  = 34097,
-	CREATURE_AZEROTH				= 34246
+    CREATURE_AZEROTH_MODEL          = 34246,
+    CREATURE_ALGALON_STALKER        = 34004, //possibly used to keep algalon in combat? unused.
+    CREATURE_ALGALON_ASTEROID_2     = 33105
 };
 
-enum Yells
+enum ArchivementTimer
 {
-    SAY_AGGRO                                   = -1603000,
-    SAY_SLAY_1                                  = -1603001,
-    SAY_SLAY_2                                  = -1603002,
-    SAY_ENGADED_FOR_FIRTS_TIME                  = -1603003,
-    SAY_PHASE_2                                 = -1603004,
-    SAY_SUMMON_COLLAPSING_STAR                  = -1603005,
-    SAY_DEATH_1                                 = -1603006,
-    SAY_DEATH_2                                 = -1603007,
-    SAY_DEATH_3                                 = -1603008,
-    SAY_DEATH_4                                 = -1603009,
-    SAY_DEATH_5                                 = -1603010,
-    SAY_BERSERK                                 = -1603011,
-    SAY_BIG_BANG_1                              = -1603012,
-    SAY_BIG_BANG_2                              = -1603013,
-    SAY_TIMER_1                                 = -1603014,
-    SAY_TIMER_2                                 = -1603015,
-    SAY_TIMER_3                                 = -1603016,
-    SAY_SUMMON_1                                = -1603017,
-    SAY_SUMMON_2                                = -1603018,
-    SAY_SUMMON_3                                = -1603019,
+    ACHIEV_SUPERMASSIVE_START_EVENT = 21697
 };
 
-struct Locations
+enum Texts
+{   //Algalon
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_ENGAGED_FOR_FIRST_TIME                  = 2,
+    SAY_SUMMON_COLLAPSING_STAR                  = 3,
+    SAY_DEATH_1                                 = 4,
+    SAY_DEATH_2                                 = 6,//Todo: Learn to count.
+    SAY_DEATH_3                                 = 7,
+    SAY_DEATH_4                                 = 8,
+    SAY_DEATH_5                                 = 9,
+    SAY_BERSERK                                 = 10,
+    SAY_BIG_BANG                                = 11,
+    SAY_PHASE_2                                 = 12,
+    SAY_SUMMON_1                                = 13,
+    SAY_SUMMON_2                                = 14,
+    SAY_SUMMON_3                                = 15,
+    SAY_TIMER_1                                 = 16,
+    SAY_TIMER_2                                 = 17,
+    SAY_TIMER_3                                 = 18,
+
+    EMOTE_COLLAPSING_STARS                      = 19,
+    EMOTE_COSMIC_SMASH                          = 20,
+    EMOTE_BIG_BANG                              = 21,
+
+    //Brann
+    SAY_BRANN_INTRO                             = 0,
+    SAY_BRANN_LEAVE                             = 1,
+    SAY_BRANN_OUTRO                             = 2
+};
+
+enum Events
 {
-    float x, y, z;
+
+    EVENT_RESTART_ATTACKING = 1,
+    EVENT_REMOVE_FROM_PHASE,
+    EVENT_BIG_BANG,
+    EVENT_BERSERK,
+    EVENT_COSMIC_SMASH,
+    EVENT_COLLAPSING_STAR,
+    EVENT_PHASE_PUNCH,
+    EVENT_SUMMON_CONSTELLATION,
+    EVENT_SUMMON_UNLEASHED_DARK_MATTER,
+    EVENT_QUANTUM_STRIKE,
 };
 
-
-static Locations BlackHolesPos[4]=
+enum Phase
 {
-    {1595.22f, -310.01f, 417.45f},
-    {1633.53f, -273.86f, 417.45f},
-    {1666.99f, -307.47f, 417.45f},
-    {1632.69f, -339.36f, 417.32f}
+    PHASE_INTRO,
+    PHASE_1,
+    PHASE_2
 };
+
+enum Actions
+{
+	ACTION_HERALD                   = 0,
+    ACTION_ALGALON_INTRO            = -123456,
+    ACTION_BRANN_INTRO              = -123457,
+    ACTION_BRANN_LEAVE              = -123458,
+    ACTION_BLACKHOLE_SUMMON         = -123459,
+    ACTION_ACTIVATE_CONSTELLATION   = -123455
+};
+
+enum Music
+{
+    MUSIC_INTRO         = 15878,
+    MUSIC_BATTLE        = 15877 
+};
+static const float GroundZ = 417.321198f;
+
+static const float RoomCenter[3] = {1632.050049f, -307.36499f, GroundZ};
+
+static const float OutroPos[3] = {1632.050049f, -319.36499f, GroundZ};
+
+static const float BrannOutro[3] = {1632.050049f, -294.36499f, GroundZ};
+
+//Brann
+float WPs_ulduar[9][3] =
+{
+    //pos_x             pos_y       pos_z
+    {1661.567261f, -155.395126f, 427.261810f},
+    {1633.316650f, -176.056778f, 427.286011f},
+    {1633.187744f, -190.987228f, 427.378632f},
+    {1632.005371f, -214.134232f, 418.470459f},
+    {1631.882324f, -228.378708f, 418.082733f},
+    {1634.257446f, -230.407898f, 417.336182f},
+    {1635.767700f, -266.664459f, 417.321991f},
+    {1630.990845f, -266.863434f, 417.321991f},
+    {1632.005371f, -214.134232f, 418.470459f}
+};
+
+/*Todo:
+-Correct Summon Positions for Collapsing stars and living constellations.
+-Achievements.
+-sniff info for better timers /positions / model radius / waypoints.
+-Music: I suppose there is a way that involves using ZoneMusic.dbc since it has both music entires, but i don't know how to use them.
+-Increase Monster Say Radius.
+-Find better way to make him stop his attacks without evading - code works but could look better.
+-heroic (25 players) support.
+-???
+*/
 
 class boss_algalon : public CreatureScript
 {
-public:
-    boss_algalon() : CreatureScript("boss_algalon") { }
+    public:
+        boss_algalon() : CreatureScript("boss_algalon") { }
 
-    struct boss_algalonAI : public BossAI
-    {
-        boss_algalonAI(Creature *c) : BossAI(c, BOSS_ALGALON)
+        CreatureAI* GetAI(Creature* creature) const
         {
-			pInstance = (c->GetInstanceScript());
-            Summon = false; 
-			summondeath = false;
+            return GetUlduarAI<boss_algalonAI>(creature);
         }
 
-        std::list<uint64> m_lCollapsingStarGUIDList;
-        std::list<uint64> m_lLivingConstellationGUIDList;
-
-		InstanceScript* pInstance;
-        uint8 uiPhase;
-        uint32 uiAscendTimer;
-        uint32 uiBigBangTimer;
-        uint32 uiCosmicSmashTimer;
-        uint32 uiPhasePunchTimer;
-        uint32 uiQuantumStrikeTimer;
-        uint32 uiCollapsingStarsTimer;
-        uint32 uiLivingConstellationsTimer ;
-        uint32 uiBlackHolesTimer ;
-        uint32 uiPhaseTimer;
-        uint32 uiStep;
-
-        bool bHasSpawnedBlackHoles ;
-        bool bIsEnraged;
-        bool Summon;
-		bool summondeath;
-		bool hasHit;
-        bool hasCastedBigBang;
-
-        void EnterCombat(Unit* who)
+        struct boss_algalonAI : public BossAI
         {
-			_EnterCombat();
-            if (Summon)
+            boss_algalonAI(Creature *creature) : BossAI(creature, BOSS_ALGALON), summons(creature) {}
+
+            uint32 Phase;
+            uint32 uiPhase_timer;
+            uint32 uiStep;
+            uint8 staramount;
+            SummonList summons;
+
+            bool intro;
+            bool fightintro;
+            bool sendreplycode;
+            bool outro;
+            bool respawning;
+            bool herald;
+
+            void InitializeAI()
             {
-				if (pInstance)
-					pInstance->HandleGameObject(pInstance->GetData64(DATA_UNIVERSE_GLOBE),true);
-                DoZoneInCombat();
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); //deathgrip
+
+                const CreatureTemplate *cinfo = me->GetCreatureTemplate(); //todo: remove this block once the core correctly calculates offhand damages on its own.
+                float mindmg = cinfo->mindmg * cinfo->dmg_multiplier /2;
+                float maxdmg = cinfo->maxdmg * cinfo->dmg_multiplier /2;
+                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, mindmg);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, maxdmg);
+                me->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindmg);
+                me->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdmg);
+                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10); //DB Stuff, requires sniff.
+                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+
+                Reset();
             }
-            else
+
+            void EnterCombat(Unit* who)
             {
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                if (Phase == PHASE_INTRO && instance->GetBossState(BOSS_ALGALON) == NOT_STARTED)
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
+                    uiStep = 0;
+                    fightintro = true;
+                    return;
+                }
+            }
+
+            void KilledUnit(Unit * victim)
+            {
+                if (!Phase == PHASE_INTRO)
+                    Talk(SAY_SLAY);
+            }
+
+            void DoAction(const int32 actionId)
+            {
+                switch(actionId)
+                {
+                case ACTION_HERALD:
+                    SetData(DATA_HERALD, 0);
+                    break;
+                case ACTION_ALGALON_INTRO:
+                    StartIntro(7000);
+                    break;
+                case ACTION_ALGALON_ASCEND:
+                    respawning = false;
+                    uiStep = 0;
+                    uiPhase_timer = 0;
+                    Phase = PHASE_INTRO;
+                    summons.DespawnAll();
+                    sendreplycode = true;
+
+                    me->InterruptNonMeleeSpells(false);
+                    me->SetReactState(REACT_PASSIVE);
+                    break;
+                }
+            }
+
+            void Reset()
+            {   
+                intro = false;
+                fightintro = false;
+                sendreplycode = false;
+                outro = false;
+                respawning = false;
+                herald = true;
+
+                staramount = 0;
+
+                _Reset();
+                summons.DespawnAll();
+                SetCombatMovement(false);
+                Phase = PHASE_INTRO;
+                if (instance)
+                    instance->SetData(BOSS_ALGALON, NOT_STARTED);
+
+                me->setFaction(FACTION_NEUTRAL);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SendMovementFlagUpdate();
+                me->SetVisible(false);
+                me->SetSheath(SHEATH_STATE_UNARMED);
+                me->SetHealth(me->GetMaxHealth()); //needed, since he doesn't normally regenerate life (set in DB)
+
+                events.ScheduleEvent(EVENT_BERSERK, 6 * MINUTE * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BIG_BANG, 90000);
+                events.ScheduleEvent(EVENT_COSMIC_SMASH, 25000);
+                events.ScheduleEvent(EVENT_PHASE_PUNCH, 16000);
+                events.ScheduleEvent(EVENT_QUANTUM_STRIKE, urand(4000,8000));
+                events.ScheduleEvent(EVENT_COLLAPSING_STAR, 15000, PHASE_1);
+                events.ScheduleEvent(EVENT_SUMMON_CONSTELLATION, 50000, PHASE_1); 
+                events.CancelEvent(EVENT_REMOVE_FROM_PHASE);
+                events.CancelEvent(EVENT_SUMMON_UNLEASHED_DARK_MATTER);
+                events.CancelEvent(EVENT_RESTART_ATTACKING);
+
+                if (instance->GetData(DATA_ALGALON_INTRO) == IN_PROGRESS && instance->GetData(DATA_ALGALON_TIMER) != FAIL)
+                    StartIntro(20000); // respawn in 20 Seconds.
+            }
+			
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_HERALD:
+                        return herald ? 2 : 0;
+                }
+
+                return 0;
+            }
+
+            void SetData(uint32 id, uint32 data)
+            {
+               switch (id)
+               {
+                   case DATA_HERALD:
+                        herald = data ? true : false;
+                        break;
+               }
+            }
+
+            void DamageTaken(Unit * /*who*/, uint32 &Damage)
+            {
+                if(Damage > me->GetHealth())
+                    Damage = me->GetHealth() - 1;
+
+            }
+            void JumpToNextStep(uint32 uiTimer)
+            {
+                uiPhase_timer = uiTimer;
+                ++uiStep;
+            }
+
+            void JustSummoned(Creature* Summon)
+            {
+                summons.Summon(Summon);
+                Summon->setFaction(me->getFaction());
+
+                switch(Summon->GetEntry())
+                {
+                case CREATURE_AZEROTH_MODEL:
+                    Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    break;
+                case CREATURE_BLACK_HOLE:
+                    --staramount;
+                    Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    //Summon->AddAura(SPELL_BLACK_HOLE_TRIGGER, Summon); Too buggy.
+                    Summon->AddAura(SPELL_VISUAL_VOID_ZONE, Summon);
+                    //Summon->AddAura(SPELL_BLACK_HOLE_COSMETIC, Summon);
+                    Summon->SetReactState(REACT_PASSIVE);
+                case CREATURE_COLLAPSING_STAR:
+                    Summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, me->GetGUID());
+                    break;
+                case CREATURE_UNLEASHED_DARK_MATTER:
+                    Summon->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    Summon->SetInCombatWithZone();
+                    if (Unit* Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        Summon->AI()->AttackStart(Target);
+                    break;
+                }
+            }
+
+            void SummonCollapsingStars()
+            {
+                if (staramount == MAXSTARS)
+                    return;
+
+                Talk(SAY_SUMMON_COLLAPSING_STAR);
+                Talk(EMOTE_COLLAPSING_STARS);
+                Position pos;
+                for (uint8 i = MAXSTARS - staramount; i>0; --i)
+                {
+                    pos.Relocate(RoomCenter[0], RoomCenter[1], RoomCenter[2]);
+                    //pos.m_positionX += urand(15,20) * cos(static_cast<float>(2*M_PI) * float(i/4));
+                    //pos.m_positionY += urand(15,20) * sin(static_cast<float>(2*M_PI) * float(i/4));
+                    me->MovePosition(pos, 20, cos(static_cast<float>(2.0f*M_PI*(float)i/4.0f)));
+                    if (me->SummonCreature(CREATURE_COLLAPSING_STAR, pos, TEMPSUMMON_CORPSE_DESPAWN))
+                        ++staramount;
+
+                }
+
+            }
+
+            void SummonLivingConstellations()
+            {
+                summons.DoAction(CREATURE_LIVING_CONSTELLATION, ACTION_ACTIVATE_CONSTELLATION);
+            }
+
+            void PopulateBlackHoles()
+            {   
+                Position pos;
+                for (uint8 i = 1; i<= 8; ++i)
+                {
+                    me->GetNearPosition(pos, urand(15,35), (float)rand_norm() * static_cast<float>(2 * M_PI));
+                    DoSummon(CREATURE_DARK_MATTER,pos,1000);
+                }
+            }
+
+            void SummonConstellationsInitial()
+            {
+                Position pos;
+                float z;
+                uint8 amount =  3;
+                pos.m_orientation = 0;
+                for (uint32 i = 1; i<=amount; ++i)
+                {
+                    z = urand(20, 35);
+                    pos.Relocate(RoomCenter[0], RoomCenter[1], RoomCenter[2]);
+                    pos.m_positionX += 40 * cos((float)rand_norm() * static_cast<float>(2*M_PI));
+                    pos.m_positionY += 40 * sin((float)rand_norm() * static_cast<float>(2*M_PI));
+                    pos.m_positionZ += z;
+                    me->SummonCreature(CREATURE_LIVING_CONSTELLATION, pos, TEMPSUMMON_CORPSE_DESPAWN);
+                }
+
+            }
+
+            void StartIntro(uint32 timer = 0)
+            {
+                uiPhase_timer = timer;
                 uiStep = 0;
+                intro = true;
+                Phase = PHASE_INTRO;
+                me->SetOrientation(me->GetHomePosition().GetOrientation());
+                me->SendMovementFlagUpdate();
             }
-        }
 
-        void KilledUnit(Unit *victim)
-        {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-        }
-
-        void Reset()
-        {
-            _Reset();
-            uiPhase = 1;
-
-			if (!Summon) // event pas finit
-			{
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
-				uiStep = 0;
-				me->SetVisible(false);
-
-			}
-			if (pInstance)
-				pInstance->HandleGameObject(pInstance->GetData64(DATA_UNIVERSE_GLOBE),false);
-
-			uiPhaseTimer = 0;
-            uiAscendTimer = 360000;
-            uiQuantumStrikeTimer = 4000 + rand()%10000;
-            uiCollapsingStarsTimer = 15000;
-            uiLivingConstellationsTimer = 30000 ;
-            uiBigBangTimer = 90000;
-            uiPhasePunchTimer = 15000;
-            uiCosmicSmashTimer = urand(30000, 60000);
-            bIsEnraged = false;
-            bHasSpawnedBlackHoles = false ;
-            hasHit = false ;
-            DespawnCollapsingStar() ;
-            DespawnLivingConstellation() ;
-        }
-
-        void DespawnCollapsingStar()
-        {
-            if (m_lCollapsingStarGUIDList.empty())
-                return;
-
-            for (std::list<uint64>::const_iterator itr = m_lCollapsingStarGUIDList.begin(); itr != m_lCollapsingStarGUIDList.end(); ++itr)
+            void SetEncounterMusic(uint32 MusicID) //wrong. I'm almost certain it has to do with zonemusic.dbc...
             {
-                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
+                WorldPacket data(SMSG_PLAY_MUSIC, 4);
+                data << uint32(MusicID);
+                instance->instance->SendToPlayers(&data);
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
+                switch(id)
                 {
-                    if (pTemp->isAlive())
-                        pTemp->ForcedDespawn();
+                case POINT_OUTRO:
+                    outro = true;
+                    me->SetOrientation(me->GetHomePosition().GetOrientation());
+                    uiPhase_timer = 14000;
+                    me->SendMovementFlagUpdate();
+                    instance->SetBossState(BOSS_ALGALON, DONE);
+                    break;
                 }
             }
-            m_lCollapsingStarGUIDList.clear();
-        }
 
-		void DespawnLivingConstellation()
-        {
-            if (m_lLivingConstellationGUIDList.empty())
-                return;
-
-            for(std::list<uint64>::const_iterator itr = m_lLivingConstellationGUIDList.begin(); itr != m_lLivingConstellationGUIDList.end(); ++itr)
+            void DoMeleeAttacksIfReady() // we need this function because DoMeleeAttackIfReady causes the mob to hit with both weapons at the same time (not blizzlike)
             {
-                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
+                if (me->IsWithinMeleeRange(me->getVictim()) && !me->IsNonMeleeSpellCasted(false))
                 {
-                    if (pTemp->isAlive())
-                        pTemp->ForcedDespawn();
-                }
-            }
-            m_lCollapsingStarGUIDList.clear();
-        }
-
-        void JustSummoned(Creature* pSummoned)
-        {
-            if (pSummoned->GetEntry() == CREATURE_COLLAPSING_STAR)
-            {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    pSummoned->AI()->AttackStart(pTarget);
-                m_lCollapsingStarGUIDList.push_back(pSummoned->GetGUID());
-            }
-			if (pSummoned->GetEntry() == CREATURE_LIVING_CONSTELLATION)
-            {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    pSummoned->AI()->AttackStart(pTarget);
-                m_lLivingConstellationGUIDList.push_back(pSummoned->GetGUID());
-            }
-        }
-
-        void JumpToNextStep(uint32 time)
-        {
-            uiPhaseTimer = time ;
-            uiStep ++ ;
-        }
-
-        void SpellHitTarget(Unit* who, const SpellEntry* spell)
-        {
-            if(spell->Id == RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG))
-                hasHit = true ;
-        }
-
-
-        void UpdateAI(const uint32 diff)
-        {
-            //Return since we have no target
-            //if (!UpdateVictim())
-            //    return;
-
-			if((CheckWipe()) && (!UpdateVictim()))
-				return;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uiPhase == 1)
-            {
-                if (!Summon)
-                {
-                    if (uiPhaseTimer <= diff)
+                    if (me->isAttackReady() && me->getVictim())
                     {
-                        switch(uiStep)
+                        me->AttackerStateUpdate(me->getVictim());
+                        me->resetAttackTimer();
+                        me->setAttackTimer(OFF_ATTACK, me->getAttackTimer(BASE_ATTACK)/2);
+                    }
+
+                    if (me->isAttackReady(OFF_ATTACK) && me->getVictim())
+                    {
+                        me->AttackerStateUpdate(me->getVictim(), OFF_ATTACK);
+                        me->resetAttackTimer(OFF_ATTACK);
+                    }
+                }
+            }
+
+            void HandleHeraldAchievement()
+            {
+                uint32 playercount;
+                uint32 playermatchedreq;
+                playermatchedreq = 0;
+                playercount = 0;
+
+                if(me->GetMap() && me->GetMap()->IsDungeon())
+                {
+                    Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                    if (!players.isEmpty())
+                    {
+                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
-
-							case 0:
-								me->AddAura(SPELL_ALGALON_EVENT_BEAM,me);
-								me->SetVisible(true);
-								JumpToNextStep(4000);
-								break;
-                            case 1:
-								me->RemoveAura(SPELL_ALGALON_EVENT_BEAM);
-                                DoScriptText(SAY_SUMMON_1, me);
-                                JumpToNextStep(6000);
-                                break;
-                            case 2:
-                                DoScriptText(SAY_SUMMON_2, me);
-								DoCast(SPELL_SUMMON_AZEROTH);
-                                JumpToNextStep(5000);
-                                break;
-                            case 3:
-                                DoScriptText(SAY_SUMMON_3, me);
-                                JumpToNextStep(10000);
-                                break;
-                            case 4:
-                                DoScriptText(SAY_ENGADED_FOR_FIRTS_TIME, me);
-                                JumpToNextStep(8000);
-								if (pInstance)
-                                    pInstance->HandleGameObject(pInstance->GetData64(DATA_UNIVERSE_GLOBE),true);
-                                break;
-                            case 5:
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
-                                me->SetReactState(REACT_AGGRESSIVE);
-                                Summon = true;
-								me->FindNearestCreature(CREATURE_AZEROTH,20.0f)->DisappearAndDie();
-								DoZoneInCombat();
-                                break;
+                            playercount++;
+                            if (Player* plr = itr->getSource())
+                            {
+                                if(plr->GetAverageItemLevel() <= 232)
+                                {
+                                   playermatchedreq++;
+                                }
+                            }
                         }
-                    } else uiPhaseTimer -= diff;
+                    }
+                }
+                if (playermatchedreq != playercount) // check if the whole raid have an average ilvl of 232 or less
+                {
+                    Creature* Algalon = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_ALGALON));
+                    Algalon->AI()->DoAction(ACTION_HERALD);
+                }
+            }
 
+            void HandleTalkingSequences()
+            {
+                if (intro)
+                {
+                    switch(uiStep)
+                    {
+                    case 0:
+                        me->AddAura(SPELL_HOVER_FALL, me);
+                        me->SetVisible(true);
+                        me->SetFlag(UNIT_FIELD_FLAGS,  UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
+                        float x,y;
+                        me->GetPosition(x,y);
+                        me->GetMotionMaster()->MoveCharge(x,y,GroundZ,me->GetSpeed(MOVE_FLIGHT), 0);
+                        DoCast(me,SPELL_ARRIVAL,true);
+                        DoCast(me,SPELL_BLUE_BEAM,true);
+                        me->SetReactState(REACT_PASSIVE);
+                        JumpToNextStep(3500);
+                        break;
+                    case 1:
+                        me->RemoveAurasDueToSpell(SPELL_BLUE_BEAM);
+                        Talk(SAY_SUMMON_1);
+                        JumpToNextStep(7000);
+                        break;
+                    case 2:
+                        me->m_positionZ = GroundZ;
+                        me->SetOrientation(me->GetHomePosition().GetOrientation());
+                        DoCast(SPELL_SUMMON_AZEROTH);
+                        JumpToNextStep(5000);
+                        break;
+                    case 3:
+                        Talk(SAY_SUMMON_2);
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SendMovementFlagUpdate();
+                        DoCastAOE(SPELL_REORIGINATION);
+                        JumpToNextStep(8000);
+                        break;
+                    case 4:
+                        Talk(SAY_SUMMON_3);
+                        JumpToNextStep(12000);
+                        break;
+                    case 5:
+                        if (Creature* Brann = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_BRANN_ALGALON)))
+                            Brann->AI()->DoAction(ACTION_BRANN_LEAVE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS,  UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
+                        intro = false;
+                        break;
+                    }
+                }
+                else if (fightintro)
+                {
+                    switch(uiStep)
+                    {
+                    case 0:
+                        me->SetReactState(REACT_PASSIVE);
+                        Talk(SAY_AGGRO);
+                        me->RemoveAllAuras();
+                        me->DeleteThreatList();
+                        me->CombatStop(true);
+                        me->StopMoving();
+                        me->SetOrientation(me->GetHomePosition().GetOrientation());
+                        me->SendMovementFlagUpdate();
+
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveIdle();
+
+                        summons.DespawnAll();
+
+                        JumpToNextStep(1000);
+                    case 1:
+                        if (instance->GetData(DATA_ALGALON_INTRO) == IN_PROGRESS)
+                        {
+                            uiStep = 12;
+                            uiPhase_timer = 2000;
+                        }
+                        else
+                            JumpToNextStep(14000);
+                        break;
+                    case 2:
+                        Talk(SAY_ENGAGED_FOR_FIRST_TIME);
+                        instance->SetBossState(BOSS_ALGALON, IN_PROGRESS); //also changes room at this point.
+                        JumpToNextStep(11000);
+                        break;
+                    case 3:
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED );
+                        Phase = PHASE_1;
+                        fightintro = false;
+                        me->SetInCombatWithZone();
+                        if (Unit* Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            AttackStart(Target);
+
+                        me->setFaction(FACTION_HOSTILE);
+                        SetEncounterMusic(MUSIC_BATTLE);
+                        instance->SetData(DATA_ALGALON_INTRO,1); //First Intro Done
+                        instance->SetData(DATA_ALGALON_TIMER,IN_PROGRESS);
+                        PopulateBlackHoles();
+                        SummonConstellationsInitial();
+                        SetCombatMovement(true);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
+                    case 12: //Second Intro
+                        instance->SetBossState(BOSS_ALGALON, IN_PROGRESS);
+                        JumpToNextStep(6000);
+                        break;
+                    case 13:
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
+                        Phase = PHASE_1;
+                        fightintro = false;
+                        me->setFaction(FACTION_HOSTILE);
+                        me->SetInCombatWithZone();
+                        SetEncounterMusic(MUSIC_BATTLE);
+                        PopulateBlackHoles();
+                        SummonConstellationsInitial();
+                        SetCombatMovement(true);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
+                    }
+                }
+                else if (respawning)
+                {
+                    switch(uiStep)
+                    {
+                    case 0:
+                        me->GetMotionMaster()->Clear(false);
+                        me->GetMotionMaster()->MoveIdle();
+                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLACK_HOLE_AURA); //hack. Ascend to the heavens should hit players who are in black holes.
+                        JumpToNextStep(500);
+                        break;
+                    case 1:
+                        DoCastAOE(SPELL_ASCEND);
+                        JumpToNextStep(3000);
+                        break;
+                    case 2:
+                        me->SetVisible(false);
+                        ScriptedAI::EnterEvadeMode();
+                        respawning = false;
+                        break;
+                    }
+                }
+                else if (outro)
+                {
+                    switch(uiStep)
+                    {
+                    case 0:
+                        me->SetSpeed(MOVE_WALK, 2.0f);
+                        me->GetMotionMaster()->MovePoint(POINT_OUTRO,OutroPos[0], OutroPos[1], OutroPos[2]); 
+                        ++uiStep;
+                        outro = false; //will be set true once he reaches his outro point.
+                        break;
+                    case 1:
+                        Talk(SAY_DEATH_1);
+                        DoCastAOE(SPELL_KILL_CREDIT, true);
+                        me->SetStandState(UNIT_STAND_STATE_KNEEL);
+                        JumpToNextStep(40000);
+                        break;
+                    case 2:
+                        Talk(SAY_DEATH_2); //he sometimes stands up here. I wonder why.
+                        JumpToNextStep(18000);
+                        break;
+                    case 3:
+                        Talk(SAY_DEATH_3);
+                        JumpToNextStep(11000);
+                        break;
+                    case 4:
+                        Talk(SAY_DEATH_4);
+                        JumpToNextStep(12000);
+                        break;
+                    case 5:
+                        if (Creature* Brann = me->SummonCreature(NPC_BRANN_ALGALON, BrannOutro[0], BrannOutro[1], BrannOutro[2]))
+                        {
+                            Brann->AI()->Talk(SAY_BRANN_OUTRO);
+                            Brann->SetFacingToObject(me);
+                            Brann->DespawnOrUnsummon(30000);
+                        }
+                        JumpToNextStep(7000);
+                        break;
+                    case 6:
+                        Talk(SAY_DEATH_5);
+                        JumpToNextStep(15000);
+                        break;
+                    case 7:
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
+                        DoCast(SPELL_TELEPORT_VISUAL);
+                        me->DespawnOrUnsummon(2000);
+                        outro = false;
+                        break;
+                    }
+                }
+                else if (sendreplycode)
+                {
+                    switch(uiStep)
+                    {
+                    case 0:
+                        me->RemoveAllAuras();
+                        me->DeleteThreatList();
+                        me->CombatStop(true);
+                        me->SetLootRecipient(NULL);
+                        me->ResetPlayerDamageReq();
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveIdle();
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                        JumpToNextStep(1000);
+                        break;
+                    case 1:
+                        me->SetStandState(UNIT_STAND_STATE_KNEEL);
+                        JumpToNextStep(1000);
+                        break;
+                    case 2:
+                        Talk(SAY_TIMER_1);
+                        JumpToNextStep(15000);
+                        break;
+                    case 3:
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
+                        Talk(SAY_TIMER_2);
+                        JumpToNextStep(10000);
+                        break;
+                    case 4:
+                        DoCastAOE(SPELL_ASCEND);
+                        Talk(SAY_TIMER_3);
+                        JumpToNextStep(10000);
+                        break;
+                    case 5:
+                        DoCast(SPELL_TELEPORT_VISUAL);
+                        me->DespawnOrUnsummon(2000);
+                        sendreplycode = false;
+                        break;
+                    }
+
+                }
+
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (Phase == PHASE_INTRO)
+                {
+                    if (uiPhase_timer <= diff)
+                        HandleTalkingSequences();
+                    else
+                        uiPhase_timer -= diff;
                     return;
                 }
 
-                if (uiCollapsingStarsTimer <= diff)
-                {
-                    DoScriptText(SAY_SUMMON_COLLAPSING_STAR, me);
-                    for (uint8 i = 0 ; i < 4 ; i++)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                me->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0f,target->GetPositionY()+15.0f,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
-                    }
-                    uiCollapsingStarsTimer = 90000 ;
-                } else uiCollapsingStarsTimer -= diff ;
-
-                if (uiLivingConstellationsTimer <= diff)
-                {
-                    for (uint8 i = 0 ; i < 3 ; i++)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                me->SummonCreature(CREATURE_LIVING_CONSTELLATION,target->GetPositionX()+15.0f,target->GetPositionY()+15.0f,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
-                    }
-                    uiLivingConstellationsTimer = 90000 ;
-                } else uiLivingConstellationsTimer -= diff ;
-
-                if (HealthBelowPct(20))
-                {
-                    uiPhase = 2;
-                    uiBlackHolesTimer = 5000 ;
-                    DespawnCollapsingStar();
-                    DespawnLivingConstellation();
-                    DoScriptText(SAY_PHASE_2, me);
-                }
-            }
-            if (uiPhase == 2)
-            {
-                if(!bHasSpawnedBlackHoles)
-                {
-                    if (uiBlackHolesTimer <= diff)
-                    {
-                        for (uint8 i = 0 ; i < 4 ; i++)
-                        {
-                            if(Creature* blackHole = me->SummonCreature(CREATURE_BLACK_HOLE,BlackHolesPos[i].x, BlackHolesPos[i].y, BlackHolesPos[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 100000))
-                                blackHole->AI()->SetData(DATA_PHASE, uiPhase) ;
-                            bHasSpawnedBlackHoles = true ;
-                        }
-                        uiBlackHolesTimer = 100000 ;
-                    } else uiBlackHolesTimer -= diff ;
-                }
-
-                if (HealthBelowPct(2))
-                {
-					if(!summondeath)
-					{
-						me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-						me->RemoveAllAuras();
-						me->AttackStop();
-						me->SetReactState(REACT_PASSIVE);
-						summondeath = true ;
-						uiStep = 1;
-					}
-                }
-
-                if (summondeath)
-                {
-                    if (uiPhaseTimer <= diff)
-                    {
-                        switch(uiStep)
-                        {
-                            case 1:
-                                DoScriptText(SAY_DEATH_1, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 2:
-                                DoScriptText(SAY_DEATH_2, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 3:
-                                DoScriptText(SAY_DEATH_3, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 4:
-                                DoScriptText(SAY_DEATH_4, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 5:
-                                DoScriptText(SAY_DEATH_5, me);
-                                JumpToNextStep(3000);
-                                break;
-                            case 6:
-                                me->SummonGameObject(GAMEOBJECT_GIFT_OF_THE_OBSERVER, 1634.258667f, -295.101166f, 417.321381f,0,0,0,0,0,-10);
-                                me->DisappearAndDie() ;
-                                _JustDied();
-                                break;
-                        }
-                    } else uiPhaseTimer -= diff;
-
+                if (Phase < PHASE_1 )
                     return;
+
+                if (!CheckInRoom())
+                    return;
+
+                if (me->getThreatManager().isThreatListEmpty()) // this replaces updatevictim(), since he casts ascend to the heavens to wipe the raid instead of just respawning.
+                {
+                    respawning = true;
+                    me->InterruptNonMeleeSpells(false);
+                    uiStep = 0;
+                    Phase = PHASE_INTRO;
                 }
-            }
+                else if (Unit *victim = me->SelectVictim())
+                    AttackStart(victim);
 
-            if (!hasCastedBigBang)
-            {
-                if (uiBigBangTimer <= diff)
+                if (Phase == PHASE_1 && HealthBelowPct(20))
                 {
-                    DoScriptText(RAND(SAY_BIG_BANG_1,SAY_BIG_BANG_2), me);
-                    DoCast(me, RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG));
-                    hasCastedBigBang = true ;
-                    uiBigBangTimer = 4000;
-                } else uiBigBangTimer -= diff;
-            }
-            else
-            {
-                if (uiBigBangTimer <= diff)
-                {
-                    if(hasHit)
-                        uiAscendTimer = 5000 ;
-					else 
-					{
-						DoCast(me,SPELL_BERSERK );
-						uiAscendTimer = 5000 ;
-					}
+                    Phase = PHASE_2;
+                    Talk(SAY_PHASE_2);
+                    summons.DespawnEntry(CREATURE_BLACK_HOLE);
+                    summons.DespawnEntry(CREATURE_LIVING_CONSTELLATION);
+                    summons.DespawnEntry(CREATURE_COLLAPSING_STAR);
+                    events.CancelEventGroup(PHASE_1);
+                    Position pos;
 
-                    hasHit = false ;
-                    hasCastedBigBang = false ;
-                    uiBigBangTimer = 81000;
-                } else uiBigBangTimer -= diff;
-            }
-
-
-            if (uiQuantumStrikeTimer <= diff)
-            {
-                DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE,H_SPELL_QUANTUM_STRIKE));
-
-                uiQuantumStrikeTimer = urand(4000, 14000);
-            } else uiQuantumStrikeTimer -= diff;
-
-            if (uiPhasePunchTimer <= diff)
-            {
-                DoCast(me->getVictim(),SPELL_PHASE_PUNCH);
-                if(me->getVictim())
-                    if(Aura* phasePunch = me->getVictim()->GetAura(SPELL_PHASE_PUNCH))
+                    for (uint8 i = 1; i <= 4; ++i) //Summoning the black Holes.
                     {
-                        if(phasePunch->GetStackAmount() == 5)
-                        {
-                            me->AddAura(SPELL_PHASE_PUNCH_EFFECT, me->getVictim());
-                            me->getVictim()->RemoveAurasDueToSpell(SPELL_PHASE_PUNCH) ;
-                        }
+                        pos.Relocate(RoomCenter[0], RoomCenter[1], RoomCenter[2]);
+                        pos.m_orientation =  MapManager::NormalizeOrientation(2*M_PI*i/4 + M_PI/3); 
+                        pos.m_positionX += 20 * cos(pos.GetOrientation());
+                        pos.m_positionY += 20 * sin(pos.GetOrientation());
+                        DoSummon(CREATURE_BLACK_HOLE, pos, 0);
                     }
-                uiPhasePunchTimer = 15000;
-            } else uiPhasePunchTimer -= diff;
+                    events.ScheduleEvent(EVENT_SUMMON_UNLEASHED_DARK_MATTER, 1500);
+                }
 
-            if (uiCosmicSmashTimer <= diff)
-            {
-                if (pInstance)
+                if (Phase == PHASE_2 && HealthBelowPct(3))
                 {
-                    for (uint8 i = 0 ; i < RAID_MODE(1, 3) ; i++)
+                    HandleHeraldAchievement();
+                    Phase = PHASE_INTRO;
+                    summons.DespawnAll();
+                    instance->SetData(DATA_ALGALON_TIMER, DONE);
+
+                    me->DeleteThreatList();
+                    me->CombatStop(true);
+                    me->StopMoving();
+                    me->SetOrientation(me->GetHomePosition().GetOrientation());
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SendMovementFlagUpdate();
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveIdle();
+                    me->setFaction(FACTION_FRIENDLY);
+                    me->SummonGameObject(GO_GIFT_OF_THE_OBSERVER, RoomCenter[0], RoomCenter[1], RoomCenter[2], M_PI/2,0,0,0,0,me->GetRespawnTime()); //should be DB spawned and then used via Respawn by the Instance script.
+
+                    outro = true;
+                    uiStep = 0;
+                    uiPhase_timer = 9000;
+                }
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                    switch (events.GetEvent())
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, RAID_MODE(SPELL_COSMIC_SMASH, H_SPELL_COSMIC_SMASH));
+                    case 0:
+                        break;
+                    case EVENT_RESTART_ATTACKING:
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        events.CancelEvent(EVENT_RESTART_ATTACKING);
+                        break;
+                    case EVENT_BIG_BANG:
+                        Talk(SAY_BIG_BANG);
+                        Talk(EMOTE_BIG_BANG);
+                        DoCastAOE(RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG));
+                        me->AttackStop();
+                        me->SetReactState(REACT_PASSIVE);
+                        events.ScheduleEvent(EVENT_RESTART_ATTACKING, 15000);
+                        events.RescheduleEvent(EVENT_QUANTUM_STRIKE, 16000);
+                        events.ScheduleEvent(EVENT_REMOVE_FROM_PHASE, 9000);
+                        events.RepeatEvent(90000);
+                        break;
+                    case EVENT_REMOVE_FROM_PHASE:
+                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLACK_HOLE_AURA);
+                        events.CancelEvent(EVENT_REMOVE_FROM_PHASE);
+                        break;
+                    case EVENT_PHASE_PUNCH:
+                        DoCast(me->getVictim(), SPELL_PHASE_PUNCH);
+                        events.RepeatEvent(16000);
+                        break;
+                    case EVENT_BERSERK:
+                        DoCast(me, SPELL_BERSERK, true);
+                        Talk(SAY_BERSERK);
+                        events.CancelEvent(EVENT_BERSERK);
+                        break;
+                    case EVENT_COSMIC_SMASH:
+                        DoCast(RAID_MODE(SPELL_COSMIC_SMASH,H_SPELL_COSMIC_SMASH));
+                        Talk(EMOTE_COSMIC_SMASH);
+                        events.RepeatEvent(urand(25000,30000));
+                        break;
+                    case EVENT_QUANTUM_STRIKE:
+                        DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE,H_SPELL_QUANTUM_STRIKE));
+                        events.RepeatEvent(urand(4000, 8000));
+                        break;
+                    case EVENT_COLLAPSING_STAR:
+                        SummonCollapsingStars();
+                        events.RepeatEvent(50000);
+                        break;
+                    case EVENT_SUMMON_CONSTELLATION:
+                        SummonLivingConstellations();
+                        SummonConstellationsInitial();
+                        events.RepeatEvent(50000);
+                        break;
+                    case EVENT_SUMMON_UNLEASHED_DARK_MATTER:
+                        summons.DoAction(CREATURE_BLACK_HOLE, ACTION_BLACKHOLE_SUMMON);
+                        events.RepeatEvent(30000);
+                        break;
+                    default:
+                        events.PopEvent();
+                        break;
                     }
-                }
-                uiCosmicSmashTimer = 25000;
-            } else uiCosmicSmashTimer -= diff;
 
-            if (uiAscendTimer  <= diff)
-            {
-                DoCast(me, SPELL_ASCEND);
-                if(pInstance)
-                {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLACK_HOLE_DAMAGE);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLACK_HOLE_PHASE);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHASE_PUNCH_EFFECT);
-                }
-                DoScriptText(SAY_BERSERK, me);
-                uiAscendTimer = urand(360000,365000);
-            } else uiAscendTimer -= diff;
-
-            // Don't attack current target if he's not visible for us.
-            if(me->getVictim() && me->getVictim()->GetPhaseMask() != 1)
-                me->getThreatManager().modifyThreatPercent(me->getVictim(),0);
-
-            DoMeleeAttackIfReady();
-
-			//EnterEvadeIfOutOfCombatArea(diff);
-        }
-
-		 bool CheckWipe()
-        {
-
-            if (pInstance)
-            {
-                if (Map* pMap = me->GetMap())
-                {
-                    Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    {
-                        Player* pPlayer = itr->getSource();
-                        if (!pPlayer)
-							return true;
-
-                        if (pPlayer->isGameMaster())
-							 continue;
-
-						if (!pPlayer->IsInRange(me,0.1f,50.0f))
-							continue;
-
-                        if (pPlayer->isAlive())
-                            return false;
-                    }
-                }
+                    if(me->GetReactState() != REACT_PASSIVE)
+                        DoMeleeAttacksIfReady();
             }
-            return true;
-        }
-
-    };
-
-	CreatureAI* GetAI(Creature* pCreature) const    
-    {
-        return new boss_algalonAI(pCreature);
-    }
+        };
 };
 
 class mob_collapsing_star : public CreatureScript
 {
-public:
-    mob_collapsing_star() : CreatureScript("mob_collapsing_star") { }
+    public:
+        mob_collapsing_star() : CreatureScript("mob_collapsing_star") { }
 
-    struct mob_collapsing_starAI : public ScriptedAI
-    {
-        mob_collapsing_starAI(Creature *pCreature) : ScriptedAI(pCreature)
+        CreatureAI* GetAI(Creature* creature) const
         {
-            pInstance = pCreature->GetInstanceScript();
+            return new mob_collapsing_starAI(creature);
         }
 
-        InstanceScript* pInstance;
-
-        uint32 healthPercent ;
-        uint32 uiHealthLostTimer ;
-		uint32 uitargettimer ;
-		uint32 uidisappear ;
-
-        void Reset()
+        struct mob_collapsing_starAI : public PassiveAI
         {
-            healthPercent = me->GetMaxHealth()/100 ;
-            uiHealthLostTimer = 1000 ;
-			uitargettimer = 5000 ;
-		
-        }
+            mob_collapsing_starAI(Creature *creature) : PassiveAI(creature) {}
 
-        void JustDied(Unit* who)
-        {
-            me->CastSpell(me, RAID_MODE(SPELL_BLACK_HOLE_EXPLOSION, H_SPELL_BLACK_HOLE_EXPLOSION), true);
-            if(Creature* blackHole = me->SummonCreature(CREATURE_BLACK_HOLE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000))
-                blackHole->AI()->SetData(DATA_PHASE, 1) ;
-        }
+            bool exploded;
+            uint32 Timer;
+            uint32 Damage;
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-			
-			if (uitargettimer <= diff)
-			{
-				// Don't attack current target if he's not visible for us & switch all 5s
-				Unit *pVictim = SelectTarget(SELECT_TARGET_RANDOM, 0);
-				if (!pVictim)
-					return;
-				else if (pVictim->GetPhaseMask() != 1)
-						me->getThreatManager().modifyThreatPercent(pVictim, -100);
-				uitargettimer = 3000;
-			}else uitargettimer -= diff;
-
-
-
-            if (uiHealthLostTimer <= diff)
+            void Reset()
             {
-                if (me->GetHealth() > healthPercent)
-                    me->SetHealth(me->GetHealth()-healthPercent);
-                else 
-				{
-                    me->DealDamage(me, (me->GetHealth()-1));
-					me->AI()->JustDied(me);
-				}
-				if (me->GetHealth() == 1)
-					uidisappear = 0;
-				
-				uiHealthLostTimer = 1000 ;
+                Timer = 1000;
+                exploded = false;
+                Damage = me->GetMaxHealth()/100;
+                me->GetMotionMaster()->MoveRandom(15.0f);
+            }
+            void DamageTaken(Unit * /*Who*/, uint32 &Damage)
+            {
+                if(Damage > me->GetHealth())
+                {
+                    Damage = me->GetHealth() - 1;
+                    Explode();
+                }
+            }
 
-            } else uiHealthLostTimer -= diff ;
+            void Explode()
+            {
+                if (exploded)
+                    return;
 
-			if ((uidisappear <= diff) && (me->GetHealth() < healthPercent))
-			{
-				me->DisappearAndDie(); //tempo le temps d appliquer le just died puis despawn
-				uidisappear = 3600*7*24*1000;
-			}
-			else uidisappear -= diff;
-        }
-    };
+                exploded = true;
+                Timer = 1500;
+                Position pos;
 
-    CreatureAI* GetAI(Creature* pCreature) const    
-    {
-        return new mob_collapsing_starAI(pCreature);
-    }
+                me->RemoveAllAuras();
+                me->GetPosition(&pos);
+                if (me->GetOwnerGUID())
+                    me->GetOwner()->SummonCreature(CREATURE_BLACK_HOLE, pos);
+
+                DoCastAOE(SPELL_BLACK_HOLE_EXPLOSION, true);
+                DoCastAOE(SPELL_BLACK_HOLE_SPAWN_VISUAL, true);
+                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->MoveIdle();
+                me->DespawnOrUnsummon(2000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (Timer <= diff)
+                    {
+                        if (Damage < me->GetHealth())
+                            me->DealDamage(me, Damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL);
+                        else
+                            Explode();
+
+                        Timer = 1000;
+                }
+                else Timer -= diff;
+            }
+        };
 };
 
 class mob_black_hole : public CreatureScript
 {
-public:
-    mob_black_hole() : CreatureScript("mob_black_hole") { }
+    public:
+        mob_black_hole() : CreatureScript("mob_black_hole") { }
 
-    struct mob_black_holeAI : public ScriptedAI
-    {
-        mob_black_holeAI(Creature *pCreature) : ScriptedAI(pCreature)
+        CreatureAI* GetAI(Creature* creature) const
         {
-            pInstance = pCreature->GetInstanceScript();
+            return new mob_black_holeAI(creature);
         }
 
-        InstanceScript* pInstance;
-
-        uint8 uiPhase ;
-        uint32 uiDarkMatterSpawnTimer ;
-		uint32 uicastsingularitytimer ;
-		uint32 uitransferttimer ;
-        void SetData(uint32 id, uint32 value)
+        struct mob_black_holeAI : public ScriptedAI
         {
-            if (id == DATA_PHASE)
+            mob_black_holeAI(Creature *creature) : ScriptedAI(creature) {}
+
+            uint32 ShiftTimer;
+
+            void Reset()
             {
-                uiPhase = value ;
-                if(uiPhase == 2)
-                    uiDarkMatterSpawnTimer = 30000 ;
+                ShiftTimer = 1000;
             }
-        }
 
-        void SpellHitTarget(Unit* target, const SpellEntry* spell)
-        {
-            if (spell->Id == SPELL_SINGULARITY)
+            void DoAction(const int32 ID)
             {
-                if(target && target->GetTypeId() == TYPEID_PLAYER)
-                {
-                    me->AddAura(SPELL_BLACK_HOLE_PHASE, target) ;
-                    me->AddAura(SPELL_BLACK_HOLE_DAMAGE, target) ;
-                }
+                if (ID == ACTION_BLACKHOLE_SUMMON)
+                    me->CastSpell(me,SPELL_UNLEASHED_DARK_MATTER, false, 0, 0, me->GetOwnerGUID());
             }
-        }
 
-
-		void selectTargettotransfer()
-		{
-			if (Map* pMap = me->GetMap())
+            void UpdateAI(const uint32 diff)
             {
-                Map::PlayerList const &players = pMap->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                if (ShiftTimer <= diff)
                 {
-                    Player* pPlayer = itr->getSource();
-                    if (!pPlayer)
-                            continue;
+                    std::list<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck checker(me, 5.0f);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                    me->VisitNearbyWorldObject(5.0f, searcher);
 
-                    if (pPlayer->isGameMaster())
-                            continue;
+                    for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        if (!(*itr)->HasAura(SPELL_BLACK_HOLE_AURA))
+                            (*itr)->AddAura(SPELL_BLACK_HOLE_AURA, (*itr));
+                    }
+                    ShiftTimer = 1000;
 
-                                        
-					if(me->IsInRange(pPlayer,0.1f,5.0f) && pPlayer->GetPhaseMask() != 16)
-					{
-						me->AddAura(SPELL_BLACK_HOLE_DAMAGE,pPlayer);
-						me->AddAura(SPELL_BLACK_HOLE_PHASE,pPlayer);
-						if(Aura* aur = pPlayer->GetAura(SPELL_BLACK_HOLE_DAMAGE))
-							aur->SetDuration(5*60*1000);
-						if(Aura* aur = pPlayer->GetAura(SPELL_BLACK_HOLE_PHASE))
-							aur->SetDuration(5*60*1000);
-					}
-
-				}
-
-			}
-		}
-
-
-        void Reset()
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-            DoCast(SPELL_BLACK_HOLE_SPAWN_VISUAL) ;
-            DoCast(SPELL_BLACK_HOLE_PASSIVE) ;
-            uiDarkMatterSpawnTimer = urand(1000, 4000) ;
-            me->SetReactState(REACT_PASSIVE);
-			uitransferttimer = 1000;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (uiDarkMatterSpawnTimer <= diff)
-            {
-                if(uiPhase == 2)
-                {
-                    if(Creature* darkMatter = me->SummonCreature(CREATURE_UNLEASHED_DARK_MATTER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
-                        darkMatter->SetInCombatWithZone() ;
                 }
-                if(Creature* darkMatter = me->SummonCreature(CREATURE_DARK_MATTER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
-                {
-                    darkMatter->SetPhaseMask(16, true) ;
-                    darkMatter->SetInCombatWithZone() ;
-                }
-                uiDarkMatterSpawnTimer = 30000 ;
-            } else uiDarkMatterSpawnTimer -= diff ;
+                else ShiftTimer -= diff;
+            }
 
-			if (uitransferttimer <= diff)
-			{
-				selectTargettotransfer();
-				uitransferttimer = 1000;
-			}
-			else uitransferttimer -= diff;
-
-            if (!UpdateVictim())
-                return;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const    
-    {
-        return new mob_black_holeAI(pCreature);
-    }
+        };
 };
 
 class mob_living_constellation : public CreatureScript
 {
-public:
-    mob_living_constellation() : CreatureScript("mob_living_constellation") { }
+    public:
+        mob_living_constellation() : CreatureScript("mob_living_constellation") { }
 
-    struct mob_living_constellationAI : public ScriptedAI
-    {
-        mob_living_constellationAI(Creature *pCreature) : ScriptedAI(pCreature)
+        CreatureAI* GetAI(Creature* creature) const
         {
+            return new mob_living_constellationAI(creature);
         }
 
-        uint32 uiArcaneBarrageTimer ;
-
-        void Reset()
+        struct mob_living_constellationAI : public ScriptedAI
         {
-            uiArcaneBarrageTimer = urand(5000, 8000) ;
-        }
+            mob_living_constellationAI(Creature *creature) : ScriptedAI(creature) {}
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
+            uint32 Arcane_Timer;
+            bool active;
 
-            // Don't attack current target if he's not visible for us.
-            if(me->getVictim() && me->getVictim()->GetPhaseMask() != 1)
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
-
-            if (uiArcaneBarrageTimer <= diff)
+            void InitializeAI()
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, RAID_MODE(SPELL_ARCANE_BARAGE, H_SPELL_ARCANE_BARAGE)) ;
-                uiArcaneBarrageTimer = urand(9000, 12000) ;
-            } else uiArcaneBarrageTimer -= diff ;
-
-            if (Creature* blackHole = me->FindNearestCreature(CREATURE_BLACK_HOLE, 5.0f))
-            {
-                me->DisappearAndDie() ;
-                blackHole->ForcedDespawn() ;
+                active = false;
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlying(true);
+                me->SendMovementFlagUpdate();
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 6);
+                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 6);
+                Reset();
             }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* pCreature) const    
-    {
-        return new mob_living_constellationAI(pCreature);
-    }
-};
-
-class mob_algalon_stalker_asteroid_target : public CreatureScript
-{
-public:
-    mob_algalon_stalker_asteroid_target() : CreatureScript("mob_algalon_stalker_asteroid_target") { }
-
-    struct mob_algalon_stalker_asteroid_targetAI : public Scripted_NoMovementAI
-    {
-        mob_algalon_stalker_asteroid_targetAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetReactState(REACT_AGGRESSIVE);
-            SetCombatMovement(false);
-        }
-
-        uint32 uiCosmicSmashTimer ;
-
-        void Reset()
-        {
-            uiCosmicSmashTimer = 6000 ;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (uiCosmicSmashTimer <= diff)
+            void Reset()
             {
-                Unit *pTarget = NULL;
-                uint32 damage ;
-				if (Map* pMap = me->GetMap())
-				{
-					Map::PlayerList const &players = pMap->GetPlayers();
-					for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-					{
-						Player* pTarget = itr->getSource();
-						if (!pTarget)
-							continue;
+                Arcane_Timer = urand(4000, 5000);
+            }
 
-						if (pTarget->GetPhaseMask() != 1)
-							continue;
+            void DoAction(const int32 ActionID)
+            {
+                switch(ActionID)
+                {
+                case ACTION_ACTIVATE_CONSTELLATION:
+                    active = true;
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->RemoveFlag( UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    DoZoneInCombat();
+                    if (Unit* Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        AttackStart(Target);
 
-						if(me->GetDistance2d(pTarget) <= 1.0f)
-							damage = RAID_MODE(43000, 55000) ;
-						else
-							damage = RAID_MODE(float(43000)/me->GetDistance2d(pTarget), float(55000)/me->GetDistance2d(pTarget)) ;
-						me->SendSpellNonMeleeDamageLog(pTarget,RAID_MODE(SPELL_COSMIC_SMASH_EFFECT, H_SPELL_COSMIC_SMASH_EFFECT),damage,SPELL_SCHOOL_MASK_FIRE,0,0,false,0,false);
-						me->DealDamage(pTarget, damage, 0, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_FIRE);
-					}
-				}
-                me->DisappearAndDie();
-            } else uiCosmicSmashTimer -= diff ;
+                    break;
+                }
+            }
+            void UpdateAI(const uint32 diff)
+            {
+                if (!active)
+                    return;
 
-            if (!UpdateVictim())
-                return;
-        }
-    };
+                if (!UpdateVictim())
+                    return;
 
-    CreatureAI* GetAI(Creature* pCreature) const    
-    {
-        return new mob_algalon_stalker_asteroid_targetAI(pCreature);
-    }
+                if (me->getVictim()->GetTypeId() != TYPEID_PLAYER)
+                    me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
+                    
+
+                if (Creature* BH = me->FindNearestCreature(CREATURE_BLACK_HOLE, 0.1f, true))
+                {
+                    me->DespawnOrUnsummon();
+                    BH->DespawnOrUnsummon();
+
+                }
+                if (Arcane_Timer <= diff)
+                {
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true), RAID_MODE(SPELL_ARCANE_BARAGE, H_SPELL_ARCANE_BARAGE),true);
+                    Arcane_Timer = urand(4000,6000);
+                }
+                else Arcane_Timer -= diff;
+            }
+        };
 };
 
-enum eAccess
-{
-    ITEM_CELESTIAL_PLANETARIUM_KEY             = 45796,
-    ITEM_HEROIC_CELESTIAL_PLANETARIUM_KEY      = 45798,
-};
-
-class go_celestial_planetarium_access : public GameObjectScript
-{
-public:
-    go_celestial_planetarium_access() : GameObjectScript("go_celestial_planetarium_access") { }
-
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
-    {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
-        if (!pInstance)
-            return false;
-        switch(pGo->GetEntry())
-        {
-            case 194628:
-                if (pPlayer->HasItemCount(ITEM_CELESTIAL_PLANETARIUM_KEY, 1))
-				{
-                    pInstance->SetData(BOSS_ALGALON, TO_BE_DECIDED);
-				}
-                break;
-            case 194752:
-                if (pPlayer->HasItemCount(ITEM_HEROIC_CELESTIAL_PLANETARIUM_KEY, 1))
-                    pInstance->SetData(BOSS_ALGALON, TO_BE_DECIDED);
-                break;
-        }
-
-        return true;
-    }
-};
-
-class spell_algalon_event_beam: public SpellScriptLoader
+class mob_dark_matter_algalon : public CreatureScript
 {
     public:
-        spell_algalon_event_beam() : SpellScriptLoader("spell_algalon_event_beam") { }
+        mob_dark_matter_algalon() : CreatureScript("mob_dark_matter_algalon") { }
 
-        class spell_algalon_event_beam_AuraScript : public AuraScript
+        CreatureAI* GetAI(Creature* creature) const
         {
-            PrepareAuraScript(spell_algalon_event_beam_AuraScript);
+            return new mob_dark_matter_algalonAI(creature);
+        }
 
-            void OnApply(AuraEffect const* /*aurEff*/, /*AuraApplication const* aurApp,*/ AuraEffectHandleModes /*mode*/)
+        struct mob_dark_matter_algalonAI : public ScriptedAI
+        {
+            mob_dark_matter_algalonAI(Creature *creature) : ScriptedAI(creature) {}
+
+
+            void InitializeAI()
             {
-				SetMaxDuration(5000);
+                me->SetPhaseMask(16, true);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                Reset();
             }
 
-			void OnRemove(AuraEffect const* /*aurEff*/,/* AuraApplication const* aurApp,*/ AuraEffectHandleModes /*mode*/)
+            void Reset()
             {
+                me->GetMotionMaster()->MoveRandom(60);
+            }
 
-			}
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->getVictim()->GetPhaseMask() != 16)
+                    EnterEvadeMode();
+
+                DoMeleeAttackIfReady();
+            }
+
+        };
+};
+
+class mob_algalon_asteroid_trigger : public CreatureScript
+{
+    public:
+        mob_algalon_asteroid_trigger() : CreatureScript("mob_algalon_asteroid_trigger") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_algalon_asteroid_triggerAI(creature);
+        }
+
+        struct mob_algalon_asteroid_triggerAI : public PassiveAI
+        {
+            mob_algalon_asteroid_triggerAI(Creature *creature) : PassiveAI(creature) {}
+
+            uint32 Event_Timer;
+            uint8 Event_Phase;
+
+            void Reset()
+            {
+                Event_Timer = 3500;
+                Event_Phase = 1;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (Event_Timer <= diff)
+                {
+                    if (Event_Phase == 1)
+                    {
+                        if (Creature* Stalker = me->FindNearestCreature(CREATURE_ALGALON_ASTEROID_2, 45))
+                            Stalker->CastSpell(me,SPELL_COSMIC_SMASH_MISSLE,true);
+                        Event_Timer = 500;  
+                        ++Event_Phase;
+                    }
+                    else
+                    {
+                        me->AddAura(SPELL_COSMIC_SMASH_VISUAL,me);
+                        Event_Timer = 10000000;
+                    }
+                }
+                else Event_Timer -= diff;
+            }
+        };
+};
+
+class mob_brann_algalon : public CreatureScript
+{
+    public:
+        mob_brann_algalon() : CreatureScript("mob_brann_algalon") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_brann_algalonAI(creature);
+        }
+
+        struct mob_brann_algalonAI : public PassiveAI
+        {
+            mob_brann_algalonAI(Creature *creature) : PassiveAI(creature) {}
+
+            uint8 CurrWP;
+            uint32 delay;
+            //maybe i should convert him to escortAI?
+
+            bool ContinueWP;
+            bool leaving;
+            bool outro;
+
+            void Reset()
+            {
+                CurrWP = 0;
+                ContinueWP = false;
+                delay = 0;
+
+                me->SetReactState(REACT_PASSIVE);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            }
+
+            void DoAction(const int32 ActionID)
+            {
+                switch(ActionID)
+                {
+                case ACTION_BRANN_INTRO:
+                    CurrWP = 0;
+                    ContinueWP = true;
+                    delay = 0;
+                    break;
+                case ACTION_BRANN_LEAVE:
+                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    Talk(SAY_BRANN_LEAVE);
+                    CurrWP = 8;
+                    ContinueWP = true;
+                    delay = 0;
+                    break;
+                }
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+                switch(id)
+                {
+                case 1: //standing at the door
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    delay = 8000;
+                    break;
+                case 7: //at the summon Point
+                    if (Creature* Algalon =  ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(BOSS_ALGALON)))
+                        Algalon->AI()->DoAction(ACTION_ALGALON_INTRO);
+                    Talk(SAY_BRANN_INTRO);
+
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveIdle();
+                    return;
+                case 8: //despawn point
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveIdle();
+                    me->DespawnOrUnsummon();
+                    return;
+                }
+
+                ++CurrWP;
+                ContinueWP = true;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (delay <= diff)
+                {
+                    if (ContinueWP)
+                    {
+                        me->GetMotionMaster()->MovePoint(CurrWP, WPs_ulduar[CurrWP][0], WPs_ulduar[CurrWP][1], WPs_ulduar[CurrWP][2]);
+                        ContinueWP = false;
+                    }
+                }
+                else delay -= diff;
+            }
+
+        };
+};
+
+class spell_algalon_phase_punch : public SpellScriptLoader
+{
+    public:
+        spell_algalon_phase_punch() : SpellScriptLoader("spell_algalon_phase_punch") { }
+
+        class spell_algalon_phase_punch_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_algalon_phase_punch_AuraScript);
+
+            void HandleDummyTick(AuraEffect const* aurEff)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+                if(!caster || !target)
+                    return;
+
+                switch (target->GetAuraCount(aurEff->GetId()))
+                {
+                case 1:
+                    caster->AddAura(SPELL_PHASE_PUNCH_ALPHA_1,target);
+                    break;
+                case 2:
+                    caster->AddAura(SPELL_PHASE_PUNCH_ALPHA_2,target);
+                    break;
+                case 3:
+                    caster->AddAura(SPELL_PHASE_PUNCH_ALPHA_3,target);
+                    break;
+                case 4:
+                    caster->AddAura(SPELL_PHASE_PUNCH_ALPHA_4,target);
+                    break;
+                case 5:
+                    target->RemoveAurasDueToSpell(aurEff->GetId());
+                    //caster->CastSpell(target, SPELL_PHASE_PUNCH_SHIFT, true);
+                    caster->AddAura(SPELL_PHASE_PUNCH_SHIFT, target);
+                    target->CombatStop();
+                    caster->getThreatManager().modifyThreatPercent(target, -100);
+                    target->getHostileRefManager().deleteReferences();
+                    target->UpdateObjectVisibility();
+                    break;
+                }
+            }
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if(target)
+                {
+                    target->RemoveAurasDueToSpell(SPELL_PHASE_PUNCH_ALPHA_1);
+                    target->RemoveAurasDueToSpell(SPELL_PHASE_PUNCH_ALPHA_2);
+                    target->RemoveAurasDueToSpell(SPELL_PHASE_PUNCH_ALPHA_3);
+                    target->RemoveAurasDueToSpell(SPELL_PHASE_PUNCH_ALPHA_4);
+                }
+            }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_algalon_event_beam_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_algalon_event_beam_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_algalon_phase_punch_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_algalon_phase_punch_AuraScript::OnRemove, EFFECT_0,SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
-
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_algalon_event_beam_AuraScript();
+            return new spell_algalon_phase_punch_AuraScript();
+        };
+};
+
+class go_celestial_console : public GameObjectScript
+{
+    public:
+        go_celestial_console()
+            : GameObjectScript("go_celestial_console")
+        {
+        }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            InstanceScript* _instance = go->GetInstanceScript();
+
+            uint32 item = uint32(go->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 45796 : 45798);
+            if (player->HasItemCount(item, 1))
+            {
+                if (Creature* Brann = go->SummonCreature(NPC_BRANN_ALGALON, WPs_ulduar[0][0],WPs_ulduar[0][1], WPs_ulduar[0][2])) 
+                {
+                    go->SetFlag(GAMEOBJECT_FLAGS,  GO_FLAG_NOT_SELECTABLE);
+                    Brann->AI()->DoAction(ACTION_BRANN_INTRO);
+                    if (GameObject* Door = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript()->GetData64((GO_ALGALON_DOOR))))
+                        Door->SetGoState(GO_STATE_ACTIVE);
+                }
+            }
+            return true;
+        }
+};
+
+class spell_algalon_cosmic_smash_initial : public SpellScriptLoader
+{
+    public:
+        spell_algalon_cosmic_smash_initial() : SpellScriptLoader("spell_algalon_cosmic_smash_initial") { }
+
+        class spell_algalon_cosmic_smash_initial_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_algalon_cosmic_smash_initial_SpellScript);
+
+            bool Load()
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
+                    return false;
+                return true;
+            }
+
+            void FilterTargetsInitial(std::list<Unit*>& unitList)
+            {
+                uint32 maxTargets = 1;
+                if (GetSpellInfo()->Id == H_SPELL_COSMIC_SMASH)
+                    maxTargets = 3;
+                Trinity::RandomResizeList(unitList, maxTargets);
+
+                m_unitList = unitList;
+            }
+
+            void FillTargetsSubsequential(std::list<Unit*>& unitList)
+            {
+                unitList = m_unitList;
+            }
+
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+
+                uint32 triggered_spell_id = GetSpellInfo()->Effects[effIndex].TriggerSpell;
+
+                if (caster && target)
+                    target->CastSpell(target, triggered_spell_id, true, NULL, NULL, caster->GetGUID());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_cosmic_smash_initial_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_cosmic_smash_initial_SpellScript::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_algalon_cosmic_smash_initial_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffectHitTarget += SpellEffectFn(spell_algalon_cosmic_smash_initial_SpellScript::HandleForceCast, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
+            }
+
+            std::list<Unit*> m_unitList; 
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_algalon_cosmic_smash_initial_SpellScript();
+        }
+};
+
+class spell_algalon_black_hole : public SpellScriptLoader
+{
+    public:
+        spell_algalon_black_hole() : SpellScriptLoader("spell_algalon_black_hole") { }
+
+        class spell_algalon_black_hole_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_algalon_black_hole_AuraScript);
+
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetOwner()->ToUnit();
+
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                {
+                    PreventDefaultAction();
+                    return;
+                }
+
+                target->UpdateObjectVisibility();
+                target->getHostileRefManager().deleteReferences();
+
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                {
+                    PreventDefaultAction(); 
+                    return;
+                }
+
+                target->UpdateObjectVisibility();
+                target->getHostileRefManager().deleteReferences();
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_algalon_black_hole_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PHASE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_algalon_black_hole_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PHASE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_algalon_black_hole_AuraScript();
+        };
+};
+
+class spell_algalon_summon_asteroid_stalkers : public SpellScriptLoader
+{
+    public:
+        spell_algalon_summon_asteroid_stalkers() : SpellScriptLoader("spell_algalon_summon_asteroid_stalkers") { }
+
+        class spell_algalon_summon_asteroid_stalkers_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_algalon_summon_asteroid_stalkers_SpellScript);
+
+            void SpellEffect(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Unit* caster = GetCaster();
+
+                if (!GetOriginalCaster() || GetOriginalCaster() == caster)
+                    return;
+
+                uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
+                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->Effects[effIndex].MiscValueB));
+                uint32 duration = uint32(GetSpellInfo()->GetDuration());
+
+                Position pos;
+                caster->GetPosition(&pos);
+                if (entry == CREATURE_ALGALON_ASTEROID_2)
+                    pos.m_positionZ -= 40.0f; 
+                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster);
+                if (!summon)
+                    return;
+
+                summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid2);
+                summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                summon->SetReactState(REACT_PASSIVE);
+                if (entry == CREATURE_ALGALON_ASTEROID_2)
+                {
+                    summon->SetFlying(true);
+                    summon->SendMovementFlagUpdate();
+                }
+                summon->setFaction(GetOriginalCaster()->getFaction());
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_algalon_summon_asteroid_stalkers_SpellScript::SpellEffect, EFFECT_0, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_algalon_summon_asteroid_stalkers_SpellScript();
+        }
+};
+
+class spell_algalon_cosmic_smash_damage : public SpellScriptLoader
+{
+    public:
+        spell_algalon_cosmic_smash_damage() : SpellScriptLoader("spell_algalon_cosmic_smash_damage") { }
+
+        class spell_algalon_cosmic_smash_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_algalon_cosmic_smash_damage_SpellScript);
+
+            void CalcDamage(SpellEffIndex /*effIndex*/)
+            {
+                float distance = GetHitUnit()->GetExactDist2d(GetTargetDest());
+                if (distance < 6.0f)
+                    return;
+
+                SetHitDamage(int32(GetHitDamage() / distance)); //formula is most likely wrong.
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_algalon_cosmic_smash_damage_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_algalon_cosmic_smash_damage_SpellScript();
+        }
+};
+
+/*
+class spell_algalon_big_bang : public SpellScriptLoader
+{
+    public:
+        spell_algalon_big_bang() : SpellScriptLoader("spell_algalon_big_bang") { }
+
+        class spell_algalon_big_bang_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_algalon_big_bang_SpellScript);
+
+            bool Load()
+            {
+                _targetCount = 0;
+                return true;
+            }
+
+            void CountTargets(std::list<Unit*>& targets)
+            {
+                _targetCount = targets.size();
+            }
+
+            void CheckTargets()
+            {
+                if (!_targetCount)
+                    GetCaster()->GetAI()->DoAction(ACTION_ASCEND);
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_big_bang_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                AfterCast += SpellCastFn(spell_algalon_big_bang_SpellScript::CheckTargets);
+            }
+
+            uint32 _targetCount;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_algalon_big_bang_SpellScript();
+        }
+};
+*/
+
+class achievement_herald_of_the_titans : public AchievementCriteriaScript
+{
+    public:
+        achievement_herald_of_the_titans() : AchievementCriteriaScript("achievement_herald_of_the_titans")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Algalon = target->ToCreature())
+                if (Algalon->AI()->GetData(DATA_HERALD))
+                    return true;
+
+            return false;
         }
 };
 
 void AddSC_boss_algalon()
 {
     new boss_algalon();
+    new mob_algalon_asteroid_trigger();
     new mob_collapsing_star();
-	new mob_black_hole();
     new mob_living_constellation();
-    new mob_algalon_stalker_asteroid_target();
-    new go_celestial_planetarium_access();
-	new spell_algalon_event_beam();
+    new mob_black_hole();
+    new mob_dark_matter_algalon();
+    new mob_brann_algalon();
+    new spell_algalon_phase_punch();
+    new spell_algalon_summon_asteroid_stalkers();
+    new spell_algalon_cosmic_smash_damage();
+    new spell_algalon_black_hole();
+    new spell_algalon_cosmic_smash_initial();
+	/*new spell_algalon_big_bang();*/
+    new go_celestial_console();
+    new achievement_herald_of_the_titans();
 }
