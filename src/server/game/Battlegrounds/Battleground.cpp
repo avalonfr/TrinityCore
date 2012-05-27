@@ -1421,16 +1421,6 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
         case SCORE_HEALING_DONE:                            // Healing Done
             itr->second->HealingDone += value;
             break;
-
-		/** World of Warcraft Armory **/
-        case SCORE_DAMAGE_TAKEN:
-            itr->second->DamageTaken += value;              // Damage Taken
-            break;
-        case SCORE_HEALING_TAKEN:
-            itr->second->HealingTaken += value;             // Healing Taken
-            break;
-        /** World of Warcraft Armory **/       
-
 		default:
             sLog->outError("Battleground::UpdatePlayerScore: unknown score type (%u) for BG (map: %u, instance id: %u)!",
                 type, m_MapId, m_InstanceID);
