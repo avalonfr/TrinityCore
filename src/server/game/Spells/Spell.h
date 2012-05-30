@@ -384,7 +384,9 @@ class Spell
         SpellCastResult CheckCast(bool strict);
         SpellCastResult CheckPetCast(Unit* target);
 
-        // handlers
+        static uint32 GetCCDelay(SpellInfo const* _spell);
+		
+		// handlers
         void handle_immediate();
         uint64 handle_delayed(uint64 t_offset);
         // handler helpers
