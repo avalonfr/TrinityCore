@@ -55,6 +55,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     // Reset CoolDown before DUEL
     //player->RemoveAllSpellCooldown();
     //plTarget->RemoveAllSpellCooldown();
+	player->RemoveArenaSpellCooldowns();
+	plTarget->RemoveArenaSpellCooldowns();
     player->SetHealth(player->GetMaxHealth());
     player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
     plTarget->SetHealth(plTarget->GetMaxHealth());
