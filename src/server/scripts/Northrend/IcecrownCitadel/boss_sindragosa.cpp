@@ -525,6 +525,7 @@ class boss_sindragosa : public CreatureScript
                             pos.m_positionZ += 17.0f;
                             me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos, 8.30078125f);
                             events.DelayEvents(45000, EVENT_GROUP_LAND_PHASE);
+							events.RescheduleEvent(EVENT_ICY_GRIP, urand(70000, 75000), EVENT_GROUP_LAND_PHASE);
                             events.RescheduleEvent(EVENT_UNCHAINED_MAGIC, urand(55000, 60000), EVENT_GROUP_LAND_PHASE);
                             events.ScheduleEvent(EVENT_LAND, 45000);
 							if (!_isThirdPhase)
