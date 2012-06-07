@@ -267,7 +267,7 @@ public:
                 return false;
 
             if (Vehicle* vehicle = source->GetVehicle())
-                if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
+                if (vehicle->GetBase()->GetEntry() == 28366) // Wintergrasp Tower Cannon
                     return true;
         }
 
@@ -380,6 +380,36 @@ class achievement_tilted : public AchievementCriteriaScript
         }
 };
 
+class achievement_wg_vehicular_gnomeslaughter : public AchievementCriteriaScript
+{
+public:
+    achievement_wg_vehicular_gnomeslaughter() : AchievementCriteriaScript("achievement_wg_vehicular_gnomeslaughter") { }
+
+    bool OnCheck(Player* source, Unit* target)
+    {
+        if (!target)
+            return false;
+
+        if (Player* victim = target->ToPlayer())
+            if (Vehicle* vehicle = source->GetVehicle())
+                switch (vehicle->GetBase()->GetEntry())
+                {
+                    case 27881: // must be in Vehicle oder (Vehicle- or Tower-) Cannon
+                    case 28094:
+                    case 28312:
+                    case 28319:
+                    case 32627:
+                    case 32629:
+                    case 28366:
+                        return true;
+                    default:
+                        break;
+                }
+
+        return false;
+    }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_resilient_victory();
@@ -401,4 +431,5 @@ void AddSC_achievement_scripts()
 	new achievement_terokkar_turkey_time();
 	new achievement_food_fight();
 	new achievement_tilted();
+	new achievement_wg_vehicular_gnomeslaughter();
 }
