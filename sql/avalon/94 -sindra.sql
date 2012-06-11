@@ -36,7 +36,10 @@ insert into `spell_script_names` (`spell_id`, `ScriptName`) values('71055','spel
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('72528','spell_sindragosa_collision_filter');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('72529','spell_sindragosa_collision_filter');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('72530','spell_sindragosa_collision_filter');
-
+/* ICY GRIP */
+DELETE FROM spell_script_names WHERE spell_id = 70122;
+INSERT INTO spell_script_names VALUES (70122, 'spell_sindragosa_icy_grip');
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (70117,70122);
 
 DELETE FROM creature_template WHERE entry = 37186;
 insert into `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('37186','0','0','0','0','0','169','15880','0','0','Frost Bomb','','','0','80','80','0','14','14','0','1','1.14286','1','0','0','0','0','0','1','2000','0','2','33554948','8','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','0','0','0','0','0','0','0','0','1','0','0','128','npc_frost_bomb_sindra','12340');
