@@ -1085,7 +1085,7 @@ class Player : public Unit, public GridObject<Player>
     friend void Item::RemoveFromUpdateQueueOf(Player* player);
     public:
         explicit Player (WorldSession* session);
-        ~Player ();
+        ~Player();
 
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
@@ -1532,7 +1532,7 @@ class Player : public Unit, public GridObject<Player>
         static uint32 GetLevelFromDB(uint64 guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid);
 
-        static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE ; }
+        static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -1564,7 +1564,7 @@ class Player : public Unit, public GridObject<Player>
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
-        uint32 GetMoney() const { return GetUInt32Value (PLAYER_FIELD_COINAGE); }
+        uint32 GetMoney() const { return GetUInt32Value(PLAYER_FIELD_COINAGE); }
         void ModifyMoney(int32 d);
         bool HasEnoughMoney(uint32 amount) const { return (GetMoney() >= amount); }
         bool HasEnoughMoney(int32 amount) const
@@ -1576,13 +1576,13 @@ class Player : public Unit, public GridObject<Player>
 
         void SetMoney(uint32 value)
         {
-            SetUInt32Value (PLAYER_FIELD_COINAGE, value);
+            SetUInt32Value(PLAYER_FIELD_COINAGE, value);
             MoneyChanged(value);
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED);
         }
 
         RewardedQuestSet const& getRewardedQuests() const { return m_RewardedQuests; }
-        QuestStatusMap& getQuestStatusMap() { return m_QuestStatus; };
+        QuestStatusMap& getQuestStatusMap() { return m_QuestStatus; }
 
         size_t GetRewardedQuestCount() const { return m_RewardedQuests.size(); }
         bool IsQuestRewarded(uint32 quest_id) const
@@ -1595,7 +1595,7 @@ class Player : public Unit, public GridObject<Player>
         Player* GetSelectedPlayer() const;
         void SetSelection(uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
 
-        uint8 GetComboPoints() { return m_comboPoints; }
+        uint8 GetComboPoints() const { return m_comboPoints; }
         uint64 GetComboTarget() const { return m_comboTarget; }
 
         void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
@@ -2309,6 +2309,8 @@ class Player : public Unit, public GridObject<Player>
             m_mover->m_movedPlayer = this;
         }
 
+        bool SetHover(bool enable);
+
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
         WorldObject* GetViewpoint() const;
@@ -2506,6 +2508,14 @@ class Player : public Unit, public GridObject<Player>
         void AddWhisperWhiteList(uint64 guid) { WhisperList.push_back(guid); }
         bool IsInWhisperWhiteList(uint64 guid);
 
+        /*! These methods send different packets to the client in apply and unapply case.
+            These methods are only sent to the current unit.
+        */
+        void SendMovementSetCanFly(bool apply);
+        void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
+
+        bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
+
         //! Return collision height sent to client
         float GetCollisionHeight(bool mounted)
         {
@@ -2538,7 +2548,6 @@ class Player : public Unit, public GridObject<Player>
 
                 return modelData->CollisionHeight;
             }
-            //! TODO: Need a proper calculation for collision height when mounted
         }
 
     protected:
@@ -2840,6 +2849,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_lastFallTime;
         float  m_lastFallZ;
 
+        LiquidTypeEntry const* _lastLiquid;
         int32 m_MirrorTimer[MAX_TIMERS];
         uint8 m_MirrorTimerFlags;
         uint8 m_MirrorTimerFlagsLast;

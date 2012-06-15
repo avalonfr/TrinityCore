@@ -96,13 +96,14 @@ class boss_hadronox : public CreatureScript
     public:
         boss_hadronox() : CreatureScript("boss_hadronox") { }
 
-        struct boss_hadronoxAI : public ScriptedAI
+    struct boss_hadronoxAI : public ScriptedAI
+    {
+        boss_hadronoxAI(Creature* creature) : ScriptedAI(creature)
         {
-            boss_hadronoxAI(Creature* c) : ScriptedAI(c), _summons(me)
-            {
-                _instance = c->GetInstanceScript();
-                _home = c->GetHomePosition();
-            }
+            instance = creature->GetInstanceScript();
+            fMaxDistance = 50.0f;
+            bFirstTime = true;
+        }
 
             void Reset()
             {
@@ -377,9 +378,11 @@ class npc_anubar_crusher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
+
             return new npc_anubar_crusherAI(creature);
         }
 };
+
 
 class npc_hadronox_nerubian : public CreatureScript
 {

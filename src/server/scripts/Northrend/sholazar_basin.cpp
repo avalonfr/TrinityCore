@@ -61,10 +61,7 @@ public:
 
     struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
     {
-        npc_injured_rainspeaker_oracleAI(Creature* c) : npc_escortAI(c)
-        {
-            c_guid = c->GetGUID();
-        }
+        npc_injured_rainspeaker_oracleAI(Creature* creature) : npc_escortAI(creature) { c_guid = creature->GetGUID(); }
 
         uint64 c_guid;
 
@@ -79,10 +76,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
@@ -121,8 +117,9 @@ public:
                 return;
 
             if (Player* player = GetPlayerForEscort())
-              if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
-                player->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
+            {
+                if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
+                    player->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
             }
     };
 
@@ -145,11 +142,11 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
             CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(35.0f);
-            creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
+            creature->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
             DoScriptText(SAY_START_IRO, creature);
 
             switch (player->GetTeam())
@@ -236,10 +233,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -293,10 +290,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
         case GOSSIP_ACTION_INFO_DEF+1:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -335,10 +332,9 @@ public:
             if (me->isDead())
                 return;
 
-            if (me->isSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    if (summoner)
-                        me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
+            if (TempSummon* summ = me->ToTempSummon())
+                if (Unit* summoner = summ->GetSummoner())
+                    me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
 
             Reset();
         }
@@ -389,10 +385,11 @@ public:
 
         uint32 m_uiChatTimer;
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-            switch (i)
+
+            switch (waypointId)
             {
                 case 0:
                     DoScriptText(SAY_WP_2, me);
@@ -431,12 +428,12 @@ public:
         {
             m_uiChatTimer = 4000;
         }
+
         void JustDied(Unit* /*killer*/)
         {
-            Player* player = GetPlayerForEscort();
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                if (player)
+                if (Player* player = GetPlayerForEscort())
                     player->FailQuest(QUEST_DISASTER);
             }
         }
@@ -677,11 +674,11 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         uint32 spellId = 0;
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1: spellId = SPELL_ADD_ORANGE;     break;
             case GOSSIP_ACTION_INFO_DEF + 2: spellId = SPELL_ADD_BANANAS;    break;

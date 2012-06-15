@@ -1253,30 +1253,30 @@ class spell_gen_magic_rooster : public SpellScriptLoader
 
 class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
 {
-public:
-    spell_gen_allow_cast_from_item_only() : SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
+    public:
+        spell_gen_allow_cast_from_item_only() : SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
 
-    class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript);
-
-        SpellCastResult CheckRequirement()
+        class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
         {
-            if (!GetCastItem())
-                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-            return SPELL_CAST_OK;
-        }
+            PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript);
 
-        void Register()
+            SpellCastResult CheckRequirement()
+            {
+                if (!GetCastItem())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_allow_cast_from_item_only_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCheckCast += SpellCheckCastFn(spell_gen_allow_cast_from_item_only_SpellScript::CheckRequirement);
+            return new spell_gen_allow_cast_from_item_only_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_allow_cast_from_item_only_SpellScript();
-    }
 };
 
 enum Launch
@@ -1332,13 +1332,9 @@ class spell_gen_launch : public SpellScriptLoader
 };
 
 enum VehicleScaling
-
 {
-
     SPELL_GEAR_SCALING      = 66668,
-
 };
-
 
 class spell_gen_vehicle_scaling : public SpellScriptLoader
 {
@@ -1351,8 +1347,8 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
 
             bool Load()
             {
-               return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
-			   }
+                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -3067,6 +3063,71 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
 };
 
+class spell_gen_ds_flush_knockback : public SpellScriptLoader
+{
+    public:
+        spell_gen_ds_flush_knockback() : SpellScriptLoader("spell_gen_ds_flush_knockback") {}
+
+        class spell_gen_ds_flush_knockback_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_ds_flush_knockback_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                // Here the target is the water spout and determines the position where the player is knocked from
+                if (Unit* target = GetHitUnit())
+                {
+                    if (Player* player = GetCaster()->ToPlayer())
+                    {
+                        float horizontalSpeed = 20.0f + (40.0f - GetCaster()->GetDistance(target));
+                        float verticalSpeed = 8.0f;
+                        // This method relies on the Dalaran Sewer map disposition and Water Spout position
+                        // What we do is knock the player from a position exactly behind him and at the end of the pipe
+                        player->KnockbackFrom(target->GetPositionX(), player->GetPositionY(), horizontalSpeed, verticalSpeed);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_ds_flush_knockback_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_ds_flush_knockback_SpellScript();
+        }
+};
+
+class spell_gen_wg_water : public SpellScriptLoader
+{
+    public:
+        spell_gen_wg_water() : SpellScriptLoader("spell_gen_wg_water") {}
+
+        class spell_gen_wg_water_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_wg_water_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (!GetSpellInfo()->CheckTargetCreatureType(GetCaster()))
+                    return SPELL_FAILED_DONT_REPORT;
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_wg_water_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_wg_water_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3136,4 +3197,6 @@ void AddSC_generic_spell_scripts()
 	new spell_gen_elunes_blessing();
 	new spell_gen_ds_flush_knockback();
     new spell_gen_chaos_blast();
+    new spell_gen_ds_flush_knockback();
+    new spell_gen_wg_water();
 }

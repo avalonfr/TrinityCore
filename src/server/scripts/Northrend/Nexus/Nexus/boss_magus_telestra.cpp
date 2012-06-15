@@ -70,9 +70,9 @@ public:
 
     struct boss_magus_telestraAI : public ScriptedAI
     {
-        boss_magus_telestraAI(Creature* c) : ScriptedAI(c)
+        boss_magus_telestraAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

@@ -139,9 +139,9 @@ public:
 
     struct mob_tribuna_controllerAI : public ScriptedAI
     {
-        mob_tribuna_controllerAI(Creature* c) : ScriptedAI(c)
+        mob_tribuna_controllerAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             SetCombatMovement(false);
         }
 
@@ -279,10 +279,10 @@ class npc_brann_hos : public CreatureScript
 public:
     npc_brann_hos() : CreatureScript("npc_brann_hos") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1 || uiAction == GOSSIP_ACTION_INFO_DEF+2)
+        if (action == GOSSIP_ACTION_INFO_DEF+1 || action == GOSSIP_ACTION_INFO_DEF+2)
         {
             player->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_brann_hos::npc_brann_hosAI, creature->AI())->StartWP(player->GetGUID());
@@ -312,9 +312,9 @@ public:
 
     struct npc_brann_hosAI : public npc_escortAI
     {
-        npc_brann_hosAI(Creature* c) : npc_escortAI(c)
+        npc_brann_hosAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         uint32 uiStep;
@@ -361,9 +361,9 @@ public:
             lDwarfGUIDList.clear();
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 7:
                     if (instance)

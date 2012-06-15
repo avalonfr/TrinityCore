@@ -315,7 +315,7 @@ public:
 
     struct npc_chicken_cluckAI : public ScriptedAI
     {
-        npc_chicken_cluckAI(Creature* c) : ScriptedAI(c) {}
+        npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ResetFlagTimer;
 
@@ -407,7 +407,7 @@ public:
 
     struct npc_dancing_flamesAI : public ScriptedAI
     {
-        npc_dancing_flamesAI(Creature* c) : ScriptedAI(c) {}
+        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool Active;
         uint32 CanIteract;
@@ -421,7 +421,7 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
             me->Relocate(x, y, z + 0.94f);
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
             WorldPacket data;                       //send update position to client
             me->BuildHeartBeatMsg(&data);
@@ -558,7 +558,7 @@ public:
 
     struct npc_doctorAI : public ScriptedAI
     {
-        npc_doctorAI(Creature* c) : ScriptedAI(c) {}
+        npc_doctorAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 PlayerGUID;
 
@@ -703,7 +703,7 @@ public:
 
     struct npc_injured_patientAI : public ScriptedAI
     {
-        npc_injured_patientAI(Creature* c) : ScriptedAI(c) {}
+        npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 DoctorGUID;
         Location* Coord;
@@ -905,7 +905,7 @@ public:
 
     struct npc_garments_of_questsAI : public npc_escortAI
     {
-        npc_garments_of_questsAI(Creature* c) : npc_escortAI(c) {Reset();}
+        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature) {Reset();}
 
         uint64 CasterGUID;
 
@@ -1040,8 +1040,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*point*/)
+        void WaypointReached(uint32 /*waypointId*/)
         {
+
         }
 
         void UpdateAI(uint32 const diff)
@@ -1105,7 +1106,7 @@ public:
 
     struct npc_guardianAI : public ScriptedAI
     {
-        npc_guardianAI(Creature* c) : ScriptedAI(c) {}
+        npc_guardianAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset()
         {
@@ -1477,7 +1478,7 @@ public:
 
     struct npc_steam_tonkAI : public ScriptedAI
     {
-        npc_steam_tonkAI(Creature* c) : ScriptedAI(c) {}
+        npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -1495,7 +1496,6 @@ public:
             else
                 me->SetReactState(REACT_AGGRESSIVE);
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -1513,7 +1513,7 @@ public:
 
     struct npc_tonk_mineAI : public ScriptedAI
     {
-        npc_tonk_mineAI(Creature* c) : ScriptedAI(c)
+        npc_tonk_mineAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetReactState(REACT_PASSIVE);
         }
@@ -1558,7 +1558,7 @@ public:
 
     struct npc_brewfest_revelerAI : public ScriptedAI
     {
-        npc_brewfest_revelerAI(Creature* c) : ScriptedAI(c) {}
+        npc_brewfest_revelerAI(Creature* creature) : ScriptedAI(creature) {}
         void ReceiveEmote(Player* player, uint32 emote)
         {
             if (!IsHolidayActive(HOLIDAY_BREWFEST))
@@ -1594,7 +1594,7 @@ class npc_winter_reveler : public CreatureScript
 
         struct npc_winter_revelerAI : public ScriptedAI
         {
-            npc_winter_revelerAI(Creature* c) : ScriptedAI(c) {}
+            npc_winter_revelerAI(Creature* creature) : ScriptedAI(creature) {}
 
             void ReceiveEmote(Player* player, uint32 emote)
             {
@@ -1639,7 +1639,7 @@ public:
 
     struct npc_snake_trap_serpentsAI : public ScriptedAI
     {
-        npc_snake_trap_serpentsAI(Creature* c) : ScriptedAI(c) {}
+        npc_snake_trap_serpentsAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 SpellTimer;
         bool IsViper;
@@ -1753,15 +1753,13 @@ public:
 
     struct mob_mojoAI : public ScriptedAI
     {
-        mob_mojoAI(Creature* c) : ScriptedAI(c) {Reset();}
-
-        uint32 Hearts;
-        uint64 VictimGUID;
-
+        mob_mojoAI(Creature* creature) : ScriptedAI(creature) {Reset();}
+        uint32 hearts;
+        uint64 victimGUID;
         void Reset()
         {
-            VictimGUID = 0;
-            Hearts = 15000;
+            victimGUID = 0;
+            hearts = 15000;
             if (Unit* own = me->GetOwner())
                 me->GetMotionMaster()->MoveFollow(own, 0, 0);
         }
@@ -1772,12 +1770,11 @@ public:
         {
             if (me->HasAura(20372))
             {
-                if (Hearts <= diff)
+                if (hearts <= diff)
                 {
                     me->RemoveAurasDueToSpell(20372);
-                    Hearts = 15000;
-                }
-                Hearts -= diff;
+                    hearts = 15000;
+                } hearts -= diff;
             }
         }
 
@@ -1821,14 +1818,14 @@ public:
                 }
 
                 me->MonsterWhisper(whisp.c_str(), player->GetGUID());
-                if (VictimGUID)
-                    if (Player* victim = Unit::GetPlayer(*me, VictimGUID))
+                if (victimGUID)
+                    if (Player* victim = Unit::GetPlayer(*me, victimGUID))
                         victim->RemoveAura(43906);//remove polymorph frog thing
                 me->AddAura(43906, player);//add polymorph frog thing
-                VictimGUID = player->GetGUID();
+                victimGUID = player->GetGUID();
                 DoCast(me, 20372, true);//tag.hearts
                 me->GetMotionMaster()->MoveFollow(player, 0, 0);
-                Hearts = 15000;
+                hearts = 15000;
             }
         }
     };
@@ -1942,7 +1939,7 @@ public:
 
     struct npc_mirror_imageAI : CasterAI
     {
-        npc_mirror_imageAI(Creature* c) : CasterAI(c) {}
+        npc_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
 
         void InitializeAI()
         {
@@ -2044,9 +2041,9 @@ public:
 
     struct npc_ebon_gargoyleAI : CasterAI
     {
-        npc_ebon_gargoyleAI(Creature* c) : CasterAI(c) {}
+        npc_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) {}
 
-        uint32 DespawnTimer;
+        uint32 despawnTimer;
 
         void InitializeAI()
         {
@@ -2055,7 +2052,7 @@ public:
             if (!ownerGuid)
                 return;
             // Not needed to be despawned now
-            DespawnTimer = 0;
+            despawnTimer = 0;
             // Find victim of Summon Gargoyle spell
             std::list<Unit*> targets;
             Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
@@ -2093,6 +2090,7 @@ public:
             me->CastSpell(me, 54661, true);
             me->SetReactState(REACT_PASSIVE);
 
+            //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
             // Fly Away
             me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_ASCENDING|MOVEMENTFLAG_FLYING);
             me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
@@ -2104,15 +2102,15 @@ public:
             me->GetMotionMaster()->MovePoint(0, x, y, z);
 
             // Despawn as soon as possible
-            DespawnTimer = 4 * IN_MILLISECONDS;
+            despawnTimer = 4 * IN_MILLISECONDS;
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (DespawnTimer > 0)
+            if (despawnTimer > 0)
             {
-                if (DespawnTimer > diff)
-                    DespawnTimer -= diff;
+                if (despawnTimer > diff)
+                    despawnTimer -= diff;
                 else
                     me->DespawnOrUnsummon();
                 return;
@@ -2134,7 +2132,7 @@ public:
 
     struct npc_lightwellAI : public PassiveAI
     {
-        npc_lightwellAI(Creature* c) : PassiveAI(c) {}
+        npc_lightwellAI(Creature* creature) : PassiveAI(creature) {}
 
         void Reset()
         {
@@ -2173,20 +2171,20 @@ public:
     {
         npc_training_dummyAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            Entry = creature->GetEntry();
+            entry = creature->GetEntry();
         }
 
-        uint32 Entry;
-        uint32 ResetTimer;
-        uint32 DespawnTimer;
+        uint32 entry;
+        uint32 resetTimer;
+        uint32 despawnTimer;
 
         void Reset()
         {
             me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 
-            ResetTimer = 5000;
-            DespawnTimer = 15000;
+            resetTimer = 5000;
+            despawnTimer = 15000;
         }
 
         void EnterEvadeMode()
@@ -2199,13 +2197,13 @@ public:
 
         void DamageTaken(Unit* /*doneBy*/, uint32& damage)
         {
-            ResetTimer = 5000;
+            resetTimer = 5000;
             damage = 0;
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (Entry != NPC_ADVANCED_TARGET_DUMMY && Entry != NPC_TARGET_DUMMY)
+            if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
                 return;
         }
 
@@ -2217,23 +2215,23 @@ public:
             if (!me->HasUnitState(UNIT_STATE_STUNNED))
                 me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
 
-            if (Entry != NPC_ADVANCED_TARGET_DUMMY && Entry != NPC_TARGET_DUMMY)
+            if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
             {
-                if (ResetTimer <= diff)
+                if (resetTimer <= diff)
                 {
                     EnterEvadeMode();
-                    ResetTimer = 5000;
+                    resetTimer = 5000;
                 }
                 else
-                    ResetTimer -= diff;
+                    resetTimer -= diff;
                 return;
             }
             else
             {
-                if (DespawnTimer <= diff)
+                if (despawnTimer <= diff)
                     me->DespawnOrUnsummon();
                 else
-                    DespawnTimer -= diff;
+                    despawnTimer -= diff;
             }
         }
         void MoveInLineOfSight(Unit* /*who*/){return;}
@@ -4788,53 +4786,131 @@ public:
     }
 };
 
+/*#####
+# npc_spring_rabbit
+#####*/
+
+enum rabbitSpells
+{
+    SPELL_SPRING_FLING          = 61875,
+    SPELL_SPRING_RABBIT_JUMP    = 61724,
+    SPELL_SPRING_RABBIT_WANDER  = 61726,
+    SPELL_SUMMON_BABY_BUNNY     = 61727,
+    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
+    NPC_SPRING_RABBIT           = 32791
+};
+
+class npc_spring_rabbit : public CreatureScript
+{
+public:
+    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_spring_rabbitAI(creature);
+    }
+
+    struct npc_spring_rabbitAI : public ScriptedAI
+    {
+        npc_spring_rabbitAI(Creature* creature) : ScriptedAI(creature) { }
+
+        bool inLove;
+        uint32 jumpTimer;
+        uint32 bunnyTimer;
+        uint32 searchTimer;
+        uint64 rabbitGUID;
+
+        void Reset()
+        {
+            inLove = false;
+            rabbitGUID = 0;
+            jumpTimer = urand(5000, 10000);
+            bunnyTimer = urand(10000, 20000);
+            searchTimer = urand(5000, 10000);
+            if (Unit* owner = me->GetOwner())
+                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        }
+
+        void EnterCombat(Unit * /*who*/) { }
+
+        void DoAction(const int32 /*param*/)
+        {
+            inLove = true;
+            if (Unit* owner = me->GetOwner())
+                owner->CastSpell(owner, SPELL_SPRING_FLING, true);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (inLove)
+            {
+                if (jumpTimer <= diff)
+                {
+                    if (Unit* rabbit = Unit::GetUnit(*me, rabbitGUID))
+                        DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
+                    jumpTimer = urand(5000, 10000);
+                } else jumpTimer -= diff;
+
+                if (bunnyTimer <= diff)
+                {
+                    DoCast(SPELL_SUMMON_BABY_BUNNY);
+                    bunnyTimer = urand(20000, 40000);
+                } else bunnyTimer -= diff;
+            }
+            else
+            {
+                if (searchTimer <= diff)
+                {
+                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 10.0f))
+                    {
+                        if (rabbit == me || rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
+                            return;
+
+                        me->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, me);
+                        DoAction(1);
+                        rabbit->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, rabbit);
+                        rabbit->AI()->DoAction(1);
+                        rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
+                        rabbitGUID = rabbit->GetGUID();
+                    }
+                    searchTimer = urand(5000, 10000);
+                } else searchTimer -= diff;
+            }
+        }
+    };
+};
+
 void AddSC_npcs_special()
 {
-    new npc_air_force_bots;
-    new npc_lunaclaw_spirit;
-    new npc_chicken_cluck;
-    new npc_dancing_flames;
-    new npc_doctor;
-    new npc_injured_patient;
-    new npc_garments_of_quests;
-    new npc_guardian;
-    new npc_mount_vendor;
-    new npc_rogue_trainer;
-    new npc_sayge;
-    new npc_steam_tonk;
-    new npc_tonk_mine;
-    new npc_winter_reveler;
-    new npc_brewfest_reveler;
-    new npc_snake_trap;
-    new npc_mirror_image;
-    new npc_ebon_gargoyle;
-    new npc_lightwell;
-    new mob_mojo;
-    new npc_training_dummy;
-    new npc_shadowfiend;
-    new npc_wormhole;
-    new npc_pet_trainer;
-    new npc_locksmith;
-    new npc_tabard_vendor;
-    new npc_experience;
-    new npc_fire_elemental;
-    new npc_earth_elemental;
-	new npc_wild_turkey();
-	new npc_argent_squire;
-	new npc_ghost_of_azuregos; // update creature_template set scriptname = 'npc_ghost_of_azuregos' where entry = 15481;
-	new vehicle_knight_gryphon; //UPDATE `creature_template` SET `speed_walk`='2',`spell1`='57403',`VehicleId`='200',`RegenHealth`='0',`ScriptName`='vehicle_knight_gryphon', `npcflag` = 0 WHERE (`entry`='33519');
-	new npc_torch_tossing_bunny();
-	new npc_apple_trap_bunny();
-    new npc_keg_delivery();
-    new npc_bark_bunny();
-    new npc_brew_vendor();
-	new npc_dark_iron_herald();
-	new npc_kali_remik;
-    new npc_hallowend();
-    new npc_headless_horseman_fire();
-    new npc_shade_of_the_horseman();
-    new npc_wickerman_guardian;
-	new npc_lonely_turkey();
-    new npc_firework;
+    new npc_air_force_bots();
+    new npc_lunaclaw_spirit();
+    new npc_chicken_cluck();
+    new npc_dancing_flames();
+    new npc_doctor();
+    new npc_injured_patient();
+    new npc_garments_of_quests();
+    new npc_guardian();
+    new npc_mount_vendor();
+    new npc_rogue_trainer();
+    new npc_sayge();
+    new npc_steam_tonk();
+    new npc_tonk_mine();
+    new npc_winter_reveler();
+    new npc_brewfest_reveler();
+    new npc_snake_trap();
+    new npc_mirror_image();
+    new npc_ebon_gargoyle();
+    new npc_lightwell();
+    new mob_mojo();
+    new npc_training_dummy();
+    new npc_shadowfiend();
+    new npc_wormhole();
+    new npc_pet_trainer();
+    new npc_locksmith();
+    new npc_tabard_vendor();
+    new npc_experience();
+    new npc_fire_elemental();
+    new npc_earth_elemental();
+    new npc_firework();
     new npc_spring_rabbit();
 }

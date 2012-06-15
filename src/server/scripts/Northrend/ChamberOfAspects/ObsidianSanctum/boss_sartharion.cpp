@@ -1107,9 +1107,7 @@ struct dummy_dragonAI : public ScriptedAI
                         instance->SetData(TYPE_SHADRON_PREKILLED, DONE);
 
                 if (Creature* pAcolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_SHADRON, 100.0f))
-                {
                     pAcolyte->Kill(pAcolyte);
-                }
 
                 break;
             case NPC_VESPERON:
@@ -1121,9 +1119,7 @@ struct dummy_dragonAI : public ScriptedAI
                         instance->SetData(TYPE_VESPERON_PREKILLED, DONE);
 
                 if (Creature* pAcolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_VESPERON, 100.0f))
-                {
                     pAcolyte->Kill(pAcolyte);
-                }
                 break;
         }
 
@@ -1140,8 +1136,7 @@ struct dummy_dragonAI : public ScriptedAI
                 return;
 
             // Twilight Revenge to main boss
-            if (Unit* pSartharion = Unit::GetUnit((*me), instance->GetData64(DATA_SARTHARION)))
-            {
+            if (Unit* pSartharion = Unit::GetUnit(*me, instance->GetData64(DATA_SARTHARION)))
                 if (pSartharion->isAlive())
                 {
                     pSartharion->RemoveAurasDueToSpell(uiSpellId);
@@ -1155,8 +1150,7 @@ struct dummy_dragonAI : public ScriptedAI
                     {
                         me->AddAura(SPELL_TWILIGHT_REVENGE, pSartharion);
                     }
-                }
-            }
+                }         
         }
     }
 

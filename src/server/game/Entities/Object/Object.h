@@ -122,7 +122,7 @@ typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 class Object
 {
     public:
-        virtual ~Object ();
+        virtual ~Object();
 
         bool IsInWorld() const { return m_inWorld; }
 
@@ -227,7 +227,9 @@ class Object
 
         bool HasFlag(uint16 index, uint32 flag) const
         {
-            if (index >= m_valuesCount && !PrintIndexError(index, false)) return false;
+            if (index >= m_valuesCount && !PrintIndexError(index, false))
+                return false;
+
             return (m_uint32Values[index] & flag) != 0;
         }
 
@@ -313,7 +315,7 @@ class Object
         Corpse const* ToCorpse() const { if (GetTypeId() == TYPEID_CORPSE) return (const Corpse*)((Corpse*)this); else return NULL; }
     protected:
 
-        Object ();
+        Object();
 
         void _InitValues();
         void _Create (uint32 guidlow, uint32 entry, HighGuid guidhigh);
@@ -505,6 +507,8 @@ struct MovementInfo
     uint16 GetExtraMovementFlags() { return flags2; }
     void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
     bool HasExtraMovementFlag(uint16 flag) const { return flags2 & flag; }
+
+    void SetFallTime(uint32 time) { fallTime = time; }
 
     void OutDebug();
 };
@@ -776,7 +780,8 @@ class WorldObject : public Object, public WorldLocation
                 GetClosePoint(x, y, z, GetObjectSize());
                 ang = GetOrientation();
             }
-            Position pos = {x, y, z, ang};
+            Position pos;
+            pos.Relocate(x, y, z, ang);
             return SummonCreature(id, pos, spwtype, despwtime, 0);
         }
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);

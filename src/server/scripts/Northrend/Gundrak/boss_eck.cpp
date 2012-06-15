@@ -32,15 +32,27 @@ enum Spells
 
 class boss_eck : public CreatureScript
 {
-    public:
-        boss_eck() : CreatureScript("boss_eck") { }
+public:
+    boss_eck() : CreatureScript("boss_eck") { }
 
-        struct boss_eckAI : public ScriptedAI
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_eckAI (creature);
+    }
+
+    struct boss_eckAI : public ScriptedAI
+    {
+        boss_eckAI(Creature* creature) : ScriptedAI(creature)
         {
-            boss_eckAI(Creature* c) : ScriptedAI(c)
-            {
-                instance = c->GetInstanceScript();
-            }
+            instance = creature->GetInstanceScript();
+        }
+
+        uint32 uiBerserkTimer;
+        uint32 uiBiteTimer;
+        uint32 uiSpitTimer;
+        uint32 uiSpringTimer;
+
+        bool bBerserk;
 
             void Reset()
             {
@@ -117,20 +129,7 @@ class boss_eck : public CreatureScript
                 if (instance)
                     instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
             }
-
-        private:
-            InstanceScript* instance;
-            uint32 _berserkTimer;
-            uint32 _biteTimer;
-            uint32 _spitTimer;
-            uint32 _springTimer;
-            bool _berserk;
         };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_eckAI(creature);
-        }
 };
 
 class npc_ruins_dweller : public CreatureScript
@@ -138,24 +137,24 @@ class npc_ruins_dweller : public CreatureScript
     public:
         npc_ruins_dweller() : CreatureScript("npc_ruins_dweller") { }
 
-        struct npc_ruins_dwellerAI : public ScriptedAI
-        {
-            npc_ruins_dwellerAI(Creature* c) : ScriptedAI(c)
-            {
-                instance = c->GetInstanceScript();
-            }
 
+    struct npc_ruins_dwellerAI : public ScriptedAI
+    {
+        npc_ruins_dwellerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = creature->GetInstanceScript();
+        }
             void Reset()
             {
                 _regurgitateTimer = urand(3, 6) *IN_MILLISECONDS;
                 _springTimer = urand(7, 10) *IN_MILLISECONDS;
             }
 
-            void JustDied(Unit* /*who*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_RUIN_DWELLER_DIED, 1);
-            }
+			void JustDied(Unit* /*killer*/)
+			{
+				if (instance)
+					instance->SetData(DATA_RUIN_DWELLER_DIED, 1);
+			}
 
             void UpdateAI(uint32 const diff)
             {

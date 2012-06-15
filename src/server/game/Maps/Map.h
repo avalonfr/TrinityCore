@@ -136,7 +136,8 @@ enum ZLiquidStatus
 
 struct LiquidData
 {
-    uint32 type;
+    uint32 type_flags;
+    uint32 entry;
     float  level;
     float  depth_level;
 };
@@ -163,7 +164,8 @@ class GridMap
 
     // Liquid data
     float _liquidLevel;
-    uint8* _liquidData;
+    uint16* _liquidEntry;
+    uint8* _liquidFlags;
     float* _liquidMap;
     uint16 _gridArea;
     uint16 _liquidType;
@@ -243,8 +245,12 @@ class Map : public GridRefManager<NGridType>
         // currently unused for normal maps
         bool CanUnload(uint32 diff)
         {
-            if (!m_unloadTimer) return false;
-            if (m_unloadTimer <= diff) return true;
+            if (!m_unloadTimer)
+                return false;
+
+            if (m_unloadTimer <= diff)
+                return true;
+
             m_unloadTimer -= diff;
             return false;
         }

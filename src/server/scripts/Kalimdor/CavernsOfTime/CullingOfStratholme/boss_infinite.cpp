@@ -40,7 +40,7 @@ public:
     {
         boss_infinite_corruptorAI(Creature *creature) : ScriptedAI(creature)
         {
-            instance = me->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             timeRift = NULL;
             Reset();
         }

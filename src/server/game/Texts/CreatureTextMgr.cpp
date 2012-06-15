@@ -160,7 +160,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
             LocaleConstant locale = LocaleConstant(i);
-            ObjectMgr::AddLocaleString(fields[2 + i - 1].GetString(), locale, loc.Text);
+            ObjectMgr::AddLocaleString(fields[3 + i - 1].GetString(), locale, loc.Text);
         }
 
         ++textCount;
@@ -453,8 +453,7 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 textGrou
     if (locItr == mLocaleTextMap.end())
         return baseText;
 
-    if (locItr->second.Text[locale].length())
-        return locItr->second.Text[locale];
+    ObjectMgr::GetLocaleString(locItr->second.Text, locale, baseText);
 
     return baseText;
 }
