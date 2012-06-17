@@ -3067,6 +3067,62 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
 };
 
+class spell_gen_shadowmeld : public SpellScriptLoader
+{
+    public:
+        spell_gen_shadowmeld() : SpellScriptLoader("spell_gen_shadowmeld") {}
+ 
+        class spell_gen_shadowmeld_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_shadowmeld_SpellScript);
+ 
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit *caster = GetCaster();
+                if (!caster)
+                    return;
+ 
+                caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+                caster->InterruptSpell(CURRENT_CHANNELED_SPELL); // break channeled spells
+ 
+                bool instant_exit = true;
+                if (Player *pCaster = caster->ToPlayer()) // if is a creature instant exits combat, else check if someone in party is in combat in visibility distance
+                {
+                    uint64 myGUID = pCaster->GetGUID();
+                    float visibilityRange = pCaster->GetMap()->GetVisibilityRange();
+                    if (Group *pGroup = pCaster->GetGroup())
+                    {
+                        const Group::MemberSlotList membersList = pGroup->GetMemberSlots();
+                        for (Group::member_citerator itr=membersList.begin(); itr!=membersList.end() && instant_exit; ++itr)
+                            if (itr->guid != myGUID)
+                                if (Player *GroupMember = Unit::GetPlayer(*pCaster, itr->guid))
+                                    if (GroupMember->isInCombat() && pCaster->GetMap()==GroupMember->GetMap() && pCaster->IsWithinDistInMap(GroupMember, visibilityRange))
+                                        instant_exit = false;
+                    }
+ 
+                    pCaster->SendAttackSwingCancelAttack();
+                }
+ 
+                if (!caster->GetInstanceScript() || !caster->GetInstanceScript()->IsEncounterInProgress()) //Don't leave combat if you are in combat with a boss
+                {
+                    if (!instant_exit)
+                        caster->getHostileRefManager().deleteReferences(); // exit combat after 6 seconds
+                    else caster->CombatStop(); // isn't necessary to call AttackStop because is just called in CombatStop
+                }
+            }
+ 
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_shadowmeld_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+ 
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_shadowmeld_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3136,4 +3192,5 @@ void AddSC_generic_spell_scripts()
 	new spell_gen_elunes_blessing();
 	new spell_gen_ds_flush_knockback();
     new spell_gen_chaos_blast();
+	new spell_gen_shadowmeld();
 }
