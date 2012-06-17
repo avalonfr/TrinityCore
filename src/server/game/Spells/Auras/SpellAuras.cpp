@@ -1313,16 +1313,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         caster->CastCustomSpell(caster, 75999, &heal, NULL, NULL, true, NULL, GetEffect(0));
                     }
                 }
-                // Renew
-                else if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000040 && GetEffect(0))
-                {
-                    // Empowered Renew
-                    if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 3021, 1))
-                    {
-                        int32 basepoints0 = aurEff->GetAmount() * GetEffect(0)->GetTotalTicks() * caster->SpellHealingBonus(target, GetSpellInfo(), GetEffect(0)->GetAmount(), HEAL) / 100;
-                        caster->CastCustomSpell(target, 63544, &basepoints0, NULL, NULL, true, NULL, GetEffect(0));
-                    }
-                }
                 // Power Word: Shield
                 else if (m_spellInfo->SpellFamilyFlags[0] & 0x1 && m_spellInfo->SpellFamilyFlags[2] & 0x400 && GetEffect(0))
                 {
