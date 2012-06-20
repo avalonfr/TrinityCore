@@ -446,7 +446,7 @@ public:
                         case 0:
                             if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                             {
-                                sTyrannus->SetFlying(true);
+                                sTyrannus->SetCanFly(true);
                                 DoScriptText(SAY_TYRRANUS_1, sTyrannus);
                                 
                                 int32 entryIndex;
@@ -1248,7 +1248,7 @@ public:
                         case 3:
                             me->SetVisible(true);
                             if(Creature* pSindragosa = me->SummonCreature(NPC_SINDRAGOSA, sindraPos, TEMPSUMMON_CORPSE_DESPAWN, 3000))
-                                pSindragosa->SetFlying(true);
+                                pSindragosa->SetCanFly(true);
                             ++uiIntroPhase1;
                             uiIntroTimer1 = 5000;
                             break;

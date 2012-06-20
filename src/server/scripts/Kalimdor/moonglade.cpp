@@ -1044,7 +1044,7 @@ public:
                         if (Creature* e = me->SummonCreature(NPC_ERANIKUS, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILLISECONDS))
                         {
                             Eranikus = e;
-                            Eranikus->SetFlying(true);
+                            Eranikus->SetCanFly(true);
                             Eranikus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             Eranikus->SetReactState(REACT_PASSIVE);
                             Eranikus->SetFacingToObject(me);
@@ -1439,7 +1439,7 @@ public:
             uiPhase = 0;
             bFightTime = false;
 
-            me->SetFlying(true);
+            me->SetCanFly(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetReactState(REACT_PASSIVE);
         }

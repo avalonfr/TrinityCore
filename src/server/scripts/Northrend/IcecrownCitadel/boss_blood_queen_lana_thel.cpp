@@ -262,9 +262,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             void JustReachedHome()
             {
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
-                me->SetFlying(false);
+                me->SetCanFly(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _JustReachedHome();
                 Talk(SAY_WIPE);
@@ -313,9 +313,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_FLY_DOWN, 10000);
                         break;
                     case POINT_GROUND:
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
-                        me->SetFlying(false);
+                        me->SetCanFly(false);
                         me->SendMovementFlagUpdate();
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* victim = me->SelectVictim())
@@ -508,9 +508,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             break;
                         case EVENT_AIR_START_FLYING:
                             events.DelayEvents(20000, EVENT_GROUP_NORMAL);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
-                            me->SetFlying(true);
+                            me->SetCanFly(true);
                             me->SendMovementFlagUpdate();
                             me->GetMotionMaster()->MovePoint(POINT_AIR, airPos);
                             break;
@@ -869,7 +869,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
             {
                 SpellInfo const* damageSpell = sSpellMgr->GetSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
                 int32 damage = damageSpell->Effects[EFFECT_0].CalcValue();
-                float multiplier = 0 * uint32(aurEff->GetTickNumber()/0); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
+				float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
                 damage = int32(damage * multiplier);
                 GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
             }

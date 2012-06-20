@@ -45,26 +45,6 @@ enum BattlegroundDSObjects
 enum BattlegroundDSCreatureTypes
 {
     BG_DS_NPC_WATERFALL_KNOCKBACK = 0,
-    BG_DS_NPC_PIPE_KNOCKBACK_1 = 1,
-    BG_DS_NPC_PIPE_KNOCKBACK_2 = 2,
-    BG_DS_NPC_MAX = 3
-};
-
-enum BattlegroundDSCreatures
-{
-    BG_DS_NPC_TYPE_WATER_SPOUT = 28567,
-};
-
-enum BattlegroundDSSpells
-{
-    BG_DS_SPELL_FLUSH = 57405, // Visual and target selector for the starting knockback from the pipe
-    BG_DS_SPELL_FLUSH_KNOCKBACK = 61698, // Knockback effect for previous spell (triggered, not need to be casted)
-    BG_DS_SPELL_WATER_SPOUT = 58873, // Knockback effect of the central waterfall
-};
-
-enum BattlegroundDSCreatureTypes
-{
-    BG_DS_NPC_WATERFALL_KNOCKBACK = 0,
     BG_DS_NPC_PIPE_KNOCKBACK_1    = 1,
     BG_DS_NPC_PIPE_KNOCKBACK_2    = 2,
     BG_DS_NPC_MAX                 = 3

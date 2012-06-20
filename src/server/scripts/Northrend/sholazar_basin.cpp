@@ -82,7 +82,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch(waypointId)
             {
             case 1: SetRun(); break;
             case 10:
@@ -95,12 +95,12 @@ public:
             case 17:
             case 18:
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_JUMPING);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
                 me->SetSpeed(MOVE_SWIM, 0.85f, true);
-                me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_DISABLE_GRAVITY);
                 break;
             case 19:
-                me->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
                 break;
             case 28:
                 player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
@@ -121,6 +121,7 @@ public:
                 if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
                     player->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
             }
+		}
     };
 
     bool OnGossipHello(Player* player, Creature* creature)

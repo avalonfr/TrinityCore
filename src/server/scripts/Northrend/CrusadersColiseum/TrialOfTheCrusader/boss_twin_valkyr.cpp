@@ -785,8 +785,8 @@ struct mob_unleashed_ballAI : public ScriptedAI
     {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
-        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-        me->SetFlying(true);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+        me->SetCanFly(true);
         SetCombatMovement(false);
         MoveToNextPoint();
         m_uiRangeCheckTimer = 500;

@@ -208,7 +208,7 @@ public:
 
             Summons.DespawnAll();
             me->SetSpeed(MOVE_FLIGHT, 3.0f);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
 
             if ((Unit::GetCreature((*me), m_uiGraufGUID) == NULL) && !me->IsMounted())
                  me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
@@ -221,10 +221,10 @@ public:
 
         void JustReachedHome()
         {
-            me->SetFlying(false);
+            me->SetCanFly(false);
             me->Dismount();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
             if (Unit::GetCreature((*me), m_uiGraufGUID) == NULL)
                 me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
         }
@@ -300,7 +300,7 @@ public:
                 {
                     m_uiLoopCounter[2] = m_uiLoopCounter[0];
                     Phase = SKADI;
-                    me->SetFlying(false);
+                    me->SetCanFly(false);
                     me->Dismount();
                     if (Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
                     {
@@ -309,7 +309,7 @@ public:
                     }
                     me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                     DoScriptText(SAY_DRAKE_DEATH, me);
                     m_uiCrushTimer = 8000;
                     m_uiPoisonedSpearTimer = 10000;
@@ -357,7 +357,7 @@ public:
                     if (m_uiMountTimer && m_uiMountTimer <= diff)
                     {
                         me->Mount(DATA_MOUNT);
-                        me->SetFlying(true);
+                        me->SetCanFly(true);
                         m_uiMountTimer = 0;
                     } else m_uiMountTimer -= diff;
 

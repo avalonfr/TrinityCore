@@ -5843,7 +5843,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 					if (caster)
 					{
 					    std::list<Unit*> unitList;
-					    target->GetRaidMember(unitList, 80);
+					    target->GetPartyMembers(unitList);
 					    for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
 					    {
 					        Unit* pUnit = *itr;

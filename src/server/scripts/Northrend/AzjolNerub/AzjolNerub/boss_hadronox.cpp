@@ -1,55 +1,55 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 // TODO: - more add spawn points
-//       - nonelite spells
-//       - spawn 2 more crusher groups
-//       - web doors
+// - nonelite spells
+// - spawn 2 more crusher groups
+// - web doors
 
 #include "ScriptPCH.h"
 #include "azjol_nerub.h"
 
 enum Spells
 {
-    SPELL_ACID_CLOUD          = 53400,
-    H_SPELL_ACID_CLOUD        = 59419,
-    SPELL_LEECH_POISON        = 53030,
-    SPELL_LEECH_POISON_PCT    = 53800,
-    H_SPELL_LEECH_POISON      = 59417,
-    SPELL_PIERCE_ARMOR        = 53418,
-    SPELL_WEB_GRAB            = 57731,
-    H_SPELL_WEB_GRAB          = 59421,
-    SPELL_WEB_FRONT_DOORS     = 53177,
-    SPELL_WEB_SIDE_DOORS      = 53185,
+    SPELL_ACID_CLOUD = 53400,
+    H_SPELL_ACID_CLOUD = 59419,
+    SPELL_LEECH_POISON = 53030,
+    SPELL_LEECH_POISON_PCT = 53800,
+    H_SPELL_LEECH_POISON = 59417,
+    SPELL_PIERCE_ARMOR = 53418,
+    SPELL_WEB_GRAB = 57731,
+    H_SPELL_WEB_GRAB = 59421,
+    SPELL_WEB_FRONT_DOORS = 53177,
+    SPELL_WEB_SIDE_DOORS = 53185,
 
     // anubar crusher
-    SPELL_FRENZY              = 53801,
-    SPELL_SMASH               = 53318,
-    H_SPELL_SMASH             = 59346
+    SPELL_FRENZY = 53801,
+    SPELL_SMASH = 53318,
+    H_SPELL_SMASH = 59346
 };
 
 enum Creatures
 {
-    NPC_HADRONOX              = 28921,
-    NPC_ANUBAR_CHAMPION       = 29117,
-    NPC_ANUBAR_CRYPT_FIEND    = 29118,
-    NPC_ADD_CHAMPION          = 29062,
-    NPC_ADD_CRYPT_FIEND       = 29063,
-    NPC_ADD_NECROMANCER       = 29064
+    NPC_HADRONOX = 28921,
+    NPC_ANUBAR_CHAMPION = 29117,
+    NPC_ANUBAR_CRYPT_FIEND = 29118,
+    NPC_ADD_CHAMPION = 29062,
+    NPC_ADD_CRYPT_FIEND = 29063,
+    NPC_ADD_NECROMANCER = 29064
 };
 
 enum Events
@@ -96,25 +96,24 @@ class boss_hadronox : public CreatureScript
     public:
         boss_hadronox() : CreatureScript("boss_hadronox") { }
 
-    struct boss_hadronoxAI : public ScriptedAI
-    {
-        boss_hadronoxAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_hadronoxAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-            fMaxDistance = 50.0f;
-            bFirstTime = true;
-        }
+            boss_hadronoxAI(Creature* c) : ScriptedAI(c), _summons(me)
+            {
+                _instance = c->GetInstanceScript();
+                _home = c->GetHomePosition();
+            }
 
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
-				me->GetMotionMaster()->Clear();
-				me->GetMotionMaster()->MovePoint(50,me->GetHomePosition());
-				sLog->outError("RESET *******************************************");
+me->GetMotionMaster()->Clear();
+me->GetMotionMaster()->MovePoint(50,me->GetHomePosition());
+sLog->outError("RESET *******************************************");
 
-				_WaveCount = 0;
+_WaveCount = 0;
                 _wpCount = 0;
                 _wpReached = false;
                 _movementStarted = false;
@@ -137,7 +136,7 @@ class boss_hadronox : public CreatureScript
             {
                 if (type != POINT_MOTION_TYPE || id != _wpCount)
                     return;
-				sLog->outError("point id  %u *************************",id);
+sLog->outError("point id %u *************************",id);
                 if (id == 10)
                 {
                     // TODO: web doors
@@ -270,9 +269,9 @@ class boss_hadronox : public CreatureScript
                             break;
                         case EVENT_SPAWN:
                             me->SummonCreature(RAND(NPC_ADD_CHAMPION, NPC_ADD_CRYPT_FIEND, NPC_ADD_NECROMANCER), AddWaypoints[0]);
-							_WaveCount++;
-							if (_WaveCount <= 50 )  //prevent too much spawn & freeze serv
-								_events.ScheduleEvent(EVENT_SPAWN, urand(1500, 3000));
+_WaveCount++;
+if (_WaveCount <= 50 ) //prevent too much spawn & freeze serv
+_events.ScheduleEvent(EVENT_SPAWN, urand(1500, 3000));
                             break;
                         case EVENT_FORCEMOVE:
                             me->SetReactState(REACT_PASSIVE);
@@ -302,7 +301,7 @@ class boss_hadronox : public CreatureScript
             EventMap _events;
             Position _home;
             uint8 _wpCount;
-			uint8 _WaveCount;
+uint8 _WaveCount;
             bool _wpReached;
             bool _movementStarted;
             bool _engaged;
@@ -334,8 +333,8 @@ class npc_anubar_crusher : public CreatureScript
                 if (_instance)
                     _instance->SetData(DATA_HADRONOX_EVENT, NOT_STARTED);
 
-				if (Creature* Hadronox = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HADRONOX)))
-					Hadronox->AI()->Reset();
+if (Creature* Hadronox = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HADRONOX)))
+Hadronox->AI()->Reset();
 
                 if (Creature* champion = GetClosestCreatureWithEntry(me, NPC_ANUBAR_CHAMPION, 200.0f, false))
                     champion->Respawn();
@@ -378,11 +377,9 @@ class npc_anubar_crusher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-
             return new npc_anubar_crusherAI(creature);
         }
 };
-
 
 class npc_hadronox_nerubian : public CreatureScript
 {
@@ -452,8 +449,8 @@ class npc_hadronox_nerubian : public CreatureScript
                     return;
 
                 /*
-                TODO: spells
-                */
+TODO: spells
+*/
 
                 DoMeleeAttackIfReady();
             }

@@ -68,7 +68,7 @@ public:
     {
         boss_trollgoreAI(Creature* creature) : ScriptedAI(creature), lSummons(me)
         {
-            instance = creature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         uint32 uiConsumeTimer;

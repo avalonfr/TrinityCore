@@ -95,11 +95,7 @@ public:
 
     struct boss_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
-        npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 LamentEvent_Timer;
-        bool LamentEvent;
-        uint64 targetGUID;
+        boss_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature), summons(me) {}
 
         uint32  LamentEvent_Timer;
         bool    LamentEvent;

@@ -689,7 +689,7 @@ public:
                 pInstance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED);
             me->RemoveAllAuras();
             me->ResetLootMode();
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING | MOVEMENTFLAG_WALKING);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_WALKING);
             events.Reset();
             phase = 0;
 			_couldNotDoThat = true;
@@ -819,7 +819,7 @@ public:
                         DoScriptText(SAY_BRUNDIR_FLIGHT, me);
                         DoCast(SPELL_LIGHTNING_TENDRILS);
                         DoCast(SPELL_LIGHTNING_TENDRILS_SELF_VISUAL);
-                        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), 435);
                         events.DelayEvents(34000);
                         events.ScheduleEvent(EVENT_FLIGHT, 2500);
@@ -843,7 +843,7 @@ public:
                     case EVENT_GROUND:
                         me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS);
                         me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_SELF_VISUAL);
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                         me->SendMovementFlagUpdate();
                         break;
                 }

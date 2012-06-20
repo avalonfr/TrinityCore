@@ -129,7 +129,7 @@ public:
     {
         boss_thaddiusAI(Creature* creature) : BossAI(creature, BOSS_THADDIUS)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;

@@ -571,7 +571,7 @@ class mob_frost_sphere : public CreatureScript
             {
                 _isFalling = false;
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetSpeed(MOVE_RUN, 0.5f, false);
                 me->GetMotionMaster()->MoveRandom(20.0f);

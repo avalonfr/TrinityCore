@@ -72,7 +72,7 @@ public:
     {
         boss_magus_telestraAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

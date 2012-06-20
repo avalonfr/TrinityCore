@@ -47,12 +47,12 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        uint32 uiBerserkTimer;
-        uint32 uiBiteTimer;
-        uint32 uiSpitTimer;
-        uint32 uiSpringTimer;
-
-        bool bBerserk;
+            InstanceScript* instance;
+            uint32 _berserkTimer;
+            uint32 _biteTimer;
+            uint32 _spitTimer;
+            uint32 _springTimer;
+            bool _berserk;
 
             void Reset()
             {
