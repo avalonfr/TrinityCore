@@ -1313,5 +1313,5 @@ void AddSC_go_scripts()
     new go_gjalerbron_cage;
     new go_large_gjalerbron_cage;
     new go_veil_skith_cage;
-	new go_midsummer_bonfire
+	new go_midsummer_bonfire;
 }
