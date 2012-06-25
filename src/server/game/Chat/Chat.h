@@ -364,6 +364,7 @@ class ChatHandler
         bool BoutiqueLevel(const char* args);
 		bool BoutiqueInfos(const char* args);
         bool BoutiqueAdditem(const char* args);
+		bool BoutiqueMetier(const char* args);
         bool BoutiqueGold(const char* args);
 		bool BoutiqueSet(const char* args);
         bool AddGold(int gold);
@@ -371,6 +372,7 @@ class ChatHandler
 		bool BoutiqueRename(const char* args);
 		bool BoutiqueRace(const char* args);
 		bool BoutiqueFaction(const char* args);
+		bool apprendreMetier(Player* character, int id, int value);
 
         // Utility methods for commands
         bool LookupPlayerSearchCommand(QueryResult result, int32 limit);
