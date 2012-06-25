@@ -191,6 +191,7 @@ class achievement_torch_juggler : public AchievementCriteriaScript
             return true;
         }
 };
+
 class achievement_sickly_gazelle : public AchievementCriteriaScript
 {
 public:
