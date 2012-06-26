@@ -93,6 +93,7 @@ static ChatCommand boutiqueCommandTable[] =
 		{ "custom", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueCustomize>, 				"", NULL },
 		{ "race", 		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueRace>, 					"", NULL },
 		{ "faction", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueFaction>, 					"", NULL },
+		{ "metier", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueMetier>, 					"", NULL },
 		{ NULL, 		0, 						false, 	NULL, 											"", NULL }
     };
 	
