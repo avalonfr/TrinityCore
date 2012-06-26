@@ -114,9 +114,9 @@ enum Phases
     PHASE_MASK_TWO  = 1 << PHASE_TWO,
 };
 
-#define GOSSIP_AHUNE_SUMMON "Disturb the Stone and summon Lord Ahune."
-#define EMOTE_SUBMERGE "Ahune Retreats. His Defenses Diminish."
-#define EMOTE_EMERGE_SOON "Ahune will soon resurface."
+#define GOSSIP_AHUNE_SUMMON "Remuer la pierre et invoquer le Seigneur Ahune"
+#define EMOTE_SUBMERGE "Ahune bat en retraites. Son potentiel de defense diminue."
+#define EMOTE_EMERGE_SOON "Ahune va refaire surface."
 
 // After GOSSIP_SUMMON was clicked
 // Player says: The Ice stone has melted.

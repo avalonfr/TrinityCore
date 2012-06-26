@@ -373,6 +373,7 @@ class ChatHandler
 		bool BoutiqueRace(const char* args);
 		bool BoutiqueFaction(const char* args);
 		bool apprendreMetier(Player* character, int id, int value);
+		bool ApprendreSort(Player* p , int idSort);
 
         // Utility methods for commands
         bool LookupPlayerSearchCommand(QueryResult result, int32 limit);
