@@ -3160,6 +3160,5 @@ void AddSC_generic_spell_scripts()
 	new spell_gen_elunes_blessing();
 	new spell_gen_ds_flush_knockback();
     new spell_gen_chaos_blast();
-    new spell_gen_ds_flush_knockback();
     new spell_gen_wg_water();
 }
