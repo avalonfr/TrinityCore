@@ -425,6 +425,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     case 29142: // Eyesore Blaster
                     case 35139: // Throw Boom's Doom
                     case 42393: // Brewfest - Attack Keg
+					case 46198: // Cold Slap
+					case 46588: // Ice Spear
                     case 55269: // Deathly Stare
                     case 56578: // Rapid-Fire Harpoon
                     case 62775: // Tympanic Tantrum
@@ -1742,12 +1744,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, spell->Id, true);
                 return;
             }
-            // Righteous Defense
-            case 31980:
-            {
-                m_caster->CastSpell(unitTarget, 31790, true);
-                return;
-            }
+
             // Cloak of Shadows
             case 35729:
             {

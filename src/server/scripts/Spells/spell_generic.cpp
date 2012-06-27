@@ -3077,17 +3077,143 @@ class spell_gen_wg_water : public SpellScriptLoader
                 if (!GetSpellInfo()->CheckTargetCreatureType(GetCaster()))
                     return SPELL_FAILED_DONT_REPORT;
                 return SPELL_CAST_OK;
-            }
+
+			}
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_wg_water_SpellScript::CheckCast);
+				OnCheckCast += SpellCheckCastFn(spell_gen_wg_water_SpellScript::CheckCast);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_gen_wg_water_SpellScript();
+		}
+};		
+
+class spell_gen_shadowmeld : public SpellScriptLoader
+{
+    public:
+        spell_gen_shadowmeld() : SpellScriptLoader("spell_gen_shadowmeld") {}
+ 
+        class spell_gen_shadowmeld_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_shadowmeld_SpellScript);
+ 
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit *caster = GetCaster();
+                if (!caster)
+                    return;
+ 
+                caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+                caster->InterruptSpell(CURRENT_CHANNELED_SPELL); // break channeled spells
+ 
+                bool instant_exit = true;
+                if (Player *pCaster = caster->ToPlayer()) // if is a creature instant exits combat, else check if someone in party is in combat in visibility distance
+                {
+                    uint64 myGUID = pCaster->GetGUID();
+                    float visibilityRange = pCaster->GetMap()->GetVisibilityRange();
+                    if (Group *pGroup = pCaster->GetGroup())
+                    {
+                        const Group::MemberSlotList membersList = pGroup->GetMemberSlots();
+                        for (Group::member_citerator itr=membersList.begin(); itr!=membersList.end() && instant_exit; ++itr)
+                            if (itr->guid != myGUID)
+                                if (Player *GroupMember = Unit::GetPlayer(*pCaster, itr->guid))
+                                    if (GroupMember->isInCombat() && pCaster->GetMap()==GroupMember->GetMap() && pCaster->IsWithinDistInMap(GroupMember, visibilityRange))
+                                        instant_exit = false;
+                    }
+ 
+                    pCaster->SendAttackSwingCancelAttack();
+                }
+ 
+                if (!caster->GetInstanceScript() || !caster->GetInstanceScript()->IsEncounterInProgress()) //Don't leave combat if you are in combat with a boss
+                {
+                    if (!instant_exit)
+                        caster->getHostileRefManager().deleteReferences(); // exit combat after 6 seconds
+                    else caster->CombatStop(); // isn't necessary to call AttackStop because is just called in CombatStop
+                }
+            }
+ 
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_shadowmeld_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+ 
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_shadowmeld_SpellScript();
+        }
+};
+
+enum RibbonPoleData
+{
+    SPELL_HAS_FULL_MIDSUMMER_SET = 58933,
+    SPELL_BURNING_HOT_POLE_DANCE = 58934,
+    SPELL_RIBBON_DANCE = 29175,
+    GO_RIBBON_POLE = 181605,
+};
+
+class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
+{
+    public:
+        spell_gen_ribbon_pole_dancer_check() : SpellScriptLoader("spell_gen_ribbon_pole_dancer_check") { }
+
+        class spell_gen_ribbon_pole_dancer_check_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_HAS_FULL_MIDSUMMER_SET))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_BURNING_HOT_POLE_DANCE))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_RIBBON_DANCE))
+                    return false;
+                return true;
+            }
+
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+
+                if (!target)
+                    return;
+
+                // check if aura needs to be removed
+                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 20.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
+                {
+                    target->InterruptNonMeleeSpells(false);
+                    target->RemoveAurasDueToSpell(GetId());
+                    return;
+                }
+
+                // set xp buff duration
+                if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
+                {
+                    aur->SetMaxDuration(aur->GetMaxDuration() >= 3600000 ? 3600000 : aur->GetMaxDuration() + 180000);
+                    aur->RefreshDuration();
+
+                    // reward achievement criteria
+                    if (aur->GetMaxDuration() == 3600000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET))
+                        target->CastSpell(target, SPELL_BURNING_HOT_POLE_DANCE, true);
+                }
+                else
+                    target->AddAura(SPELL_RIBBON_DANCE, target);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_ribbon_pole_dancer_check_AuraScript();
         }
 };
 
@@ -3161,4 +3287,6 @@ void AddSC_generic_spell_scripts()
 	new spell_gen_ds_flush_knockback();
     new spell_gen_chaos_blast();
     new spell_gen_wg_water();
+	new spell_gen_shadowmeld();
+	new spell_gen_ribbon_pole_dancer_check();
 }

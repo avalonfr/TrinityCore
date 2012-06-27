@@ -95,7 +95,7 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
 
     /*SendSysMessage(_FULLVERSION);*/
 	SendSysMessage("Avalon Core Version 2.2");
-	SendSysMessage("REV du 30/03/12");
+	SendSysMessage("REV du 25/06/12");
     PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
@@ -708,6 +708,68 @@ bool ChatHandler::BoutiqueAdditem(const char* args)
 	return true;
 }
 
+//boutique métier
+bool ChatHandler::BoutiqueMetier(const char* args)
+{
+
+	sLog->outDetail("Metier");
+	
+	int setskill = 0;
+	int id = 0;
+	int points = 0;
+	int value = 0;
+	int prix = 0;
+	int bilan = 0;
+
+	if (!*args)
+	       return false;
+
+	char* px = strtok((char*)args, " ");
+	id = atoi(px);
+	
+	sLog->outDetail("Id : %u",id);
+
+	if (id < 0) return false;
+
+	Player* character = m_session->GetPlayer();
+
+	QueryResult result = CharacterDatabase.PQuery("SELECT `points` FROM `compte` WHERE `acct` = '%u'",character->GetSession()->GetAccountId());
+	sLog->outDetail("SELECT `points` FROM `compte` WHERE `acct` = '%u'",character->GetSession()->GetAccountId());
+	if (!result) return false;
+
+	Field* fields = result->Fetch();
+	if (!fields) return false;
+
+	points = fields[0].GetUInt32();
+
+	if (id < 0) return false;
+	result = CharacterDatabase.PQuery("SELECT prix,value,setskill FROM `shop_metier` WHERE `id` = '%u'",id);
+	sLog->outDetail("SELECT prix,value,setskill FROM `shop_metier` WHERE `id` = '%u'",id);
+	if (!result) return false;
+
+	fields = result->Fetch();
+	if (!fields) return false;
+
+	prix = fields[0].GetUInt32();
+	value = fields[1].GetUInt32();
+	setskill = fields[2].GetUInt32();
+	
+	sLog->outDetail("prix : %u, value = %u, setskill = %u",prix,value,setskill);
+
+	if (prix > points)
+	{
+		m_session->SendNotification("Vous n'avez pas assez de points.Il vous faut %u points pour votre demande.",prix);
+		return false;
+	}
+	bilan = points - prix;
+	if(apprendreMetier(character, setskill, value)){
+		CharacterDatabase.PQuery("UPDATE `compte` SET `points` = '%u' WHERE acct='%u'",bilan,character->GetSession()->GetAccountId());
+		m_session->SendNotification("Il vous reste %u points sur votre compte",bilan);
+	}
+	else return false;
+	return true;
+}
+
 bool ChatHandler::BoutiqueGold(const char* args)
 {
 	if (!*args)
@@ -1025,6 +1087,235 @@ bool ChatHandler::BoutiqueSet(const char* args){
 		free(tab[i]);
 	}
 	free(tab);
+
+	return true;
+}
+
+bool ChatHandler::apprendreMetier(Player* character, int id, int value){
+
+	int max = 75;
+	int nbMetier = 0;
+
+	if(value > 75)
+		max = 150;
+	if(value > 150)
+		max = 225;
+	if(value > 225)
+		max = 300;
+	if(value > 300)
+		max = 375;
+	if(value > 375)
+		max = 450;
+		
+	if(!character) return false;
+
+	if(id!=186 && (character->HasSpell(2580)||character->HasSpell(2575)||character->HasSpell(3564)||character->HasSpell(10248)||character->HasSpell(29354) || character->HasSpell(50310))) nbMetier++;
+	if(id!=164 && (character->HasSpell(2018)||character->HasSpell(3100)||character->HasSpell(3538)||character->HasSpell(9785)||character->HasSpell(29844) || character->HasSpell(51300))) nbMetier++;
+	if(id!=197 && (character->HasSpell(3908)||character->HasSpell(3909)||character->HasSpell(3910)||character->HasSpell(12180)||character->HasSpell(26790) || character->HasSpell(51309))) nbMetier++;
+	if(id!=202 && (character->HasSpell(4036)||character->HasSpell(4037)||character->HasSpell(4038)||character->HasSpell(12656)||character->HasSpell(30350) || character->HasSpell(51306))) nbMetier++;
+	if(id!=171 && (character->HasSpell(2259)||character->HasSpell(3101)||character->HasSpell(3464)||character->HasSpell(11611)||character->HasSpell(28596) || character->HasSpell(51304))) nbMetier++;
+	if(id!=182 && (character->HasSpell(2372)||character->HasSpell(2373)||character->HasSpell(3571)||character->HasSpell(11994)||character->HasSpell(28696) || character->HasSpell(50300))) nbMetier++;
+	if(id!=333 && (character->HasSpell(7411)||character->HasSpell(7412)||character->HasSpell(7413)||character->HasSpell(13920)||character->HasSpell(28029) || character->HasSpell(51313))) nbMetier++;
+	if(id!=755 && (character->HasSpell(25229)||character->HasSpell(25230)||character->HasSpell(28894)||character->HasSpell(28895)||character->HasSpell(28897) || character->HasSpell(51311))) nbMetier++;
+	if(id!=393 && (character->HasSpell(8613)||character->HasSpell(8617)||character->HasSpell(8618)||character->HasSpell(10768)||character->HasSpell(32678) || character->HasSpell(50305))) nbMetier++;
+	if(id!=165 && (character->HasSpell(2108)||character->HasSpell(3104)||character->HasSpell(3811)||character->HasSpell(10662)||character->HasSpell(32549) || character->HasSpell(51302))) nbMetier++;
+	if(id!=773 && (character->HasSpell(45357)||character->HasSpell(45358)||character->HasSpell(45359)||character->HasSpell(45360)||character->HasSpell(45361) || character->HasSpell(45363))) nbMetier++;
+
+	if(id!=356 && id!=185 && id!=129 && nbMetier > 2){
+		m_session->SendNotification("Vous possèdez déjà 2 métiers");
+		return false;
+	}
+	
+	switch(id){
+		case 186 : // Mineur
+			ApprendreSort(character,2580);
+			ApprendreSort(character,2575);
+			if(value > 75)
+				ApprendreSort(character,2576);
+			if(value > 150)
+				ApprendreSort(character,3564);
+			if(value > 225)
+				ApprendreSort(character,10248);
+			if(value > 300)
+				ApprendreSort(character,29354);
+			if(value > 375)
+				ApprendreSort(character,50310);
+		break;
+		case 164 : // Forgeron
+			ApprendreSort(character,2018);
+			if(value > 75)
+				ApprendreSort(character,3100);
+			if(value > 150)
+				ApprendreSort(character,3538);
+			if(value > 225)
+				ApprendreSort(character,9785);
+			if(value > 300)
+				ApprendreSort(character,29844);
+			if(value > 375)
+				ApprendreSort(character,51300);
+		break;
+		case 197 : // Couture
+			ApprendreSort(character,3908);
+			if(value > 75)
+				ApprendreSort(character,3909);
+			if(value > 150)
+				ApprendreSort(character,3910);
+			if(value > 225)
+				ApprendreSort(character,12180);
+			if(value > 300) 
+				ApprendreSort(character,26790);
+			if(value > 375)
+				ApprendreSort(character,51309);
+		break;
+		case 202 : // Ingénieur
+			ApprendreSort(character,4036);
+			if(value > 75)
+				ApprendreSort(character,4037);
+			if(value > 150)
+				ApprendreSort(character,4038);
+			if(value > 225)
+				ApprendreSort(character,12656);
+			if(value > 300)
+				ApprendreSort(character,30350);
+			if(value > 375)
+				ApprendreSort(character,51306);
+		break;
+		case 171 : // Alchimie
+			ApprendreSort(character,2259);
+			if(value > 75)
+				ApprendreSort(character,3101);
+			if(value > 150)
+				ApprendreSort(character,3464);
+			if(value > 225)
+				ApprendreSort(character,11611);
+			if(value > 300)
+				ApprendreSort(character,28596);
+			if(value > 375)
+				ApprendreSort(character,51304);
+		break;
+		case 182 : // Herboriste
+			ApprendreSort(character,2372);
+			if(value > 75)
+				ApprendreSort(character,2373);
+			if(value > 150)
+				ApprendreSort(character,3571);
+			if(value > 225)
+				ApprendreSort(character,11994);
+			if(value > 300)
+				ApprendreSort(character,28696);
+			if(value > 375)
+				ApprendreSort(character,50300);
+		break;
+		case 333 : // Enchanteur
+			ApprendreSort(character,7411);
+			if(value > 75)
+				ApprendreSort(character,7412);
+			if(value > 150)
+				ApprendreSort(character,7413);
+			if(value > 225)
+				ApprendreSort(character,13920);
+			if(value > 300)
+				ApprendreSort(character,28029);
+			if(value > 375)
+				ApprendreSort(character,51313);
+		break;
+		case 755 : // Joaillier
+			ApprendreSort(character,25229);
+			if(value > 75)
+				ApprendreSort(character,25230);
+			if(value > 150)
+				ApprendreSort(character,28894);
+			if(value > 225)
+				ApprendreSort(character,28895);
+			if(value > 300)
+				ApprendreSort(character,28897);
+			if(value > 375)
+				ApprendreSort(character,51311);
+		break;
+		case 393 : //dépeceur
+			ApprendreSort(character,8613);
+			if(value > 75)
+				ApprendreSort(character,8617);
+			if(value > 150)
+				ApprendreSort(character,8618);
+			if(value > 225)
+				ApprendreSort(character,10768);
+			if(value > 300)
+				ApprendreSort(character,32678);
+			if(value > 375)
+				ApprendreSort(character,50305);
+			break;
+		case 165 : //tdc
+			ApprendreSort(character,2108);
+			if(value > 75)
+				ApprendreSort(character,3104);
+			if(value > 150)
+				ApprendreSort(character,3811);
+			if(value > 225)
+				ApprendreSort(character,10662);
+			if(value > 300)
+				ApprendreSort(character,32549);
+			if(value > 375)
+				ApprendreSort(character,51302);
+			break;
+		case 773 : //calligraphie
+			ApprendreSort(character,45357);
+			if(value > 75)
+				ApprendreSort(character,45358);
+			if(value > 150)
+				ApprendreSort(character,45359);
+			if(value > 225)
+				ApprendreSort(character,45360);
+			if(value > 300)
+				ApprendreSort(character,45361);
+			if(value > 375)
+				ApprendreSort(character,45363);
+			break;
+		case 356 : //peche
+			ApprendreSort(character,7620);
+			if(value > 75)
+				ApprendreSort(character,7731);
+			if(value > 150)
+				ApprendreSort(character,7732);
+			if(value > 225)
+				ApprendreSort(character,18248);
+			if(value > 300)
+				ApprendreSort(character,33095);
+			if(value > 375)
+				ApprendreSort(character,51294);
+			break;
+		case 185 : //cuisine
+			ApprendreSort(character,2550);
+			if(value > 75)
+				ApprendreSort(character,3102);
+			if(value > 150)
+				ApprendreSort(character,3413);
+			if(value > 225)
+				ApprendreSort(character,18260);
+			if(value > 300)
+				ApprendreSort(character,33359);
+			if(value > 375)
+				ApprendreSort(character,51296);
+			break;
+		case 129 : //secourisme
+			ApprendreSort(character,3273);
+			if(value > 75)
+				ApprendreSort(character,3274);
+			if(value > 150)
+				ApprendreSort(character,7924);
+			if(value > 225)
+				ApprendreSort(character,10846);
+			if(value > 300)
+				ApprendreSort(character,27028);
+			if(value > 375)
+				ApprendreSort(character,45542);
+			Additem(6454,1,0,false);
+			Additem(21993,1,0,false);
+			break;
+		default : return false;
+	}
+
+	character->SetSkill(id,character->GetSkillStep(id),value,max);
 
 	return true;
 }
