@@ -1319,3 +1319,9 @@ bool ChatHandler::apprendreMetier(Player* character, int id, int value){
 
 	return true;
 }
+
+bool ChatHandler::ApprendreSort(Player* p , int idSort)
+{
+	//a completer
+	return true;
+}

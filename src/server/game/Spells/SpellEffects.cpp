@@ -1950,12 +1950,6 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             return;                                                 // AureEffect::HandleAuraControlVehicle will fail on caster == target
     }
 
-    // temphack
-    if (m_spellInfo->Id == 51888)
-    {
-        unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
-        return;
-    }
     unitTarget->CastSpell(m_caster, spellInfo, true);
 
     CustomSpellValues values;
@@ -5422,7 +5416,28 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     break;
                 }
-                case 52173: // Coyote Spirit Despawn
+
+				 // recal eyes of archerus
+				case 52694:
+				 {
+						if(!m_caster || m_caster->GetTypeId() != TYPEID_UNIT || !(m_caster->isCharmed()))  
+					        return;  
+
+						Creature *eye = m_caster->ToCreature();
+
+				     if(m_caster->GetCharmer()->GetTypeId() != TYPEID_PLAYER)  
+				       return;  
+  
+				     Player *player = ((Player*)m_caster->GetCharmer());  
+				     
+						if(eye->isInCombat())  
+				       return;  
+  
+				     eye->GetMap()->CreatureRelocation(eye, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());  
+				     eye->RemoveAurasDueToSpell(51852); 
+				 }
+
+				case 52173: // Coyote Spirit Despawn
                 case 60243: // Blood Parrot Despawn
                     if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->isSummon())
                         unitTarget->ToTempSummon()->UnSummon();
