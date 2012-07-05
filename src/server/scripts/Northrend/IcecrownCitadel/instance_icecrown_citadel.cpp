@@ -556,7 +556,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (GetBossState(DATA_THE_LICH_KING) == DONE)
                             go->SetRespawnTime(7 * DAY);
                         break;
-                    case GO_ICE_SHARD_1:
+ /*                   case GO_ICE_SHARD_1:
                         IceShard1 = go->GetGUID();
                         go->SetGoState(GetBossState(DATA_THE_LICH_KING) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
                         break;
@@ -571,12 +571,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_ICE_SHARD_4:
                         IceShard4 = go->GetGUID();
                         go->SetGoState(GetBossState(DATA_THE_LICH_KING) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
-                        break;
+                        break;*/
                     case GO_ARTHAS_PLATFORM:
                         // this enables movement at The Frozen Throne, when printed this value is 0.000000f
                         // however, when represented as integer client will accept only this value
                         go->SetUInt32Value(GAMEOBJECT_PARENTROTATION, 5535469);
                         ArthasPlatformGUID = go->GetGUID();
+						break;
                     case GO_ARTHAS_PRECIPICE:
                         go->SetUInt32Value(GAMEOBJECT_PARENTROTATION, 4178312);
                         ArthasPrecipiceGUID = go->GetGUID();
