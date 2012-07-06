@@ -464,9 +464,28 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
+			bool CheckInRoom()
+			{
+				Map::PlayerList const &players = me->GetMap()->GetPlayers();
+				if (players.isEmpty())
+					return false;
+
+				for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+				{
+					Unit *pPlayer  = itr->getSource();
+					if (!pPlayer)
+						return false;
+
+					if (pPlayer->isAlive() && !pPlayer->HasAura(SPELL_ICE_TOMB_DAMAGE) && me->GetDistance(pPlayer) < 150.0f)
+						return true;
+				}
+				return false;
+			}
+
+
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() /*|| !CheckInRoom()*/)
+                if (!UpdateVictim() && !CheckInRoom())
                     return;
 
                 events.Update(diff);
