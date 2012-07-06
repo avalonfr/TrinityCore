@@ -284,3 +284,9 @@ UPDATE `gameobject_template` SET `data1` = 201874 WHERE `entry` = 202179;
 UPDATE `gameobject_template` SET `data1` = 201875 WHERE `entry` = 202180;
 
 UPDATE item_template SET ScriptName = 'item_icc_rocket_pack' WHERE entry = 49278;
+
+DELETE FROM conditions WHERE SourceEntry IN (69705);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+VALUES('13','1','69705','0','0','31','0','3','36839','0','0','0','','Gunship Battle - Spell 69705 (Below Zero) target creature 36839');
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) 
+VALUES('13','2','69705','0','0','31','0','3','36838','0','0','0','','Gunship Battle - Spell 69705 (Below Zero) target creature 36838');
