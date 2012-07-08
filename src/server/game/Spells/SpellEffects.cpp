@@ -1509,29 +1509,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             // Death strike
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
-                uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
-                bp = int32(count * m_caster->CountPctFromMaxHealth(int32(m_spellInfo->Effects[EFFECT_0].DamageMultiplier)));
                 // Improved Death Strike
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
                     AddPctN(bp, m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellInfo(), 2));
                 m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
                 return;
             }
-            // Death Coil
-            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_COIL)
-            {
-                if (m_caster->IsFriendlyTo(unitTarget))
-                {
-                    bp = int32(damage * 1.5f);
-                    m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
-                }
-                else
-                {
-                    bp = damage;
-                    m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
-                }
-                return;
-            }
+
 			// Hungering Cold 
             if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_HUNGERING_COLD) 
             { 
@@ -3626,6 +3610,9 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         unitTarget->RemoveAurasDueToSpellByDispel(itr->first->GetId(), m_spellInfo->Id, itr->first->GetCasterGUID(), m_caster, itr->second);
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
+	if (m_caster->IsValidAttackTarget(unitTarget) && !m_caster->isInCombat())
+        m_caster->CombatStart(unitTarget);
+
 
     // On success dispel
     // Devour Magic
@@ -4334,6 +4321,15 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(2, unitTarget);
                 }
             }
+			            // Heroic Strike
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x64)
+            {
+                // only rank 10+ gives the bonus damage
+                if (m_spellInfo->BaseLevel >= 66)
+                    // check for daze
+                    if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
+                        spell_bonus += (m_spellInfo->Effects[EFFECT_0].CalcValue() * 0.35);
+            }
             break;
         }
         case SPELLFAMILY_ROGUE:
@@ -4618,7 +4614,7 @@ void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    int32 addhealth;
+    int32 addhealth = 0;
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN) // Lay on Hands
     {
         if (m_caster->GetGUID() == unitTarget->GetGUID())
@@ -4635,8 +4631,7 @@ void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
     else
         addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
 
-    if (m_originalCaster)
-         m_healing += m_originalCaster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
+    m_healing += addhealth;
 }
 
 void Spell::EffectInterruptCast(SpellEffIndex effIndex)
