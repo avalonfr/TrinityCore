@@ -477,15 +477,15 @@ void DoShipExplosion(Transport* t)
 //Wipe check
 bool DoWipeCheck(Transport* t)
 {
-    for (Transport::PlayerSet::const_iterator itr = t->GetPassengers().begin(); itr != t->GetPassengers().end();)
+   /* for (Transport::PlayerSet::const_iterator itr = t->GetPassengers().begin(); itr != t->GetPassengers().end();)
     {
         Player* plr = *itr;
         ++itr;
 
-        if (plr && plr->isAlive())
+        if (plr && plr->isAlive())*/
             return true;
-    }
-    return false;
+   /* }
+    return false;*/
 }
 
 //Check falling players
@@ -928,6 +928,9 @@ class npc_muradin_gunship : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
+				if (( me->GetHealth() / me->GetMaxHealth()) <= 0.4)
+					events.ScheduleEvent(EVENT_TASTE_OF_BLOOD,2000);
+				
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE && me->GetHealthPct() < 2.0f )
                 {
                    damage = 0;
@@ -1028,19 +1031,6 @@ class npc_muradin_gunship : public CreatureScript
                                 CheckUnfriendlyShip(me, _instance, DATA_GB_HIGH_OVERLORD_SAURFANG)->AddNPCPassengerInInstance(NPC_GB_PORTAL, 47.55099f, -0.101778f, 37.61111f, 1.55138f);
                             }
                             break;
-                        case EVENT_RENDING_THROW:
-                            if (UpdateVictim())
-                                if (me->getVictim()->IsWithinDistInMap(me, 50.0f, false)) // Todo: Fix the distance
-                                {
-                                    DoCastVictim(SPELL_RENDING_THROW);
-                                    EventScheduled = false;
-                                }
-                                else
-                                    events.CancelEvent(EVENT_RENDING_THROW);
-                            break;
-                        case EVENT_TASTE_OF_BLOOD:
-                            DoCast(me, SPELL_TASTE_OF_BLOOD);
-                            break;
                         case EVENT_BOARDING_TALK:
                             Talk(SAY_BOARDING_SKYBREAKER_1);
                             break;
@@ -1130,6 +1120,20 @@ class npc_muradin_gunship : public CreatureScript
                                 skybreaker->AddNPCPassengerInInstance(NPC_GB_SKYBREAKER_RIFLEMAN, 0.15231f, -22.9462f, 21.659f, 4.72416f);
                             }
                             break;
+						case EVENT_RENDING_THROW:
+                            if (UpdateVictim())
+                                if (me->getVictim()->HasAura(SPELL_ON_SKYBREAKERS_DECK)) // Todo: Fix the distance
+                                {
+                                    DoCastVictim(SPELL_RENDING_THROW);
+                                    EventScheduled = false;
+                                }
+                                else
+                                    events.CancelEvent(EVENT_RENDING_THROW);
+                            break;
+                        case EVENT_TASTE_OF_BLOOD:
+								DoCast(me, SPELL_TASTE_OF_BLOOD);
+                            break;
+
                       }
                 }
 

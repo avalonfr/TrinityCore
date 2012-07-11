@@ -24,6 +24,7 @@
 #include "Transport.h"
 #include "PoolMgr.h"
 #include "icecrown_citadel.h"
+#include "Group.h"
 
 #define MAX_ENCOUNTER      12
 
@@ -191,6 +192,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 IsOozeDanceEligible = true;
                 IsNauseaEligible = true;
                 IsOrbWhispererEligible = true;
+				isPrepared = false;
                 ColdflameJetsState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningTimer = 0;
@@ -224,19 +226,32 @@ class instance_icecrown_citadel : public InstanceMapScript
             }
             void OnPlayerEnter(Player* player)
             {
-                if (!TeamInInstance)
-                    TeamInInstance = player->GetTeam();
+				sLog->outError("ONPLAYERENTER %u",TeamInInstance);
+                if (TeamInInstance != 469 && TeamInInstance != 67)
+					if (Group *rRaid  = player->GetGroup())
+					{
+						if (rRaid->IsLeader(player->GetGUID()))
+							TeamInInstance = player->GetTeam();
+					}
+					else TeamInInstance = player->GetTeam();
+				sLog->outError("TEAM INSTANCE1 %u",TeamInInstance);
                 PrepareGunshipEvent(); // Spawn Gunship Event
             }
 
             void OnCreatureCreate(Creature* creature)
             {
-                if (!TeamInInstance)
+                if (TeamInInstance != 469 && TeamInInstance != 67)
                 {
                     Map::PlayerList const &players = instance->GetPlayers();
                     if (!players.isEmpty())
                         if (Player* player = players.begin()->getSource())
-                            TeamInInstance = player->GetTeam();
+                            if (Group *rRaid  = player->GetGroup())
+							{
+								if (rRaid->IsLeader(player->GetGUID()))
+									TeamInInstance = player->GetTeam();
+							}
+							else TeamInInstance = player->GetTeam();
+					sLog->outError("TEAM INSTANCE2 %u",TeamInInstance);
                 }
 
                 switch (creature->GetEntry())
@@ -1299,9 +1314,10 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void PrepareGunshipEvent()
             {
+				sLog->outError("PrepareGunshipEventAvant **********************************");
                 if (isPrepared || GetBossState(DATA_GUNSHIP_EVENT) == DONE)
                     return;
-
+				sLog->outError("PrepareGunshipEventApres **********************************");
                 if(TeamInInstance == ALLIANCE)
                 {
                     if(Transport* th = sMapMgr->LoadTransportInMap(instance, GO_ORGRIM_S_HAMMER_ALLIANCE_ICC, 108000))
@@ -1398,8 +1414,9 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                if(TeamInInstance == HORDE)
                 {
+					sLog->outError("TeamInInstance == HORDE **********************************");
                  if(Transport* t = sMapMgr->LoadTransportInMap(instance, GO_THE_SKYBREAKER_HORDE_ICC, 77800))
-         {
+				{
                         t->AddNPCPassengerInInstance(NPC_GB_SKYBREAKER, -17.156807f, -1.633260f, 20.81273f, 4.52672f);
                         t->AddNPCPassengerInInstance(NPC_GB_MURADIN_BRONZEBEARD, 13.51547f, -0.160213f, 20.87252f, 3.10672f);
                         t->AddNPCPassengerInInstance(NPC_GB_HIHG_CAPTAIN_JUSTIN_BARTLETT, 42.78902f, -0.010491f, 25.24052f, 3.00672f);
