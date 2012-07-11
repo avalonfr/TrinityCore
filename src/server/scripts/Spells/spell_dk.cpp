@@ -333,6 +333,21 @@ class spell_dk_death_pact : public SpellScriptLoader
         class spell_dk_death_pact_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dk_death_pact_SpellScript);
+			
+            SpellCastResult CheckCast()
+            {
+                // Check if we have valid targets, otherwise skip spell casting here
+                if (Player* player = GetCaster()->ToPlayer())
+                    for (Unit::ControlList::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
+                        if (Creature* undeadPet = (*itr)->ToCreature())
+                            if (undeadPet->isAlive() &&
+                                undeadPet->GetOwnerGUID() == player->GetGUID() &&
+                                undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
+                                undeadPet->IsWithinDist(player, 100.0f, false))
+                                return SPELL_CAST_OK;
+
+                return SPELL_FAILED_NO_PET;
+            }
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
@@ -351,17 +366,12 @@ class spell_dk_death_pact : public SpellScriptLoader
                 unitList.clear();
                 if (unit_to_add)
                     unitList.push_back(unit_to_add);
-                else
-                {
-                    // Pet not found - remove cooldown
-                    if (Player* modOwner = GetCaster()->GetSpellModOwner())
-                        modOwner->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                    FinishCast(SPELL_FAILED_NO_PET);
-                }
+
             }
 
             void Register()
             {
+			OnCheckCast += SpellCheckCastFn(spell_dk_death_pact_SpellScript::CheckCast);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_dk_death_pact_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
@@ -381,6 +391,14 @@ class spell_dk_scourge_strike : public SpellScriptLoader
         class spell_dk_scourge_strike_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dk_scourge_strike_SpellScript);
+			float multiplier;
+			
+			bool Load()
+            {
+                multiplier = 1.0f;
+                return true;
+            }
+
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {

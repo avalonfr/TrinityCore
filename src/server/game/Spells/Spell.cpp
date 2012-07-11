@@ -2520,6 +2520,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 		        if (Aura* pAura = owner->GetAura(53257))
 					pAura->DropCharge();
 
+        // Cobra Strikes charge removing
+        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->SpellFamilyFlags[1] & 0x10000000)
+            if (Unit * owner = caster->GetOwner())
+                if (Aura* pAura = owner->GetAura(53257))
+                    pAura->ModStackAmount(-1);
+
 		m_damage = damageInfo.damage;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
@@ -5481,6 +5487,12 @@ SpellCastResult Spell::CheckCast(bool strict)
                 //custom check
                 switch (m_spellInfo->Id)
                 {
+				case 52610: //Savage Roar
+                    {
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->ToPlayer()->GetShapeshiftForm()!=FORM_CAT)
+                                return SPELL_FAILED_ONLY_SHAPESHIFT;
+                        break;
+                    }
                     // Tag Murloc
                     case 30877:
                     {
@@ -5809,7 +5821,8 @@ SpellCastResult Spell::CheckCasterAuras() const
                     break;
                 }
             }
-            if (foundNotStun)
+			// allow Barkskin being cast while sleeping or stuned
+            if (foundNotStun && m_spellInfo->Id != 22812)
                 prevented_reason = SPELL_FAILED_STUNNED;
         }
         else

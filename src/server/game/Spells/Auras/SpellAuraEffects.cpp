@@ -676,10 +676,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_PERIODIC_ENERGIZE:
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
             {
-                // Replenishment (0.25% from max)
+                // Replenishment (0.20% from max)
                 // Infinite Replenishment
                 if (m_spellInfo->SpellIconID == 3184 && m_spellInfo->SpellVisual[0] == 12495)
-                    amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 25 / 10000;
+                    amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 20 / 10000;
             }
             // Innervate
             else if (m_spellInfo->Id == 29166)
@@ -4822,6 +4822,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
                             target->CastSpell(spellTarget, 51699, true);
                    break;
+				   case 53601: // Sacred Shield
+                    // reset both swing timers just to be sure
+                    caster->resetAttackTimer(BASE_ATTACK);
+                    caster->resetAttackTimer(OFF_ATTACK);
+                    break;
                 case 28832: // Mark of Korth'azz
                 case 28833: // Mark of Blaumeux
                 case 28834: // Mark of Rivendare
@@ -5989,7 +5994,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             if (GetSpellInfo()->SpellFamilyFlags[0] & 0x20)
             {
                 if (caster)
-                    caster->CastCustomSpell(target, 52212, &m_amount, NULL, NULL, true, 0, this);
+                    target->CastCustomSpell(target, 52212, &m_amount, NULL, NULL, true, 0, this, caster->GetGUID());
                 break;
             }
             // Blood of the North
