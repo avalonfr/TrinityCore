@@ -6755,7 +6755,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 float ap = GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = SpellBaseDamageBonus(SPELL_SCHOOL_MASK_HOLY) +
                              SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_HOLY, victim);
-                basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap * 0.022f + 0.044f * holy) / 1000;
+                basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap * 0.022f + 0.034f * holy) / 1000;
                 break;
             }
             // Light's Beacon - Beacon of Light
@@ -8812,8 +8812,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             ItemTemplate const* weapon = item->GetTemplate();
 
             float weaponDPS = weapon->getDPS();
-            float attackPower = GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f;
-            float weaponSpeed = float(weapon->Delay) / 1000.0f;
+            float attackPower = GetTotalAttackPowerValue(BASE_ATTACK) / 23.0f;
+            float weaponSpeed = float(weapon->Delay) / 1500.0f;
             basepoints0 = int32((weaponDPS + attackPower) * weaponSpeed);
             break;
         }
