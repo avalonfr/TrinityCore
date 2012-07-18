@@ -1566,7 +1566,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     return (newdamage > 1) ? newdamage : 1;
 }
 
-void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo)
+void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo)
 {
     if (!victim || !victim->isAlive() || !damage)
         return;
@@ -1576,8 +1576,9 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     // Magic damage, check for resists
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
     {
-        float victimResistance = float(victim->GetResistance(schoolMask));
+        float victimResistance = float(victim->GetResistance(GetFirstSchoolInMask(schoolMask)));
         victimResistance += float(GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask));
+
 
         if (Player* player = ToPlayer())
             victimResistance -= float(player->GetSpellPenetrationItemMod());
@@ -1586,6 +1587,10 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         if (victimResistance < 0.0f)
             victimResistance = 0.0f;
 
+        // Resistance can't be lower then 0.
+        if (victimResistance < 0.0f)
+            victimResistance = 0.0f;
+ 	
         static uint32 const BOSS_LEVEL = 83;
         static float const BOSS_RESISTANCE_CONSTANT = 510.0f;
         uint32 level = victim->getLevel();
@@ -6755,7 +6760,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 float ap = GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = SpellBaseDamageBonus(SPELL_SCHOOL_MASK_HOLY) +
                              SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_HOLY, victim);
-                basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap * 0.022f + 0.044f * holy) / 1000;
+                basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap * 0.022f + 0.037f * holy) / 1000;
                 break;
             }
             // Light's Beacon - Beacon of Light
@@ -8812,8 +8817,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             ItemTemplate const* weapon = item->GetTemplate();
 
             float weaponDPS = weapon->getDPS();
-            float attackPower = GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f;
-            float weaponSpeed = float(weapon->Delay) / 1000.0f;
+            float attackPower = GetTotalAttackPowerValue(BASE_ATTACK) / 21.0f;
+            float weaponSpeed = float(weapon->Delay) / 1500.0f;
             basepoints0 = int32((weaponDPS + attackPower) * weaponSpeed);
             break;
         }
