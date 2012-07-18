@@ -477,15 +477,15 @@ void DoShipExplosion(Transport* t)
 //Wipe check
 bool DoWipeCheck(Transport* t)
 {
-   /* for (Transport::PlayerSet::const_iterator itr = t->GetPassengers().begin(); itr != t->GetPassengers().end();)
+    for (Transport::PlayerSet::const_iterator itr = t->GetPassengers().begin(); itr != t->GetPassengers().end();)
     {
         Player* plr = *itr;
         ++itr;
 
-        if (plr && plr->isAlive())*/
+        if (plr && plr->isAlive())
             return true;
-   /* }
-    return false;*/
+    }
+    return false;
 }
 
 //Check falling players
@@ -957,25 +957,26 @@ class npc_muradin_gunship : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                 
-                if (!HealthAbovePct(75))
+               /* if (!HealthAbovePct(75))
                 {
                     me->SetHealth(me->GetMaxHealth() / 100 * 76); // find a better way to avoid the hardcore spell spam ....
                     DoCast(me, SPELL_TASTE_OF_BLOOD);
-                }
+                }*/
 
-                if (UpdateVictim())
+                /*if (UpdateVictim())
                 {
                     if (!EventScheduled)
                     {
                         EventScheduled = true; // should temp fix the hardcore casting
                         events.ScheduleEvent(EVENT_RENDING_THROW, 3000);
                     }
-                }
+                }*/
 
                 events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
+					sLog->outError("MURADIN EVENT %u ***************************",eventId);
                     switch (eventId)
                     {
                         case EVENT_WIPE_CHECK:
@@ -1124,7 +1125,8 @@ class npc_muradin_gunship : public CreatureScript
                             if (UpdateVictim())
                                 if (me->getVictim()->HasAura(SPELL_ON_SKYBREAKERS_DECK)) // Todo: Fix the distance
                                 {
-                                    DoCastVictim(SPELL_RENDING_THROW);
+									sLog->outError("cast de SPELL_RENDING_THROW ******************************************");
+                                    //DoCastVictim(SPELL_RENDING_THROW);
                                     EventScheduled = false;
                                 }
                                 else
@@ -2164,22 +2166,24 @@ class npc_saurfang_gunship : public CreatureScript
                         DoCast(me, SPELL_TASTE_OF_BLOOD);
                     } 
 
-                    if (UpdateVictim())
+                    /*if (UpdateVictim())
                     {
                         if (!EventScheduled)
                         {
                             events.ScheduleEvent(EVENT_RENDING_THROW, 1500);
                             EventScheduled = true;
                         }
-                    }
+                    }*/
                 }
 
                 events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
+					
                     switch (eventId)
                     {
+						sLog->outError("SUARFANG EVENT %u ***************************",eventId);
                         case EVENT_WIPE_CHECK:
                             DoCheckFallingPlayer(me);
                             if (DoWipeCheck(orgrimmar))
@@ -3049,9 +3053,11 @@ class transport_gunship : public TransportScript
             switch (transport->GetEntry())
             {
                 case GO_THE_SKYBREAKER_ALLIANCE_ICC:
+					sLog->outError("SPELL_ON_SKYBREAKERS_DECK **************************************");
                     player->AddAura(SPELL_ON_SKYBREAKERS_DECK, player);
                     break;
                 case GO_ORGRIM_S_HAMMER_HORDE_ICC:
+					sLog->outError("SPELL_ON_ORGRIMS_HAMMERS_DECK **************************************");
                     player->AddAura(SPELL_ON_ORGRIMS_HAMMERS_DECK, player);
                     break;
                 default:
