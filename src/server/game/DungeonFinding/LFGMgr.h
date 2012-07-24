@@ -30,7 +30,7 @@ class Player;
 enum LFGenum
 {
     LFG_TIME_ROLECHECK                           = 40,
-    LFG_TIME_BOOT                                = 40,,
+    LFG_TIME_BOOT                                = 40,
     LFG_TIME_PROPOSAL                            = 40,
     LFG_TANKS_NEEDED                             = 1,
     LFG_HEALERS_NEEDED                           = 1,
