@@ -1322,6 +1322,16 @@ bool ChatHandler::apprendreMetier(Player* character, int id, int value){
 
 bool ChatHandler::ApprendreSort(Player* p , int idSort)
 {
-	//a completer
+	SpellEntry const* spellInfo = sSpellStore.LookupEntry(idSort);
+	if(spellInfo && SpellMgr::IsSpellValid(spellInfo,p) && !p->HasSpell(idSort))
+	{
+		p->learnSpell(idSort,false);
+		uint32 first_spell = sSpellMgr->GetFirstSpellInChain(idSort);
+		if(GetTalentSpellCost(first_spell))
+			p->SendTalentsInfoData(false);
+	}
+	else
+		return false;
+
 	return true;
 }
