@@ -1314,7 +1314,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void PrepareGunshipEvent()
             {
-				sLog->outError("PrepareGunshipEventAvant **********************************");
+				
                 if (isPrepared || GetBossState(DATA_GUNSHIP_EVENT) == DONE)
                     return;
 				sLog->outError("PrepareGunshipEventApres **********************************");

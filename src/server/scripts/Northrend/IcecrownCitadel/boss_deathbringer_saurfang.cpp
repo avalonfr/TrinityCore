@@ -403,6 +403,14 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
+				//needed for gunship for 0 aggro
+				if (me->GetDistance(me->getVictim()))
+				{
+					me->SetReactState(REACT_PASSIVE);
+					me->getThreatManager().resetAllAggro();
+					EnterEvadeMode();	
+					return;
+				}
 
                 if(me->isAttackReady())
                 {
