@@ -80,3 +80,104 @@ insert into `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entr
 insert into `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('38584','0','0','0','0','0','11686','0','0','0','Frostmourne Trigger','','','0','80','80','2','14','14','0','1.2','0.428571','1','3','0','0','0','0','1','0','0','1','33554944','0','0','0','0','0','0','0','0','0','10','36','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','7','1','1','1','0','0','0','0','0','0','0','76','1','0','0','128','npc_broken_frostmourne','12340');
 insert into `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('39189','0','0','0','0','0','11686','0','0','0','Spirit Bomb','','','0','80','80','2','14','14','0','1','1.14286','1','3','0','0','0','0','1','0','0','1','0','0','0','0','0','0','0','0','0','0','10','36','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','5','1','1','1','0','0','0','0','0','0','0','76','1','0','0','128','npc_spirit_bomb','12340');
 insert into `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('39217','0','0','0','0','0','31021','0','0','0','Terenas Menethil','','','0','80','80','2','1665','1665','0','1','1','1','1','0','0','0','0','1','0','0','1','32832','0','0','0','0','0','0','0','0','0','7','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','25','15','1','0','0','0','0','0','0','0','0','1','2475','0','0','npc_terenas_menethil','12340');
+
+
+
+/* ------------------------------spell -------------------------------------------- */
+DELETE FROM spell_script_names WHERE scriptname IN (
+"spell_the_lich_king_infest",
+"spell_the_lich_king_necrotic_plague",
+"spell_the_lich_king_necrotic_plague_jump",
+"spell_the_lich_king_shadow_trap_visual",
+"spell_the_lich_king_shadow_trap_periodic",
+"spell_the_lich_king_quake",
+"spell_the_lich_king_ice_burst_target_search",
+"spell_the_lich_king_raging_spirit",
+"spell_the_lich_king_defile",
+"spell_the_lich_king_summon_into_air",
+"spell_the_lich_king_soul_reaper",
+"spell_the_lich_king_valkyr_target_search",
+"spell_the_lich_king_eject_all_passengers",
+"spell_the_lich_king_cast_back_to_caster",
+"spell_the_lich_king_life_siphon",
+"spell_the_lich_king_vile_spirits",
+"spell_the_lich_king_vile_spirits_visual",
+"spell_the_lich_king_vile_spirit_move_target_search",
+"spell_the_lich_king_vile_spirit_damage_target_search",
+"spell_the_lich_king_harvest_soul",
+"spell_the_lich_king_lights_favor",
+"spell_the_lich_king_soul_rip",
+"spell_the_lich_king_restore_soul",
+"spell_the_lich_king_in_frostmourne_room",
+"spell_the_lich_king_summon_spirit_bomb",
+"spell_the_lich_king_trigger_vile_spirit",
+"spell_the_lich_king_jump",
+"spell_the_lich_king_jump_remove_aura",
+"spell_the_lich_king_mass_resurrection",
+"spell_the_lich_king_play_movie"
+);
+
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('68576','spell_the_lich_king_eject_all_passengers');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('68980','spell_the_lich_king_harvest_soul');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('68984','spell_the_lich_king_cast_back_to_caster');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('69030','spell_the_lich_king_valkyr_target_search');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('69037','spell_the_lich_king_summon_into_air');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('69110','spell_the_lich_king_ice_burst_target_search');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('69200','spell_the_lich_king_raging_spirit');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('69382','spell_the_lich_king_lights_favor');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('69397','spell_the_lich_king_soul_rip');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('69409','spell_the_lich_king_soul_reaper');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('70337','spell_the_lich_king_necrotic_plague');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('70338','spell_the_lich_king_necrotic_plague_jump');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('70497','spell_the_lich_king_summon_into_air');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('70498','spell_the_lich_king_vile_spirits');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('70499','spell_the_lich_king_vile_spirits_visual');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('70501','spell_the_lich_king_vile_spirit_move_target_search');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('70534','spell_the_lich_king_vile_spirit_damage_target_search');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('70541','spell_the_lich_king_infest');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('71811','spell_the_lich_king_jump');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('72262','spell_the_lich_king_quake');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('72429','spell_the_lich_king_mass_resurrection');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('72431','spell_the_lich_king_jump_remove_aura');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('72595','spell_the_lich_king_restore_soul');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('72754','spell_the_lich_king_defile');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73159','spell_the_lich_king_play_movie');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73488','spell_the_lich_king_life_siphon');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73530','spell_the_lich_king_shadow_trap_visual');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73579','spell_the_lich_king_summon_into_air');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73582','spell_the_lich_king_trigger_vile_spirit');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73650','spell_the_lich_king_restore_soul');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73708','spell_the_lich_king_defile');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73709','spell_the_lich_king_defile');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73710','spell_the_lich_king_defile');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73779','spell_the_lich_king_infest');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73780','spell_the_lich_king_infest');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73781','spell_the_lich_king_infest');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73782','spell_the_lich_king_life_siphon');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73783','spell_the_lich_king_life_siphon');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73784','spell_the_lich_king_life_siphon');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73785','spell_the_lich_king_necrotic_plague_jump');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73786','spell_the_lich_king_necrotic_plague_jump');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73787','spell_the_lich_king_necrotic_plague_jump');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73797','spell_the_lich_king_soul_reaper');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73798','spell_the_lich_king_soul_reaper');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73799','spell_the_lich_king_soul_reaper');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73912','spell_the_lich_king_necrotic_plague');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73913','spell_the_lich_king_necrotic_plague');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('73914','spell_the_lich_king_necrotic_plague');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74276','spell_the_lich_king_in_frostmourne_room');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74282','spell_the_lich_king_shadow_trap_periodic');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74296','spell_the_lich_king_harvest_soul');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74297','spell_the_lich_king_harvest_soul');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74300','spell_the_lich_king_summon_into_air');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74302','spell_the_lich_king_summon_spirit_bomb');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74325','spell_the_lich_king_harvest_soul');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74341','spell_the_lich_king_summon_spirit_bomb');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74342','spell_the_lich_king_summon_spirit_bomb');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74343','spell_the_lich_king_summon_spirit_bomb');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('74445','spell_the_lich_king_cast_back_to_caster');
+
+
+
+
+
