@@ -1,4 +1,5 @@
 
+
 /*!40101 SET NAMES utf8 */;
 DELETE FROM gameobject WHERE id IN( '202078',
 									'202141',

@@ -274,11 +274,11 @@ public:
             Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDies(Creature* creature, Unit* /*killer*/)
+        void SummonedCreatureDies(Creature* creature, Unit* killer)
         {
             // Cast the arpon, EAI Death Event got bugged.
             if(creature->GetEntry() == CREATURE_YMIRJAR_HARPOONER)
-                creature->CastSpell(creature, 56789, true);
+                killer->CastSpell(creature, 56789, true);
         }
 
         void SummonedCreatureDespawn(Creature* summoned)
