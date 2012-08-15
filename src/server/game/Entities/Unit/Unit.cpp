@@ -1586,6 +1586,10 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         // Resistance can't be lower then 0.
         if (victimResistance < 0.0f)
             victimResistance = 0.0f;
+
+        // Resistance can't be lower then 0.
+        if (victimResistance < 0.0f)
+            victimResistance = 0.0f;
  	
         static uint32 const BOSS_LEVEL = 83;
         static float const BOSS_RESISTANCE_CONSTANT = 510.0f;
@@ -6756,7 +6760,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 float ap = GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = SpellBaseDamageBonus(SPELL_SCHOOL_MASK_HOLY) +
                              SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_HOLY, victim);
-                basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap * 0.022f + 0.037f * holy) / 1000;
+                basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap * 0.020f + 0.030f * holy) / 1000;
                 break;
             }
             // Light's Beacon - Beacon of Light
@@ -11033,6 +11037,8 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 case 379:   // Earth Shield
                 case 33778: // Lifebloom Final Bloom
                 case 64844: // Divine Hymn
+			    case 71607: // Item - Bauble of True Blood 10m
+                case 71646: // Item - Bauble of True Blood 25m
                     break;
                 default:
                     return false;
@@ -11242,6 +11248,7 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
     }
+
     crit_bonus += damage;
 
     return crit_bonus;

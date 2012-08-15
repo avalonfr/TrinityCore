@@ -3304,6 +3304,8 @@ void SpellMgr::LoadDbcDataCorrections()
                         // this needs research on modifier applying rules, does not seem to be in Attributes fields
                 spellInfo->EffectSpellClassMask[0] = flag96(0x00000040, 0x00000000, 0x00000000);
                 break;
+			case 64752: // Druid T8 Feral 2P Bonus
+                spellInfo->EffectSpellClassMask[EFFECT_0] = flag96(0x00001000, 0x00000100, 0x00200000);
             case 63163: // Apply Enchanted Bridle (Argent Tournament)
                 spellInfo->EffectDieSides[0] = 0; // was 1, that should probably mean seat 0, but instead it's treated as spell 1
                 spellInfo->EffectBasePoints[0] = 52391; // Ride Vehicle (forces seat 0)
@@ -3686,6 +3688,9 @@ void SpellMgr::LoadDbcDataCorrections()
 				break;				
 			case 62012: // Turkey Caller
                 spellInfo->EffectRadiusIndex[0] = 36; //0yd
+                break;
+			case 45524: // Chains of Ice
+                spellInfo->EffectImplicitTargetA[EFFECT_2] = TARGET_UNIT_TARGET_ENEMY;
                 break;
             default:
                 break;
