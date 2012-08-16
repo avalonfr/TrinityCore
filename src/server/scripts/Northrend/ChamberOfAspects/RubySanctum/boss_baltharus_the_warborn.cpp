@@ -246,6 +246,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                 // Setting DATA_BALTHARUS_SHARED_HEALTH to 0 when killed would bug the boss.
                 if (_instance && me->GetHealth() > damage)
                     _instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
+				
             }
 
             void JustDied(Unit* killer)

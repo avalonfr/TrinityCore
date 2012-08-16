@@ -326,7 +326,7 @@ class boss_halion : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
+				
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
