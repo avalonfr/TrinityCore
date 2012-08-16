@@ -1711,7 +1711,7 @@ public:
 
         if ((!player->GetGroup() || !player->GetGroup()->IsLeader(player->GetGUID())) && !player->isGameMaster())
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Je ne suis pas chef de raid ...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Je ne suis pas chef de raid ...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
             player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             return true;
         }
@@ -1755,6 +1755,8 @@ public:
 				break;
 			case GOSSIP_ACTION_INFO_DEF + 7 : 
 				player->GetInstanceScript()->SetData(DATA_ICC_BUFF,30);
+				break;
+			default :
 				break;
 
 		};
