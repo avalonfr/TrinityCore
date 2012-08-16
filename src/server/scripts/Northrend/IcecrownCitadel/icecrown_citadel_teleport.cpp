@@ -91,8 +91,10 @@ class at_frozen_throne_teleport : public AreaTriggerScript
                     instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
                     instance->GetBossState(DATA_SINDRAGOSA) == DONE &&
                     instance->GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS)
+				{
                     player->CastSpell(player, FROZEN_THRONE_TELEPORT, true);
-
+					instance->SetData(DATA_ICC_BUFF,0);
+				}
             return true;
         }
 };

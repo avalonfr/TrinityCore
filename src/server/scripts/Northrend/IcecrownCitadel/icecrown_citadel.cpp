@@ -25,6 +25,7 @@
 #include "GridNotifiersImpl.h"
 #include "SpellAuraEffects.h"
 #include "SmartAI.h"
+#include "Group.h"
 #include "icecrown_citadel.h"
 
 // Weekly quest support
@@ -1691,6 +1692,77 @@ class npc_impaling_spear : public CreatureScript
         }
 };
 
+
+#define GOSSIP_BUFF_0    "z etes pas pret pour le 0%"
+#define GOSSIP_BUFF_5    "un petit buff 5% pour les  balaizes"
+#define GOSSIP_BUFF_10   "un petit buff 10% pour les costauds"
+#define GOSSIP_BUFF_15   "un petit buff 15% pour les PGM"
+#define GOSSIP_BUFF_20   "un petit buff 20% pour le fun"
+#define GOSSIP_BUFF_25   "un petit buff 25% pour les debutants"
+#define GOSSIP_BUFF_30	" un petit buff 30% pour les fillettes"
+
+class npc_choose_icc_buff : public CreatureScript
+{
+public:
+    npc_choose_icc_buff() : CreatureScript("npc_choose_icc_buff") { }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+
+        if ((!player->GetGroup() || !player->GetGroup()->IsLeader(player->GetGUID())) && !player->isGameMaster())
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Je ne suis pas chef de raid ...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+            return true;
+        }
+
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUFF_0 , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUFF_5 , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUFF_10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUFF_15, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUFF_20, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUFF_25, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUFF_30, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+		player->CLOSE_GOSSIP_MENU();
+
+		switch (action) {
+			case GOSSIP_ACTION_INFO_DEF + 1 : 
+				player->GetInstanceScript()->SetData(DATA_ICC_BUFF,0);
+				break;
+			case GOSSIP_ACTION_INFO_DEF + 2 : 
+				player->GetInstanceScript()->SetData(DATA_ICC_BUFF,5);
+				break;
+			case GOSSIP_ACTION_INFO_DEF + 3 : 
+				player->GetInstanceScript()->SetData(DATA_ICC_BUFF,10);
+				break;
+			case GOSSIP_ACTION_INFO_DEF + 4 : 
+				player->GetInstanceScript()->SetData(DATA_ICC_BUFF,15);
+				break;
+			case GOSSIP_ACTION_INFO_DEF + 5 : 
+				player->GetInstanceScript()->SetData(DATA_ICC_BUFF,20);
+				break;
+			case GOSSIP_ACTION_INFO_DEF + 6 : 
+				player->GetInstanceScript()->SetData(DATA_ICC_BUFF,25);
+				break;
+			case GOSSIP_ACTION_INFO_DEF + 7 : 
+				player->GetInstanceScript()->SetData(DATA_ICC_BUFF,30);
+				break;
+
+		};
+
+        return true;
+    }
+};
+
 class spell_icc_stoneform : public SpellScriptLoader
 {
     public:
@@ -2294,6 +2366,7 @@ void AddSC_icecrown_citadel()
     new npc_captain_rupert();
     new npc_frostwing_vrykul();
     new npc_impaling_spear();
+	new npc_choose_icc_buff();
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
     new spell_frost_giant_death_plague();

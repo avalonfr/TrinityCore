@@ -198,6 +198,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 BloodQuickeningTimer = 0;
                 BloodQuickeningMinutes = 0;
 				SindragosasWardGUID = 0;
+				IccBuffSelected = 0;
             }
 
             void Initialize()
@@ -226,7 +227,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             }
             void OnPlayerEnter(Player* player)
             {
-				sLog->outError("ONPLAYERENTER %u",TeamInInstance);
+				
                 if (TeamInInstance != 469 && TeamInInstance != 67)
 					if (Group *rRaid  = player->GetGroup())
 					{
@@ -234,8 +235,8 @@ class instance_icecrown_citadel : public InstanceMapScript
 							TeamInInstance = player->GetTeam();
 					}
 					else TeamInInstance = player->GetTeam();
-				sLog->outError("TEAM INSTANCE1 %u",TeamInInstance);
                 PrepareGunshipEvent(); // Spawn Gunship Event
+				ApllyIccBuff(player);
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -1114,10 +1115,90 @@ class instance_icecrown_citadel : public InstanceMapScript
                         NecroticStack = data;
                     case DATA_NECK_DEEP_ACHIEVEMENT:         
                         NeckDeep = data;
-                    default:
+					case DATA_ICC_BUFF :
+						{
+							IccBuffSelected = data;
+							Map::PlayerList const &players = instance->GetPlayers();
+							if (!players.isEmpty())
+							for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+								 if (Player* player = i->getSource())
+									ApllyIccBuff(player);
+						}
+						 break;
+					default:
                         break;
                 }
             }
+
+			void RemoveIccBuff(Player * player)
+			{
+				if (player->GetTeam() == ALLIANCE)
+				{
+					player->RemoveAurasDueToSpell(SPELL_ICC_5A);
+					player->RemoveAurasDueToSpell(SPELL_ICC_10A);
+					player->RemoveAurasDueToSpell(SPELL_ICC_15A);
+					player->RemoveAurasDueToSpell(SPELL_ICC_20A);
+					player->RemoveAurasDueToSpell(SPELL_ICC_25A);
+					player->RemoveAurasDueToSpell(SPELL_ICC_30A);
+				}
+				else
+				{
+					player->RemoveAurasDueToSpell(SPELL_ICC_5H);
+					player->RemoveAurasDueToSpell(SPELL_ICC_10H);
+					player->RemoveAurasDueToSpell(SPELL_ICC_15H);
+					player->RemoveAurasDueToSpell(SPELL_ICC_20H);
+					player->RemoveAurasDueToSpell(SPELL_ICC_25H);
+					player->RemoveAurasDueToSpell(SPELL_ICC_30H);
+				}
+			}
+
+			void ApllyIccBuff(Player *player)
+			{
+				RemoveIccBuff(player);
+
+				switch (IccBuffSelected) {
+				case 5 :
+					if (player->GetTeam() == ALLIANCE)
+						player->CastSpell(player->ToUnit(),SPELL_ICC_5A);
+					else
+						player->CastSpell(player->ToUnit(),SPELL_ICC_5H);
+					break;
+				case 10 :
+					if (player->GetTeam() == ALLIANCE)
+						player->CastSpell(player->ToUnit(),SPELL_ICC_10A);
+					else
+						player->CastSpell(player->ToUnit(),SPELL_ICC_10H);
+					break;
+				case 15 :
+					if (player->GetTeam() == ALLIANCE)
+						player->CastSpell(player->ToUnit(),SPELL_ICC_15A);
+					else
+						player->CastSpell(player->ToUnit(),SPELL_ICC_15H);
+					break;
+				case 20 :
+					if (player->GetTeam() == ALLIANCE)
+						player->CastSpell(player->ToUnit(),SPELL_ICC_20A);
+					else
+						player->CastSpell(player->ToUnit(),SPELL_ICC_20H);
+					break;
+				case 25 :
+					if (player->GetTeam() == ALLIANCE)
+						player->CastSpell(player->ToUnit(),SPELL_ICC_25A);
+					else
+						player->CastSpell(player->ToUnit(),SPELL_ICC_25H);
+					break;
+				case 30 :
+					if (player->GetTeam() == ALLIANCE)
+						player->CastSpell(player->ToUnit(),SPELL_ICC_30A);
+					else
+						player->CastSpell(player->ToUnit(),SPELL_ICC_30H);
+					break;
+				default : 
+					break;
+
+				};
+			}
+
 
             bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
             {
@@ -1317,7 +1398,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 				
                 if (isPrepared || GetBossState(DATA_GUNSHIP_EVENT) == DONE)
                     return;
-				sLog->outError("PrepareGunshipEventApres **********************************");
                 if(TeamInInstance == ALLIANCE)
                 {
                     if(Transport* th = sMapMgr->LoadTransportInMap(instance, GO_ORGRIM_S_HAMMER_ALLIANCE_ICC, 108000))
@@ -1604,6 +1684,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 				  bool IsOrbWhispererEligible;
 				  bool isPrepared;
 				  uint64 SindragosasWardGUID;
+				  uint8 IccBuffSelected;
         };
 
 };
