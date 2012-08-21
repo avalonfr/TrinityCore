@@ -15,6 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
+#include "Map.h"
+#include "MapManager.h"
+
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
 
@@ -28,7 +35,7 @@ DoorData const doorData[] =
 class instance_ruby_sanctum : public InstanceMapScript
 {
     public:
-        instance_ruby_sanctum() : InstanceMapScript(RSScriptName, 724) { }
+        instance_ruby_sanctum() : InstanceMapScript("instance_ruby_sanctum", 724) { }
 
         struct instance_ruby_sanctum_InstanceMapScript : public InstanceScript
         {
@@ -141,6 +148,13 @@ class instance_ruby_sanctum : public InstanceMapScript
                         if (GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                             HandleGameObject(BurningTreeGUID[3], true);
                         break;
+                    case GO_HALION_PORTAL_EXIT:
+                        go->SetPhaseMask(0x20, true);
+                        break;
+                    case GO_HALION_PORTAL_1:
+                    case GO_HALION_PORTAL_2:
+                        go->SetPhaseMask(0x1, true);
+                        break;
                     default:
                         break;
                 }
@@ -203,7 +217,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return 0;
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+			bool SetBossState(uint32 type, EncounterState state)
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -231,12 +245,14 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     }
                     case DATA_GENERAL_ZARITHRIAN:
+					{
                         if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                             HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
                         if (state == DONE)
                             if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
                                 halionController->AI()->DoAction(ACTION_INTRO_HALION);
                         break;
+					}
                     case DATA_HALION:
                     {
                         if (state == IN_PROGRESS)
@@ -308,15 +324,19 @@ class instance_ruby_sanctum : public InstanceMapScript
 
                 if (dataHead1 == 'R' && dataHead2 == 'S')
                 {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
+					uint32 tmpState[4];
+                    for (uint8 i = 0; i < 4; ++i)
                     {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
+						
+                        
+                        loadStream >> tmpState[i];
+                        if (tmpState[i] == IN_PROGRESS || tmpState[i] > SPECIAL)
+                            tmpState[i] = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState[i]));
                     }
+					if (tmpState[0] == DONE && tmpState[1] == DONE && tmpState[2] == DONE)
+						 if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                                halionController->AI()->DoAction(ACTION_INTRO_HALION);
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;
@@ -345,9 +365,9 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint32 BaltharusSharedHealth;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {
-            return new instance_ruby_sanctum_InstanceMapScript(map);
+            return new instance_ruby_sanctum_InstanceMapScript(pMap);
         }
 };
 

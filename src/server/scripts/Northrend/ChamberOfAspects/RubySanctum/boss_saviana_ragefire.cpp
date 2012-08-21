@@ -89,7 +89,8 @@ class boss_saviana_ragefire : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                _JustDied();
+
+				_JustDied();
                 me->PlayDirectSound(SOUND_ID_DEATH);
             }
 

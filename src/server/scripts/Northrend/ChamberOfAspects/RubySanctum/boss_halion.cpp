@@ -1294,7 +1294,7 @@ class go_twilight_portal : public GameObjectScript
             go_twilight_portalAI(GameObject* gameobject) : GameObjectAI(gameobject),
                 _instance(gameobject->GetInstanceScript()), _deleted(false)
             {
-                switch (gameobject->GetEntry())
+ /*               switch (gameobject->GetEntry())
                 {
                     case GO_HALION_PORTAL_EXIT:
 						sLog->outError("Phase Mask a 32 %u *************************************************",gameobject->GetEntry());
@@ -1308,7 +1308,7 @@ class go_twilight_portal : public GameObjectScript
                         break;
                     default:
                         break;
-                }
+                }*/
             }
 
             bool GossipHello(Player* player)

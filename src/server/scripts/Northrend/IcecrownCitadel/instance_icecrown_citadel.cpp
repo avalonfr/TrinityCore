@@ -252,7 +252,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 									TeamInInstance = player->GetTeam();
 							}
 							else TeamInInstance = player->GetTeam();
-					sLog->outError("TEAM INSTANCE2 %u",TeamInInstance);
                 }
 
                 switch (creature->GetEntry())
