@@ -148,14 +148,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                         if (GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                             HandleGameObject(BurningTreeGUID[3], true);
                         break;
-                    case GO_HALION_PORTAL_EXIT:
-                        go->SetPhaseMask(0x20, true);
-                        break;
-                    case GO_HALION_PORTAL_1:
-                    case GO_HALION_PORTAL_2:
-                        go->SetPhaseMask(0x1, true);
-                        break;
-                    default:
+					default:
                         break;
                 }
             }

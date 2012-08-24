@@ -274,7 +274,7 @@ struct generic_halionAI : public BossAI
             }
             else if (events.GetPhaseMask() & (PHASE_TWO_MASK | PHASE_THREE_MASK)) // Phase two or three
             {
-                if (!UpdateVictim() || !FindPossibleTarget())
+                if (!FindPossibleTarget())
                     return false;
             }
         }
@@ -289,13 +289,13 @@ struct generic_halionAI : public BossAI
 
     bool FindPossibleTarget()
     {
-        std::list<HostileReference*> hostileList = me->getThreatManager().getThreatList();
 
-        for (std::list<HostileReference*>::const_iterator itr = hostileList.begin(); itr != hostileList.end(); ++itr)
-            if (Unit* target = (*itr)->getTarget())
-                if (target->GetTypeId() == TYPEID_PLAYER)
-                    if (me->canSeeOrDetect(target, true) && me->IsValidAttackTarget(target))
-                        return true;
+		Map::PlayerList const &players = me->GetMap()->GetPlayers();
+		if (!players.isEmpty())
+			for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+				if (Player* player = i->getSource())
+					if((player->isAlive() && me->GetDistance(player) < 100.0f))
+						return true;
 
         if (Creature* halion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION)))
             halion->AI()->EnterEvadeMode();
@@ -391,23 +391,13 @@ class boss_halion : public CreatureScript
                 if (events.GetPhaseMask() & PHASE_ONE_MASK)
                     return;
 
-               /* if (!spellInfo || spellInfo->Id != SPELL_COPY_DAMAGE)
-                {
-                    if (!DealDamageToOtherHalion(instance->GetData64(DATA_TWILIGHT_HALION), spellInfo ? spellInfo->SchoolMask : SPELL_SCHOOL_MASK_SHADOW, damage))
-                        return;
-
-                    // Keep track of damage taken
-                    if (events.GetPhaseMask() & PHASE_THREE_MASK)
-                        if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                            controller->AI()->SetData(DATA_MATERIAL_DAMAGE_TAKEN, damage);
-                }*/
             }
 
             void UpdateAI(uint32 const diff)
             {
                 if (events.GetPhaseMask() & PHASE_TWO_MASK)
                     return;
-
+					
                 generic_halionAI::UpdateAI(diff);
             }
 
@@ -553,17 +543,6 @@ class boss_twilight_halion : public CreatureScript
                     Talk(SAY_PHASE_THREE);
                     return;
                 }
-
-              /*  if (!spellInfo || spellInfo->Id != SPELL_COPY_DAMAGE)
-                {
-                    if (!DealDamageToOtherHalion(instance->GetData64(DATA_HALION), spellInfo ? spellInfo->SchoolMask : SPELL_SCHOOL_MASK_SHADOW, damage))
-                        return;
-
-                    // Keep track of damage taken.
-                    if (events.GetPhaseMask() & PHASE_THREE_MASK)
-                        if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                            controller->AI()->SetData(DATA_TWILIGHT_DAMAGE_TAKEN, damage);
-                }*/
             }
 
             void SpellHit(Unit* /*who*/, SpellInfo const* spell)
@@ -631,6 +610,14 @@ class boss_twilight_halion : public CreatureScript
                 return 0;
             }
 
+
+			void UpdateAI(uint32 const diff)
+            {
+                if (events.GetPhaseMask() & PHASE_ONE_MASK)
+                    return;
+					
+                generic_halionAI::UpdateAI(diff);
+            }
         private:
             EventMap events;
         };
@@ -862,28 +849,24 @@ class npc_halion_controller : public CreatureScript
                                 TwilightDamageTaken = 0;
                                 MaterialDamageTaken = 0;
                                 materialCorporealityValue = 50;
-
                                 for (uint8 itr = DATA_HALION; itr <= DATA_TWILIGHT_HALION; itr++)
                                 {
                                     Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(itr));
                                     if (!halion)
                                         continue;
-
                                     uint32 spellID = GetSpell(materialCorporealityValue, (itr == DATA_TWILIGHT_HALION));
                                     if (spellID != 0)
                                         halion->CastSpell(halion, spellID, false);
 
                                     halion->AI()->SetData(DATA_FIGHT_PHASE, PHASE_THREE);
-
                                     if (itr == DATA_TWILIGHT_HALION)
                                         continue;
 
                                     halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
                                     halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 }
-
                                 // Summon Twilight portals here
-                                DoCast(me, SPELL_SUMMON_EXIT_PORTALS);
+                                //DoCast(me, SPELL_SUMMON_EXIT_PORTALS);
 
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, 50);
@@ -1294,21 +1277,18 @@ class go_twilight_portal : public GameObjectScript
             go_twilight_portalAI(GameObject* gameobject) : GameObjectAI(gameobject),
                 _instance(gameobject->GetInstanceScript()), _deleted(false)
             {
- /*               switch (gameobject->GetEntry())
+                switch (gameobject->GetEntry())
                 {
                     case GO_HALION_PORTAL_EXIT:
-						sLog->outError("Phase Mask a 32 %u *************************************************",gameobject->GetEntry());
                         gameobject->SetPhaseMask(0x20, true);
                         break;
                     case GO_HALION_PORTAL_1:
                     case GO_HALION_PORTAL_2:
                         gameobject->SetPhaseMask(0x1, true);
-						sLog->outError("Phase Mask a 1 %u *************************************************",gameobject->GetEntry());
-
                         break;
                     default:
                         break;
-                }*/
+                }
             }
 
             bool GossipHello(Player* player)
@@ -1703,8 +1683,9 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
             void Phase()
             {
                 Unit* caster = GetCaster();
-                caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                caster->CastSpell(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), SPELL_SUMMON_TWILIGHT_PORTAL, true);
+				caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+				Player* pPlayer = caster->FindNearestPlayer(50.0f,true);
+                pPlayer->CastSpell(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), SPELL_SUMMON_TWILIGHT_PORTAL, true);
             }
 
             void Register()
@@ -1730,14 +1711,14 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
 
             void OnSummon(SpellEffIndex effIndex)
             {
-                WorldLocation summonPos = *GetExplTargetDest();
+                WorldLocation summonPos = *GetTargetDest();
                 Position offset = {0.0f, 20.0f, 0.0f, 0.0f};
                 if (effIndex == EFFECT_1)
                     offset.m_positionY = -20.0f;
 
                 summonPos.RelocateOffset(offset);
-
-                SetExplTargetDest(summonPos);
+				
+                SetTargetDest(summonPos);
                 GetHitDest()->RelocateOffset(offset);
             }
 
