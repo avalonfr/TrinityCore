@@ -137,6 +137,7 @@ enum Events
     EVENT_CHECK_CORPOREALITY = 14,
     EVENT_SHADOW_PULSARS_SHOOT = 15,
     EVENT_TRIGGER_BERSERK = 16,
+	EVENT_ROTATION = 17,
 };
 
 enum Actions
@@ -596,6 +597,7 @@ class boss_twilight_halion : public CreatureScript
                         events.ScheduleEvent(EVENT_DARK_BREATH, urand(10000, 15000));
                         events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
                         events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
+						
                     }
                     else
                         events.SetPhase(value);
@@ -613,9 +615,6 @@ class boss_twilight_halion : public CreatureScript
 
 			void UpdateAI(uint32 const diff)
             {
-                if (events.GetPhaseMask() & PHASE_ONE_MASK)
-                    return;
-					
                 generic_halionAI::UpdateAI(diff);
             }
         private:
@@ -673,6 +672,7 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_INTRO_HALION:
                         _events.Reset();
                         _events.ScheduleEvent(EVENT_START_INTRO, 2000);
+						_events.ScheduleEvent(EVENT_ROTATION, 500);
                         break;
                     default:
                         break;
@@ -681,7 +681,7 @@ class npc_halion_controller : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                // Do not check for target during the intro.
+				// Do not check for target during the intro.
                 if (!_playingIntro && !UpdateVictim())
                     return;
 
@@ -814,6 +814,17 @@ class npc_halion_controller : public CreatureScript
                             _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
                             break;
                         }
+						case EVENT_ROTATION : 
+						{
+							//yeah it is dirty but until we are not in last revision will no check some other solution
+							if (Creature* Orb = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_CARRIER)))
+								if (Creature* OrbFocus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_ROTATION_FOCUS)))
+								{
+									Orb->SetFacingToObject(OrbFocus);
+								}
+							_events.ScheduleEvent(EVENT_ROTATION, 100);
+							break;
+						}
                         default:
                             break;
                     }
@@ -930,7 +941,7 @@ class npc_orb_carrier : public CreatureScript
 
         struct npc_orb_carrierAI : public ScriptedAI
         {
-            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature)
+            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature),_instance(creature->GetInstanceScript())
             {
                 ASSERT(creature->GetVehicleKit());
             }
@@ -941,7 +952,7 @@ class npc_orb_carrier : public CreatureScript
                 //! However, refreshing it looks bad, so just cast the spell if
                 //! we are not channeling it.
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    me->CastSpell((Unit*)NULL, SPELL_TRACK_ROTATION, false);
+					me->CastSpell((Unit*)NULL, SPELL_TRACK_ROTATION, true);					{
             }
 
             void DoAction(int32 const action)
@@ -978,6 +989,8 @@ class npc_orb_carrier : public CreatureScript
                     }
                 }
             }
+
+			InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
