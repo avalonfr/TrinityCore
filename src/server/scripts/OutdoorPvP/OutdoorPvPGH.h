@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,7 +43,7 @@ enum OutdoorPvPGHWorldStates
 enum Misc
 {
     GH_OUTDOORPVP_ZONE      = 394,
-    GH_CONTROL_NPC_NUM      = 21,
+    GH_CONTROL_NPC_NUM      = 27,
 
     // Grizzly Hills text
     LANG_OPVP_GH_CAPTURE_A              = 12002,
@@ -72,6 +72,8 @@ const creature_type HordeControlNPCs[GH_CONTROL_NPC_NUM] =
     {27748,67,571,2539.792236f,-1974.311035f,8.256695f,5.160220f},
     {27748,67,571,2526.169189f,-1980.855347f,8.273070f,5.160220f},
     {27748,67,571,2553.052734f,-1882.842896f,4.512696f,6.110557f},
+    {27748,67,571,2508.050000f,-1881.029000f,9.846360f,2.568455f},
+	{27748,67,571,2490.601000f,-1928.522000f,12.32607f,0.558612f},
     // captain
     {27708,67,571,2485.295898f,-1889.402344f,9.714134f,6.202426f},
     // blacksmith
@@ -79,7 +81,12 @@ const creature_type HordeControlNPCs[GH_CONTROL_NPC_NUM] =
     // vendor
     {27730,67,571,2489.363770f,-1836.897095f,11.650964f,5.528555f},
     // stable master
-    {29251,67,571,2551.742188f,-1835.743652f,10.553280f,2.068092f}
+    {29251,67,571,2551.742188f,-1835.743652f,10.553280f,2.068092f},
+    // Wolfs
+    {5774,67,571,2560.325f,-1834.971f,10.55359f,5.286f},
+    {5774,67,571,2564.130f,-1840.000f,10.52643f,2.074f},
+    {5774,67,571,2556.819f,-1846.187f,10.18596f,2.074f},
+    {5774,67,571,2553.052f,-1840.467f,10.51856f,5.286f}
 };
 
 const creature_type AllianceControlNPCs[GH_CONTROL_NPC_NUM] =
@@ -102,6 +109,8 @@ const creature_type AllianceControlNPCs[GH_CONTROL_NPC_NUM] =
     {27758,469,571,2539.792236f,-1974.311035f,8.256695f,5.160220f},
     {27758,469,571,2526.169189f,-1980.855347f,8.273070f,5.160220f},
     {27758,469,571,2553.052734f,-1882.842896f,4.512696f,6.110557f},
+    {27758,469,571,2490.601000f,-1928.522000f,12.32607f,0.558612f},
+    {27758,469,571,2508.050000f,-1881.029000f,9.846360f,2.568455f},
     // captain
     {27759,469,571,2485.295898f,-1889.402344f,9.714134f,6.202426f},
     // blacksmith
@@ -109,7 +118,12 @@ const creature_type AllianceControlNPCs[GH_CONTROL_NPC_NUM] =
     // vendor
     {27760,469,571,2489.363770f,-1836.897095f,11.650964f,5.528555f},
     // stable master
-    {29250,469,571,2551.742188f,-1835.743652f,10.553280f,2.068092f}
+    {29250,469,571,2551.742188f,-1835.743652f,10.553280f,2.068092f},
+    // Horses
+    {385,469,571,2560.325f,-1834.971f,10.55359f,5.286f},
+    {385,469,571,2564.130f,-1840.000f,10.52643f,2.074f},
+    {385,469,571,2556.819f,-1846.187f,10.18596f,2.074f},
+    {385,469,571,2553.052f,-1840.467f,10.51856f,5.286f}
 };
 
 enum VentureStates
