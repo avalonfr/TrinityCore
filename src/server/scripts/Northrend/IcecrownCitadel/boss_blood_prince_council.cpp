@@ -466,7 +466,9 @@ class boss_prince_keleseth_icc : public CreatureScript
                     summon->MovePosition(pos, float(rand_norm() * maxRange), angle);
                 }
 
-                summon->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+                me->Relocate(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                float speed = me->GetDistance(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()) / ((float)0.001f);
+                me->MonsterMoveWithSpeed(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), speed);
             }
 
             void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType damageType)
