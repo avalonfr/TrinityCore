@@ -75,16 +75,11 @@ UPDATE creature_template SET faction_A = '1801', faction_H = '1801' WHERE entry 
 UPDATE creature_template SET npcflag=npcflag|32768 WHERE entry   IN (31841,31842);
 
 /* spell target for build vehicles */
-DELETE FROM `conditions` WHERE ConditionValue2=27852;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13, 0, 49899, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56575, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56661, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56663, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56665, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56667, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56669, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 61408, 0, 18, 1, 27852, 0, 0, '', NULL);
+DELETE FROM conditions WHERE SourceEntry IN (56663,56575,61408,56661);
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','1','56575','0','0','31','0','3','27852','0','0','0','',NULL);
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','1','56661','0','0','31','0','3','27852','0','0','0','',NULL);
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','1','56663','0','0','31','0','3','27852','0','0','0','',NULL);
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','1','61408','0','0','31','0','3','27852','0','0','0','',NULL);
 
 /* Workshop */
 UPDATE `gameobject_template` SET `faction` = 35 WHERE `entry` IN (192028,192029,192030,192031,192032,192033);
@@ -134,12 +129,12 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_start_active`, 
 /* Rajout des spells aux véhicules */
 delete FROM npc_spellclick_spells WHERE npc_entry IN(32627,28094,27881,28312,28319,32629);
 
-insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) values('27881','60968','0','0','0','1','0','0','0');
-insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) values('28094','60968','0','0','0','1','0','0','0');
-insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) values('28312','60968','0','0','0','1','0','0','0');
-insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) values('28319','60968','0','0','0','1','0','0','0');
-insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) values('32627','60968','0','0','0','1','0','0','0');
-insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) values('32629','60968','0','0','0','1','0','0','0');
+insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) values('27881','60968','1','0');
+insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) values('28094','60968','1','0');
+insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) values('28312','60968','1','0');
+insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) values('28319','60968','1','0');
+insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`,`cast_flags`,  `user_type`) values('32627','60968','1','0');
+insert into `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) values('32629','60968','1','0');
 
 /* ajout des objectifs outdoor */
 DELETE FROM gameobject_template WHERE entry IN (182173,182174,182175,182210,183104,183411,183412,183413,183414,182522,182523,182097,182098,182096,181899);
