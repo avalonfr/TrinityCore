@@ -1014,6 +1014,20 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     m_caster->CastCustomSpell(unitTarget, 37675, &basepoints0, NULL, NULL, true);
                     return;
                 }
+                case 42436: //Drink!
+                {
+							if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_caster)
+								return;
+							Player* player = m_caster->ToPlayer();
+							Unit* pTarget = player->FindNearestCreature(24108, 12.0f, true);
+               
+							if (pTarget)
+                                {
+                                    if ((pTarget->GetEntry() == 24108) && ((player->GetQuestStatus(12022) == QUEST_STATUS_INCOMPLETE) || (player->GetQuestStatus(12191) == QUEST_STATUS_INCOMPLETE)))
+                                    player->KilledMonsterCredit(24108,0);
+                                }               
+                                break;
+                }
                 // Wrath of the Astromancer
                 case 42784:
                 {
