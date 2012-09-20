@@ -111,7 +111,7 @@ static const Position MoveLocations1[9] =
     {1044.634521f, 109.196129f, 628.518188f, 0.000000f},
     {1052.443726f, 110.813431f, 628.156250f, 0.000000f},
 };
-
+/*
 static const Position MoveLocations2[9] =
 {
     {1068.739624f, 103.664474f, 630.880005f, 0.000000f},
@@ -124,7 +124,7 @@ static const Position MoveLocations2[9] =
     {1044.634521f, 109.196129f, 628.518188f, 0.000000f},
     {1052.443726f, 110.813431f, 628.156250f, 0.000000f},
 };
-
+*/
 static const Position leaderPosOutro1 = {1064.217896f, 118.629662f, 628.156311f, 0.000000f};
 static const Position rimefangPos[10] =
 {
@@ -294,7 +294,7 @@ class boss_tyrannus : public CreatureScript
                             events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(5000, 7000));
                             events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(14000, 16000));
                             events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(25000, 27000));
-                            
+/*                            
                         for(uint8 i = 0; i < 9; ++i)
                        {
                           if(Creature *pReaver = me->SummonCreature(NPC_WRATHBONE_REAVER, 1069.934082f, 49.015617f, 630.590210f, 1.657956f, TEMPSUMMON_DEAD_DESPAWN, 30000))
@@ -339,6 +339,7 @@ class boss_tyrannus : public CreatureScript
                               }
                           }
                         }
+*/
                             break;
                         case EVENT_OVERLORD_BRAND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
