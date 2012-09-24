@@ -465,7 +465,7 @@ enum DeathState
     JUST_DIED   = 1,
     CORPSE      = 2,
     DEAD        = 3,
-    JUST_ALIVED = 4,
+    JUST_RESPAWNED = 4,
 	DEAD_FALLING= 5
 };
 
@@ -709,6 +709,9 @@ enum MovementFlags
     MOVEMENTFLAG_MASK_TURNING =
         MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,
 
+    MOVEMENTFLAG_MASK_MOVING_FLY =
+        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
+
     //! TODO if needed: add more flags to this masks that are exclusive to players
     MOVEMENTFLAG_MASK_PLAYER_ONLY =
         MOVEMENTFLAG_FLYING,
@@ -736,15 +739,48 @@ enum MovementFlags2
 
 enum SplineFlags
 {
-    SPLINEFLAG_WALKMODE     = 0x00001000,
-    SPLINEFLAG_FLYING       = 0x00002000,
-    SPLINEFLAG_TRANSPORT    = 0x00800000,
-    SPLINEFLAG_EXIT_VEHICLE = 0x01000000,
+    SPLINEFLAG_NONE                 = 0x00000000,
+    SPLINEFLAG_FORWARD              = 0x00000001,
+    SPLINEFLAG_BACKWARD             = 0x00000002,
+    SPLINEFLAG_STRAFE_LEFT          = 0x00000004,
+    SPLINEFLAG_STRAFE_RIGHT         = 0x00000008,
+    SPLINEFLAG_TURN_LEFT            = 0x00000010,
+    SPLINEFLAG_TURN_RIGHT           = 0x00000020,
+    SPLINEFLAG_PITCH_UP             = 0x00000040,
+    SPLINEFLAG_PITCH_DOWN           = 0x00000080,
+    SPLINEFLAG_DONE                 = 0x00000100,
+    SPLINEFLAG_FALLING              = 0x00000200,
+    SPLINEFLAG_NO_SPLINE            = 0x00000400,
+    SPLINEFLAG_TRAJECTORY           = 0x00000800,
+    SPLINEFLAG_WALK_MODE            = 0x00001000,
+    SPLINEFLAG_FLYING               = 0x00002000,
+    SPLINEFLAG_KNOCKBACK            = 0x00004000,
+    SPLINEFLAG_FINAL_POINT          = 0x00008000,
+    SPLINEFLAG_FINAL_TARGET         = 0x00010000,
+    SPLINEFLAG_FINAL_FACING         = 0x00020000,
+    SPLINEFLAG_CATMULL_ROM          = 0x00040000,
+    SPLINEFLAG_CYCLIC               = 0x00080000,
+    SPLINEFLAG_ENTER_CYCLE          = 0x00100000,
+    SPLINEFLAG_ANIMATION_TIER       = 0x00200000,
+    SPLINEFLAG_FROZEN               = 0x00400000,
+    SPLINEFLAG_TRANSPORT            = 0x00800000,
+    SPLINEFLAG_TRANSPORT_EXIT       = 0x01000000,
+    SPLINEFLAG_UNKNOWN7             = 0x02000000,
+    SPLINEFLAG_UNKNOWN8             = 0x04000000,
+    SPLINEFLAG_ORIENTATION_INVERTED = 0x08000000,
+    SPLINEFLAG_USE_PATH_SMOOTHING   = 0x10000000,
+    SPLINEFLAG_ANIMATION            = 0x20000000,
+    SPLINEFLAG_UNCOMPRESSED_PATH    = 0x40000000,
+    SPLINEFLAG_UNKNOWN10            = 0x80000000,
 };
 
 enum SplineType
 {
-    SPLINETYPE_FACING_ANGLE  = 4,
+    SPLINETYPE_NORMAL               = 0,
+    SPLINETYPE_STOP                 = 1,
+    SPLINETYPE_FACING_SPOT          = 2,
+    SPLINETYPE_FACING_TARGET        = 3,
+    SPLINETYPE_FACING_ANGLE         = 4,
 };
 
 enum UnitTypeMask
@@ -1574,13 +1610,14 @@ class Unit : public WorldObject
         bool isTargetableForAttack(bool checkFakeDeath = true) const;
 
         bool IsValidAttackTarget(Unit const* target) const;
-        bool _IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell) const;
+        bool _IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, WorldObject const* obj = NULL) const;
 
         bool IsValidAssistTarget(Unit const* target) const;
         bool _IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) const;
 
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
+        virtual void UpdateUnderwaterState(Map* m, float x, float y, float z);
         bool isInAccessiblePlaceFor(Creature const* c) const;
 
         void SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical = false);
@@ -1648,7 +1685,7 @@ class Unit : public WorldObject
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
         virtual bool SetWalk(bool enable);
-        virtual bool SetDisableGravity(bool disable);
+        virtual bool SetDisableGravity(bool disable, bool packetOnly = false);
         bool SetHover(bool enable);
 
         void SetInFront(Unit const* target);
@@ -2034,12 +2071,20 @@ class Unit : public WorldObject
         void UnsummonAllTotems();
         Unit* GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo);
         Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = NULL);
-        int32 SpellBaseDamageBonus(SpellSchoolMask schoolMask);
-        int32 SpellBaseHealingBonus(SpellSchoolMask schoolMask);
-        int32 SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit* victim);
-        int32 SpellBaseHealingBonusForVictim(SpellSchoolMask schoolMask, Unit* victim);
-        uint32 SpellDamageBonus(Unit* victim, SpellInfo const* spellProto, uint32 damage, DamageEffectType damagetype, uint32 stack = 1);
-        uint32 SpellHealingBonus(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack = 1);
+
+        int32 SpellBaseDamageBonusDone(SpellSchoolMask schoolMask);
+        int32 SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask);
+        uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack = 1);
+        uint32 SpellDamageBonusTaken(Unit* caster, SpellInfo const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack = 1);
+        int32 SpellBaseHealingBonusDone(SpellSchoolMask schoolMask);
+        int32 SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask);
+        uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack = 1);
+        uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack = 1);
+
+        uint32 MeleeDamageBonusDone(Unit *pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const *spellProto = NULL);
+        uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage,WeaponAttackType attType, SpellInfo const *spellProto = NULL);
+
+
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
         bool   isBlockCritical();
         bool   isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
@@ -2051,8 +2096,8 @@ class Unit : public WorldObject
 
         void SetContestedPvP(Player* attackedPlayer = NULL);
 
-        void MeleeDamageBonus(Unit* victim, uint32 *damage, WeaponAttackType attType, SpellInfo const* spellProto = NULL);
-        uint32 GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime);
+        uint32 GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime) const;
+        float CalculateDefaultCoefficient(SpellInfo const *spellInfo, DamageEffectType damagetype) const;
 
         uint32 GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType auraType, uint8 effectIndex = 0) const;
 
@@ -2320,6 +2365,7 @@ class Unit : public WorldObject
         Vehicle* m_vehicleKit;
 
         uint32 m_unitTypeMask;
+        LiquidTypeEntry const* _lastLiquid;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;

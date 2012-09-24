@@ -185,7 +185,7 @@ public:
                                 pAttumen->GetMotionMaster()->MoveChase(pAttumen->getVictim());
                                 pAttumen->SetTarget(pAttumen->getVictim()->GetGUID());
                             }
-                            pAttumen->SetFloatValue(OBJECT_FIELD_SCALE_X, 1);
+                            pAttumen->SetObjectScale(1);
                         }
                     } else Mount_Timer -= diff;
                 }
@@ -244,8 +244,8 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
             Midnight = 0;
             me->SetVisible(false);
             me->Kill(me);
-        }
-    } else ResetTimer -= diff;
+        } else ResetTimer -= diff;
+    }
 
     //Return since we have no target
     if (!UpdateVictim())

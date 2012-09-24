@@ -114,6 +114,9 @@ void MotionMaster::UpdateMotion(uint32 diff)
 
         _cleanFlag &= ~MMCF_RESET;
     }
+
+    // probably not the best place to pu this but im not really sure where else to put it.
+    _owner->UpdateUnderwaterState(_owner->GetMap(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
 }
 
 void MotionMaster::DirectClean(bool reset)
@@ -295,7 +298,7 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z)
     }
 }
 
-void MotionMaster::MoveLand(uint32 id, Position const& pos, float speed)
+void MotionMaster::MoveLand(uint32 id, Position const& pos)
 {
     float x, y, z;
     pos.GetPosition(x, y, z);
@@ -304,13 +307,12 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, float speed)
 
     Movement::MoveSplineInit init(*_owner);
     init.MoveTo(x,y,z);
-    init.SetVelocity(speed);
     init.SetAnimation(Movement::ToGround);
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
-void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
+void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
 {
     float x, y, z;
     pos.GetPosition(x, y, z);
@@ -319,7 +321,6 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
 
     Movement::MoveSplineInit init(*_owner);
     init.MoveTo(x,y,z);
-    init.SetVelocity(speed);
     init.SetAnimation(Movement::ToFly);
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
@@ -382,6 +383,12 @@ void MotionMaster::MoveFall(uint32 id/*=0*/)
     // Abort too if the ground is very near
     if (fabs(_owner->GetPositionZ() - tz) < 0.1f)
         return;
+
+    if (_owner->GetTypeId() == TYPEID_PLAYER)
+    {
+        _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        _owner->m_movementInfo.SetFallTime(0);
+    }
 
     Movement::MoveSplineInit init(*_owner);
     init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz);

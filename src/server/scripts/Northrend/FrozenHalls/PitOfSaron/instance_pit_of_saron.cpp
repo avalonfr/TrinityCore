@@ -47,6 +47,13 @@ const Position spawnPoints1[3] =
 };
 Position const spawnPoints2 = {773.266174f, -43.121738f, 508.355469f, 3.954455f};
 
+DoorData const Doors[] =
+{
+    {GO_ICE_WALL,   DATA_GARFROST,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+    {GO_ICE_WALL,   DATA_ICK,       DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+    {GO_HALLS_OF_REFLECTION_PORTCULLIS,   DATA_TYRANNUS,       DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+};
+
 class instance_pit_of_saron : public InstanceMapScript
 {
     public:
@@ -57,6 +64,7 @@ class instance_pit_of_saron : public InstanceMapScript
             instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadDoorData(Doors);
                 _garfrostGUID = 0;
                 _krickGUID = 0;
                 _ickGUID = 0;
@@ -206,6 +214,28 @@ class instance_pit_of_saron : public InstanceMapScript
                     case GO_HALLS_OF_REFLECT_PORT:
                          _uiHorp = go->GetGUID();
                          break;
+                }
+            }
+
+            void OnGameObjectCreate(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_ICE_WALL:
+                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
+                        AddDoor(go, true);
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_ICE_WALL:
+                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
+                        AddDoor(go, false);
+                        break;
                 }
             }
 

@@ -190,7 +190,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         }
         case CONDITION_OBJECT_ENTRY:
         {
-            if (object->GetTypeId() == ConditionValue1)
+            if (uint32(object->GetTypeId()) == ConditionValue1)
                 condMeets = (!ConditionValue2) || (object->GetEntry() == ConditionValue2);
             break;
         }
@@ -272,6 +272,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_PHASEMASK:
         {
             condMeets = object->GetPhaseMask() & ConditionValue1;
+            break;
+        }
+        case CONDITION_TITLE:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->HasTitle(ConditionValue1);
             break;
         }
         default:
@@ -421,6 +427,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             break;
         case CONDITION_PHASEMASK:
             mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_TITLE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -1826,9 +1835,16 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Phasemask condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
-        case CONDITION_UNUSED_18:
-            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_18 in `conditions` table - ignoring");
-            return false;
+        case CONDITION_TITLE:
+        {
+            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
+            if (!titleEntry)
+            {
+                sLog->outErrorDb("Title condition has non existing title in value1 (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
         case CONDITION_UNUSED_19:
             sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
             return false;

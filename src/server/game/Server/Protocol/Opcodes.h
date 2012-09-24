@@ -911,7 +911,7 @@ enum Opcodes
     CMSG_LFG_SET_ROLES                              = 0x36A,
     CMSG_LFG_SET_NEEDS                              = 0x36B,
     CMSG_LFG_SET_BOOT_VOTE                          = 0x36C,
-    SMSG_LFG_BOOT_PLAYER                            = 0x36D,    // uint8, uint8, uint8, uint64, uint32, uint32, uint32, uint32
+    SMSG_LFG_BOOT_PROPOSAL_UPDATE                   = 0x36D,    // uint8, uint8, uint8, uint64, uint32, uint32, uint32, uint32
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST               = 0x36E,
     SMSG_LFG_PLAYER_INFO                            = 0x36F,    // uint8, for (uint8) { uint32, uint8, uint32, uint32, uint32, uint32, uint8, for (uint8) {uint32, uint32, uint32}}, uint32, for (uint32) {uint32, uint32}
     CMSG_LFG_TELEPORT                               = 0x370,
@@ -1248,8 +1248,8 @@ enum Opcodes
     SMSG_CALENDAR_CLEAR_PENDING_ACTION              = 0x4BB,
     SMSG_EQUIPMENT_SET_LIST                         = 0x4BC, // equipment manager list?
     CMSG_EQUIPMENT_SET_SAVE                         = 0x4BD,
-    CMSG_UPDATE_PROJECTILE_POSITION                 = 0x4BE, // uint64 caster, uint32 spellId, uint8 castId, vector3 position
-    SMSG_SET_PROJECTILE_POSITION                    = 0x4BF, // uint64 caster, uint8 castId, vector3 position
+    CMSG_UPDATE_PROJECTILE_POSITION                 = 0x4BE,
+    SMSG_SET_PROJECTILE_POSITION                    = 0x4BF,
     SMSG_TALENTS_INFO                               = 0x4C0,
     CMSG_LEARN_PREVIEW_TALENTS                      = 0x4C1,
     CMSG_LEARN_PREVIEW_TALENTS_PET                  = 0x4C2,
@@ -1354,7 +1354,7 @@ enum SessionStatus
     STATUS_AUTHED = 0,                                      // Player authenticated (_player == NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
     STATUS_LOGGEDIN,                                        // Player in game (_player != NULL, m_GUID == _player->GetGUID(), inWorld())
     STATUS_TRANSFER,                                        // Player transferring to another map (_player != NULL, m_GUID == _player->GetGUID(), !inWorld())
-    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player!= NULL or _player == NULL && m_playerRecentlyLogout, m_GUID store last _player guid)
+    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player != NULL or _player == NULL && m_playerRecentlyLogout && m_playerLogout, m_GUID store last _player guid)
     STATUS_NEVER,                                           // Opcode not accepted from client (deprecated or server side only)
     STATUS_UNHANDLED,                                       // Opcode not handled yet
 };

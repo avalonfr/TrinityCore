@@ -44,20 +44,8 @@ namespace Movement
     void PacketBuilder::WriteCommonMonsterMovePart(const MoveSpline& move_spline, WorldPacket& data)
     {
         MoveSplineFlag splineflags = move_spline.splineflags;
-        /*if (unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
-        {
-            data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            if (unit->GetVehicle())
-                data << unit->GetVehicle()->GetBase()->GetPackGUID();
-            else if (unit->GetTransport())
-                data << unit->GetTransport()->GetPackGUID();
-            else
-                data << uint64(0);
 
-            data << int8(unit->GetTransSeat());
-        }*/
-
-        data << uint8(0);
+        data << uint8(0);                                       // sets/unsets MOVEMENTFLAG2_UNK7 (0x40)
         data << move_spline.spline.getPoint(move_spline.spline.first());
         data << move_spline.GetId();
 
@@ -111,7 +99,7 @@ namespace Movement
             Vector3 middle = (real_path[0] + real_path[last_idx]) / 2.f;
             Vector3 offset;
             // first and last points already appended
-            for(uint32 i = 1; i < last_idx; ++i)
+            for (uint32 i = 1; i < last_idx; ++i)
             {
                 offset = middle - real_path[i];
                 data.appendPackXYZ(offset.x, offset.y, offset.z);

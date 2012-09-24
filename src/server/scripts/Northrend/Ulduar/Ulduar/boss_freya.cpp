@@ -508,7 +508,7 @@ class boss_freya : public CreatureScript
                                         for (uint8 n = 0; n < 3; ++n)
                                         {
                                             summons.remove(Elemental[n][i]->GetGUID());
-                                            Elemental[n][i]->ForcedDespawn(5000);
+                                            Elemental[n][i]->DespawnOrUnsummon(5000);
                                             trioDefeated[i] = true;
                                             Elemental[n][i]->CastSpell(me, SPELL_REMOVE_10STACK, true);
                                         }
@@ -665,12 +665,12 @@ class boss_freya : public CreatureScript
                     case NPC_DETONATING_LASHER:
                         summoned->CastSpell(me, SPELL_REMOVE_2STACK, true);
                         summoned->CastSpell(who, SPELL_DETONATE, true);
-                        summoned->ForcedDespawn(5000);
+                        summoned->DespawnOrUnsummon(5000);
                         summons.remove(summoned->GetGUID());
                         break;
                     case NPC_ANCIENT_CONSERVATOR:
                         summoned->CastSpell(me, SPELL_REMOVE_25STACK, true);
-                        summoned->ForcedDespawn(5000);
+                        summoned->DespawnOrUnsummon(5000);
                         summons.remove(summoned->GetGUID());
                         break;
                 }
@@ -1386,7 +1386,7 @@ class npc_healthy_spore : public CreatureScript
                 if (lifeTimer <= diff)
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
-                    me->ForcedDespawn(2200);
+                    me->DespawnOrUnsummon(2200);
                     lifeTimer = urand(22000, 30000);
                 }
                 else
@@ -1424,7 +1424,7 @@ class npc_eonars_gift : public CreatureScript
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
                     DoCast(SPELL_LIFEBINDERS_GIFT);
-                    me->ForcedDespawn(2500);
+                    me->DespawnOrUnsummon(2500);
                     lifeBindersGiftTimer = 12000;
                 }
                 else
