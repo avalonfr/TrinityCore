@@ -327,7 +327,7 @@ public:
 
 void AddSC_undercity()
 {
-    new boss_lady_sylvanas_windrunner();
+    new npc_lady_sylvanas_windrunner();
     new npc_highborne_lamenter();
     new npc_parqual_fintallas();
 }

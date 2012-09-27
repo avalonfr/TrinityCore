@@ -351,7 +351,7 @@ public:
                 if (Creature *pIgnis = me->GetCreature(*me, pInstance->GetData64(DATA_IGNIS)))
                     pIgnis->AI()->DoAction(ACTION_REMOVE_BUFF);
                     
-                me->ForcedDespawn(1000);
+                me->DespawnOrUnsummon(1000);
             }
         }
     

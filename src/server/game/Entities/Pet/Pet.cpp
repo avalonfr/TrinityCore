@@ -918,7 +918,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             uint32 val  = (fire > shadow) ? fire : shadow;
             SetBonusDamage(int32 (val * 0.15f));
             //bonusAP += val * 0.57;
-			SetBonusDamage(m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FIRE) * 0.5f);
+			SetBonusDamage(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE) * 0.5f);
 
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
@@ -957,25 +957,22 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 					// Brambles rank 1
                     if (m_owner->HasAura(16836))
                    {
-                        minDmg *= 1.05f;
-                        maxDmg *= 1.05f;
+					    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (float(petlevel * 2.5f - (petlevel / 2) + bonusDmg))*1.05f);
+						SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (float(petlevel * 2.5f + (petlevel / 2) + bonusDmg))*1.05f);
                     }
 					// Brambles rank 2
                     else if (m_owner->HasAura(16839))
                     {
-                        minDmg *= 1.10f;
-                        maxDmg *= 1.10f;
+					    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (float(petlevel * 2.5f - (petlevel / 2) + bonusDmg))*1.10f);
+						SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (float(petlevel * 2.5f + (petlevel / 2) + bonusDmg))*1.10f);
                     }
 					// Brambles rank 3
                     else if (m_owner->HasAura(16840))
                     {
-                        minDmg *= 1.15f;
-                        maxDmg *= 1.15f;
+					    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (float(petlevel * 2.5f - (petlevel / 2) + bonusDmg))*1.15f);
+						SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (float(petlevel * 2.5f + (petlevel / 2) + bonusDmg))*1.15f);
                     }
-
-                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, minDmg);
-                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxDmg);
-                    break;
+                   break;
                 }
                 case 15352: //earth elemental 36213
                 {

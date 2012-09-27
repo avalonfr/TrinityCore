@@ -1,26 +1,26 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /*
- * Comment: there is missing code on triggers,
- *          brann bronzebeard needs correct gossip info.
- *          requires more work involving area triggers.
- *          if reached brann speaks through his radio..
- */
+* Comment: there is missing code on triggers,
+* brann bronzebeard needs correct gossip info.
+* requires more work involving area triggers.
+* if reached brann speaks through his radio..
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -36,134 +36,134 @@
 
 enum Spells
 {
-    SPELL_PURSUED                  = 62374,
-    SPELL_GATHERING_SPEED          = 62375,
-    SPELL_BATTERING_RAM            = 62376,
-    SPELL_FLAME_VENTS              = 62396,
-    SPELL_MISSILE_BARRAGE          = 62400,
-    SPELL_SYSTEMS_SHUTDOWN         = 62475,
-    SPELL_OVERLOAD_CIRCUIT         = 62399,
-    SPELL_START_THE_ENGINE         = 62472,
-    SPELL_SEARING_FLAME            = 62402,
-    SPELL_BLAZE                    = 62292,
-    SPELL_TAR_PASSIVE              = 62288,
-    SPELL_SMOKE_TRAIL              = 63575,
-    SPELL_SMOKE_TRAIL_VISUAL       = 61364,
-    SPELL_ELECTROSHOCK             = 62522,
-    SPELL_NAPALM                   = 63666,
+    SPELL_PURSUED = 62374,
+    SPELL_GATHERING_SPEED = 62375,
+    SPELL_BATTERING_RAM = 62376,
+    SPELL_FLAME_VENTS = 62396,
+    SPELL_MISSILE_BARRAGE = 62400,
+    SPELL_SYSTEMS_SHUTDOWN = 62475,
+    SPELL_OVERLOAD_CIRCUIT = 62399,
+    SPELL_START_THE_ENGINE = 62472,
+    SPELL_SEARING_FLAME = 62402,
+    SPELL_BLAZE = 62292,
+    SPELL_TAR_PASSIVE = 62288,
+    SPELL_SMOKE_TRAIL = 63575,
+    SPELL_SMOKE_TRAIL_VISUAL = 61364,
+    SPELL_ELECTROSHOCK = 62522,
+    SPELL_NAPALM = 63666,
     SPELL_INVIS_AND_STEALTH_DETECT = 18950, // Passive
     // TOWER Additional SPELLS
-    SPELL_THORIMS_HAMMER           = 62911, // Tower of Storms
-    SPELL_MIMIRONS_INFERNO         = 62909, // Tower of Flames
-    SPELL_HODIRS_FURY              = 62533, // Tower of Frost
-    SPELL_FREYAS_WARD              = 62906, // Tower of Nature
-    SPELL_FREYA_SUMMONS            = 62947, // Tower of Nature
+    SPELL_THORIMS_HAMMER = 62911, // Tower of Storms
+    SPELL_MIMIRONS_INFERNO = 62909, // Tower of Flames
+    SPELL_HODIRS_FURY = 62533, // Tower of Frost
+    SPELL_FREYAS_WARD = 62906, // Tower of Nature
+    SPELL_FREYA_SUMMONS = 62947, // Tower of Nature
     // TOWER ap & health spells
-    SPELL_BUFF_TOWER_OF_STORMS     = 65076,
-    SPELL_BUFF_TOWER_OF_FLAMES     = 65075,
-    SPELL_BUFF_TOWER_OF_FR0ST      = 65077,
-    SPELL_BUFF_TOWER_OF_LIFE       = 64482,
+    SPELL_BUFF_TOWER_OF_STORMS = 65076,
+    SPELL_BUFF_TOWER_OF_FLAMES = 65075,
+    SPELL_BUFF_TOWER_OF_FR0ST = 65077,
+    SPELL_BUFF_TOWER_OF_LIFE = 64482,
     // Additional Spells
-    SPELL_FORCE_REACTION           = 57605, // temporary
+    SPELL_FORCE_REACTION = 57605, // temporary
 
-    SPELL_LASH                     = 65062,
-    SPELL_AUTO_REPAIR              = 62705,
+    SPELL_LASH = 65062,
+    SPELL_AUTO_REPAIR = 62705,
 
-    SPELL_BLUE_SKYBEAM             = 63769,
-    SPELL_GREEN_SKYBEAM            = 63771,
-    SPELL_RED_SKYBEAM              = 63772,
-    SPELL_LIGHTNING_SKYBEAM        = 63773,
+    SPELL_BLUE_SKYBEAM = 63769,
+    SPELL_GREEN_SKYBEAM = 63771,
+    SPELL_RED_SKYBEAM = 63772,
+    SPELL_LIGHTNING_SKYBEAM = 63773,
 
-    SPELL_LIQUID_PYRITE            = 62494,
-    SPELL_DUSTY_EXPLOSION          = 63360,
-    SPELL_DUST_CLOUD_IMPACT        = 54740,
-    SPELL_ANTI_AIR_ROCKET_DMG      = 62363,
-    SPELL_GROUND_SLAM              = 62625
+    SPELL_LIQUID_PYRITE = 62494,
+    SPELL_DUSTY_EXPLOSION = 63360,
+    SPELL_DUST_CLOUD_IMPACT = 54740,
+    SPELL_ANTI_AIR_ROCKET_DMG = 62363,
+    SPELL_GROUND_SLAM = 62625
 };
 
 enum Creatures
 {
-    NPC_SEAT                       = 33114,
-    NPC_DEFENSE_TURRET             = 33142,
-    NPC_OVERLOAD_DEVICE            = 33143,
-    NPC_MECHANOLIFT                = 33214,
-    NPC_LIQUID                     = 33189,
-    NPC_CONTAINER                  = 33218,
-    NPC_THORIMS_HAMMER             = 33365,
-    NPC_MIMIRONS_INFERNO           = 33370,
-    NPC_HODIRS_FURY                = 33212,
-    NPC_FREYAS_WARD                = 33367,
-    NPC_THORIM_RETICLE             = 33364,
-    NPC_MIMIRON_RETICLE            = 33369,
-    NPC_HODIR_RETICLE              = 33108,
-    NPC_FREYA_RETICLE              = 33366,
-    NPC_WRITHING_LASHER            = 33387,
-    NPC_WARD_OF_LIFE               = 34275,
+    NPC_SEAT = 33114,
+    NPC_DEFENSE_TURRET = 33142,
+    NPC_OVERLOAD_DEVICE = 33143,
+    NPC_MECHANOLIFT = 33214,
+    NPC_LIQUID = 33189,
+    NPC_CONTAINER = 33218,
+    NPC_THORIMS_HAMMER = 33365,
+    NPC_MIMIRONS_INFERNO = 33370,
+    NPC_HODIRS_FURY = 33212,
+    NPC_FREYAS_WARD = 33367,
+    NPC_THORIM_RETICLE = 33364,
+    NPC_MIMIRON_RETICLE = 33369,
+    NPC_HODIR_RETICLE = 33108,
+    NPC_FREYA_RETICLE = 33366,
+    NPC_WRITHING_LASHER = 33387,
+    NPC_WARD_OF_LIFE = 34275,
 };
 
 enum Events
 {
-    EVENT_PURSUE            = 1,
-    EVENT_MISSILE           = 2,
-    EVENT_VENT              = 3,
-    EVENT_SPEED             = 4,
-    EVENT_SHUTDOWN          = 5,
-    EVENT_REPAIR            = 6,
-    EVENT_THORIMS_HAMMER    = 7,    // Tower of Storms
-    EVENT_MIMIRONS_INFERNO  = 8,    // Tower of Flames
-    EVENT_HODIRS_FURY       = 9,    // Tower of Frost
-    EVENT_FREYAS_WARD       = 10    // Tower of Nature
+    EVENT_PURSUE = 1,
+    EVENT_MISSILE = 2,
+    EVENT_VENT = 3,
+    EVENT_SPEED = 4,
+    EVENT_SHUTDOWN = 5,
+    EVENT_REPAIR = 6,
+    EVENT_THORIMS_HAMMER = 7, // Tower of Storms
+    EVENT_MIMIRONS_INFERNO = 8, // Tower of Flames
+    EVENT_HODIRS_FURY = 9, // Tower of Frost
+    EVENT_FREYAS_WARD = 10 // Tower of Nature
 };
 
 enum Seats
 {
-    SEAT_PLAYER             = 0,
-    SEAT_TURRET             = 1,
-    SEAT_DEVICE             = 2,
-    SEAT_CANNON             = 7
+    SEAT_PLAYER = 0,
+    SEAT_TURRET = 1,
+    SEAT_DEVICE = 2,
+    SEAT_CANNON = 7
 };
 
 enum Vehicles
 {
-    VEHICLE_SIEGE           = 33060,
-    VEHICLE_CHOPPER         = 33062,
-    VEHICLE_DEMOLISHER      = 33109
+    VEHICLE_SIEGE = 33060,
+    VEHICLE_CHOPPER = 33062,
+    VEHICLE_DEMOLISHER = 33109
 };
 
-#define EMOTE_PURSUE          "Flame Leviathan pursues $N."
-#define EMOTE_OVERLOAD        "Flame Leviathan's circuits overloaded."
-#define EMOTE_REPAIR          "Automatic repair sequence initiated."
+#define EMOTE_PURSUE "Flame Leviathan pursues $N."
+#define EMOTE_OVERLOAD "Flame Leviathan's circuits overloaded."
+#define EMOTE_REPAIR "Automatic repair sequence initiated."
 
 enum Yells
 {
-    SAY_AGGRO               = -1603060,
-    SAY_SLAY                = -1603061,
-    SAY_DEATH               = -1603062,
-    SAY_TARGET_1            = -1603063,
-    SAY_TARGET_2            = -1603064,
-    SAY_TARGET_3            = -1603065,
-    SAY_HARDMODE            = -1603066,
-    SAY_TOWER_NONE          = -1603067,
-    SAY_TOWER_FROST         = -1603068,
-    SAY_TOWER_FLAME         = -1603069,
-    SAY_TOWER_NATURE        = -1603070,
-    SAY_TOWER_STORM         = -1603071,
-    SAY_PLAYER_RIDING       = -1603072,
-    SAY_OVERLOAD_1          = -1603073,
-    SAY_OVERLOAD_2          = -1603074,
-    SAY_OVERLOAD_3          = -1603075
+    SAY_AGGRO = -1603060,
+    SAY_SLAY = -1603061,
+    SAY_DEATH = -1603062,
+    SAY_TARGET_1 = -1603063,
+    SAY_TARGET_2 = -1603064,
+    SAY_TARGET_3 = -1603065,
+    SAY_HARDMODE = -1603066,
+    SAY_TOWER_NONE = -1603067,
+    SAY_TOWER_FROST = -1603068,
+    SAY_TOWER_FLAME = -1603069,
+    SAY_TOWER_NATURE = -1603070,
+    SAY_TOWER_STORM = -1603071,
+    SAY_PLAYER_RIDING = -1603072,
+    SAY_OVERLOAD_1 = -1603073,
+    SAY_OVERLOAD_2 = -1603074,
+    SAY_OVERLOAD_3 = -1603075
 };
 
 enum AchievementData
 {
-    DATA_SHUTOUT            = 1,
+    DATA_SHUTOUT = 1,
     DATA_ORBIT_ACHIEVEMENTS = 2
 };
 
 enum Actions
 {
-    ACTION_START_ENCOUNTER           = 10,
-    ACTION_OVERLOAD_CIRCUIT          = 11,
+    ACTION_START_ENCOUNTER = 10,
+    ACTION_OVERLOAD_CIRCUIT = 11,
 };
 
 Position const Misc[]=
@@ -652,7 +652,7 @@ class npc_flame_leviathan_seat : public CreatureScript
             void PassengerBoarded(Unit* who, int8 seatId, bool apply)
             {
                 //if (!me->GetVehicle())
-                //    return;
+                // return;
 
                 if (seatId == SEAT_PLAYER)
                 {
@@ -1261,7 +1261,7 @@ class npc_leviathan_player_vehicle : public CreatureScript
                 _instance = creature->GetInstanceScript();
 
                 if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3013)))
-                    vehSeat->m_flags &= ~VEHICLE_SEAT_FLAG_UNK1;
+                    vehSeat->m_flags &= ~VEHICLE_SEAT_FLAG_ALLOW_TURNING;
             }
 
             void PassengerBoarded(Unit* unit, int8 seat, bool apply)
@@ -1295,8 +1295,8 @@ class npc_leviathan_player_vehicle : public CreatureScript
 };
 
 // npc lore keeper
-#define GOSSIP_ITEM_1  "Activate secondary defensive systems"
-#define GOSSIP_ITEM_2  "Confirmed"
+#define GOSSIP_ITEM_1 "Activate secondary defensive systems"
+#define GOSSIP_ITEM_2 "Confirmed"
 
 class npc_lorekeeper : public CreatureScript
 {
@@ -1310,20 +1310,20 @@ class npc_lorekeeper : public CreatureScript
             }
 
             /*
-            void DoAction(int32 const action)
-            {
-                // Start encounter
-                if (action == 0)
-                {
-                    for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                    for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_CHOPPER, PosChopper[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                    for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_DEMOLISHER, PosDemolisher[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                    return;
-                }
-            }*/
+void DoAction(int32 const action)
+{
+// Start encounter
+if (action == 0)
+{
+for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
+DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
+DoSummon(VEHICLE_CHOPPER, PosChopper[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
+DoSummon(VEHICLE_DEMOLISHER, PosDemolisher[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+return;
+}
+}*/
         };
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
@@ -1389,51 +1389,51 @@ class npc_lorekeeper : public CreatureScript
 };
 
 ////npc_brann_bronzebeard this requires more work involving area triggers. if reached this guy speaks through his radio..
-//#define GOSSIP_ITEM_1  "xxxxx"
-//#define GOSSIP_ITEM_2  "xxxxx"
+//#define GOSSIP_ITEM_1 "xxxxx"
+//#define GOSSIP_ITEM_2 "xxxxx"
 //
 /*
 class npc_brann_bronzebeard : public CreatureScript
 {
 public:
-    npc_brann_bronzebeard() : CreatureScript("npc_brann_bronzebeard") { }
+npc_brann_bronzebeard() : CreatureScript("npc_brann_bronzebeard") { }
 
-    //bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
-    //{
-    //    pPlayer->PlayerTalkClass->ClearMenus();
-    //    switch(uiAction)
-    //    {
-    //        case GOSSIP_ACTION_INFO_DEF+1:
-    //            if (pPlayer)
-    //            {
-    //                pPlayer->PrepareGossipMenu(creature);
-    //
-    //                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-    //                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
-    //            }
-    //            break;
-    //        case GOSSIP_ACTION_INFO_DEF+2:
-    //            if (pPlayer)
-    //                pPlayer->CLOSE_GOSSIP_MENU();
-    //            if (Creature* Lorekeeper = creature->FindNearestCreature(NPC_LOREKEEPER, 1000, true)) //lore keeper of lorgannon
-    //                Lorekeeper->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-    //            break;
-    //    }
-    //    return true;
-    //}
-    //bool OnGossipHello(Player* pPlayer, Creature* creature)
-    //{
-    //    InstanceScript* instance = creature->GetInstanceScript();
-    //    if (instance && instance->GetData(TYPE_LEVIATHAN) !=DONE)
-    //    {
-    //        pPlayer->PrepareGossipMenu(creature);
-    //
-    //        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    //        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
-    //    }
-    //    return true;
-    //}
-    //
+//bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
+//{
+// pPlayer->PlayerTalkClass->ClearMenus();
+// switch(uiAction)
+// {
+// case GOSSIP_ACTION_INFO_DEF+1:
+// if (pPlayer)
+// {
+// pPlayer->PrepareGossipMenu(creature);
+//
+// pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+// pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+// }
+// break;
+// case GOSSIP_ACTION_INFO_DEF+2:
+// if (pPlayer)
+// pPlayer->CLOSE_GOSSIP_MENU();
+// if (Creature* Lorekeeper = creature->FindNearestCreature(NPC_LOREKEEPER, 1000, true)) //lore keeper of lorgannon
+// Lorekeeper->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+// break;
+// }
+// return true;
+//}
+//bool OnGossipHello(Player* pPlayer, Creature* creature)
+//{
+// InstanceScript* instance = creature->GetInstanceScript();
+// if (instance && instance->GetData(TYPE_LEVIATHAN) !=DONE)
+// {
+// pPlayer->PrepareGossipMenu(creature);
+//
+// pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+// pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
+// }
+// return true;
+//}
+//
 }
 */
 
@@ -1636,7 +1636,7 @@ class spell_anti_air_rocket : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
 
-                if (const WorldLocation* pos = GetTargetDest())
+                if (const WorldLocation* pos = GetExplTargetDest())
                 {
                     if (Creature* temp = GetCaster()->SummonCreature(22515, *pos, TEMPSUMMON_TIMED_DESPAWN, 500))
                     {
@@ -1726,14 +1726,14 @@ class spell_pursued : public SpellScriptLoader
                 if (!tempList.empty())
                 {
                     // found one or more vehicles, select a random one
-                    _target = SelectRandomContainerElement(tempList);
+                    _target = Trinity::Containers::SelectRandomContainerElement(tempList);
                     unitList.clear();
                     unitList.push_back(_target);
                 }
                 else
                 {
                     // found no vehicles, select a random player or pet
-                    _target = SelectRandomContainerElement(unitList);
+                    _target = Trinity::Containers::SelectRandomContainerElement(unitList);
                     unitList.clear();
                     unitList.push_back(_target);
                 }
@@ -1935,8 +1935,8 @@ class spell_freyas_ward_summon : public SpellScriptLoader
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* leviathan = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_LEVIATHAN)))
                             for (uint8 i = 0; i < urand(3, 5); ++i)
-                                leviathan->SummonCreature(NPC_WRITHING_LASHER, GetTargetDest()->GetPositionX(), GetTargetDest()->GetPositionY(),
-                                GetTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 3000);
+                                leviathan->SummonCreature(NPC_WRITHING_LASHER, GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY(),
+                                GetExplTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 3000);
             }
 
             void HandleSummon(SpellEffIndex effIndex)
@@ -1946,8 +1946,8 @@ class spell_freyas_ward_summon : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* leviathan = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_LEVIATHAN)))
-                            leviathan->SummonCreature(NPC_WARD_OF_LIFE, GetTargetDest()->GetPositionX(), GetTargetDest()->GetPositionY(),
-                            GetTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 3000);
+                            leviathan->SummonCreature(NPC_WARD_OF_LIFE, GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY(),
+                            GetExplTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 3000);
             }
 
             void Register()

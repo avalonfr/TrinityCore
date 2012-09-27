@@ -1,26 +1,26 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /*
-    TODO:
-        Achievments:
-            Nerf Scrapbots - in Scrapbot script
+TODO:
+Achievments:
+Nerf Scrapbots - in Scrapbot script
 
-        make the life sparks visible...
+make the life sparks visible...
 */
 
 #include "ScriptMgr.h"
@@ -30,59 +30,59 @@
 
 enum Spells
 {
-    SPELL_TYMPANIC_TANTRUM                      = 62776,
-    SPELL_SEARING_LIGHT_10                      = 63018,
-    SPELL_SEARING_LIGHT_25                      = 65121,
+    SPELL_TYMPANIC_TANTRUM = 62776,
+    SPELL_SEARING_LIGHT_10 = 63018,
+    SPELL_SEARING_LIGHT_25 = 65121,
 
-    SPELL_GRAVITY_BOMB_10                       = 63024,
-    SPELL_GRAVITY_BOMB_25                       = 64234,
+    SPELL_GRAVITY_BOMB_10 = 63024,
+    SPELL_GRAVITY_BOMB_25 = 64234,
 
-    SPELL_HEARTBREAK_10                         = 65737,
-    SPELL_HEARTBREAK_25                         = 64193,
+    SPELL_HEARTBREAK_10 = 65737,
+    SPELL_HEARTBREAK_25 = 64193,
 
-    SPELL_HEART_EXPOSED                         = 62789,
+    SPELL_HEART_EXPOSED = 62789,
 
-    SPELL_ENRAGE                                = 26662,
+    SPELL_ENRAGE = 26662,
 
     //------------------VOID ZONE--------------------
-    SPELL_VOID_ZONE_10                          = 64203,
-    SPELL_VOID_ZONE_25                          = 64235,
-    SPELL_CONSUMPTION_10                        = 64208,
-    SPELL_CONSUMPTION_25                        = 64206,
+    SPELL_VOID_ZONE_10 = 64203,
+    SPELL_VOID_ZONE_25 = 64235,
+    SPELL_CONSUMPTION_10 = 64208,
+    SPELL_CONSUMPTION_25 = 64206,
 
     // Life Spark
-    SPELL_STATIC_CHARGED_10                     = 64227,
-    SPELL_STATIC_CHARGED_25                     = 64236,
-    SPELL_SHOCK                                 = 64230,
+    SPELL_STATIC_CHARGED_10 = 64227,
+    SPELL_STATIC_CHARGED_25 = 64236,
+    SPELL_SHOCK = 64230,
 
     //----------------XT-002 HEART-------------------
-    SPELL_EXPOSED_HEART                         = 63849,
-    SPELL_HEART_RIDE_XT002                      = 63852,
+    SPELL_EXPOSED_HEART = 63849,
+    SPELL_HEART_RIDE_XT002 = 63852,
 
     //---------------XM-024 PUMMELLER----------------
-    SPELL_ARCING_SMASH                          = 8374,
-    SPELL_TRAMPLE                               = 5568,
-    SPELL_UPPERCUT                              = 10966,
+    SPELL_ARCING_SMASH = 8374,
+    SPELL_TRAMPLE = 5568,
+    SPELL_UPPERCUT = 10966,
 
     //------------------BOOMBOT-----------------------
-    SPELL_BOOM                                  = 62834,
-    SPELL_AURA_BOOMBOT                          = 65032,
+    SPELL_BOOM = 62834,
+    SPELL_AURA_BOOMBOT = 65032,
 
     //-----------------SCRAPBOT-----------------------
-    SPELL_HEAL_XT002                            = 62832,
+    SPELL_HEAL_XT002 = 62832,
 
     // Achievement-related spells
-    SPELL_ACHIEVEMENT_CREDIT_NERF_SCRAPBOTS     = 65037
+    SPELL_ACHIEVEMENT_CREDIT_NERF_SCRAPBOTS = 65037
 };
 
 enum Creatures
 {
-    NPC_VOID_ZONE                               = 34001,
-    NPC_LIFE_SPARK                              = 34004,
-    NPC_XT002_HEART                             = 33329,
-    NPC_XS013_SCRAPBOT                          = 33343,
-    NPC_XM024_PUMMELLER                         = 33344,
-    NPC_XE321_BOOMBOT                           = 33346
+    NPC_VOID_ZONE = 34001,
+    NPC_LIFE_SPARK = 34004,
+    NPC_XT002_HEART = 33329,
+    NPC_XS013_SCRAPBOT = 33343,
+    NPC_XM024_PUMMELLER = 33344,
+    NPC_XE321_BOOMBOT = 33346
 };
 
 enum Actions
@@ -101,43 +101,43 @@ enum Data
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603300,
-    SAY_HEART_OPENED                            = -1603301,
-    SAY_HEART_CLOSED                            = -1603302,
-    SAY_TYMPANIC_TANTRUM                        = -1603303,
-    SAY_SLAY_1                                  = -1603304,
-    SAY_SLAY_2                                  = -1603305,
-    SAY_BERSERK                                 = -1603306,
-    SAY_DEATH                                   = -1603307,
-    SAY_SUMMON                                  = -1603308
+    SAY_AGGRO = -1603300,
+    SAY_HEART_OPENED = -1603301,
+    SAY_HEART_CLOSED = -1603302,
+    SAY_TYMPANIC_TANTRUM = -1603303,
+    SAY_SLAY_1 = -1603304,
+    SAY_SLAY_2 = -1603305,
+    SAY_BERSERK = -1603306,
+    SAY_DEATH = -1603307,
+    SAY_SUMMON = -1603308
 };
 
 enum
 {
-    ACHIEV_TIMED_START_EVENT                    = 21027
+    ACHIEV_TIMED_START_EVENT = 21027
 };
 
 #define EMOTE_TYMPANIC "XT-002 Deconstructor begins to cause the earth to quake."
-#define EMOTE_HEART    "XT-002 Deconstructor's heart is exposed and leaking energy."
-#define EMOTE_REPAIR   "XT-002 Deconstructor consumes a scrap bot to repair himself!"
+#define EMOTE_HEART "XT-002 Deconstructor's heart is exposed and leaking energy."
+#define EMOTE_REPAIR "XT-002 Deconstructor consumes a scrap bot to repair himself!"
 
 /************************************************
 -----------------SPAWN LOCATIONS-----------------
 ************************************************/
 //Shared Z-level
-#define SPAWN_Z                                 412
+#define SPAWN_Z 412
 //Lower right
-#define LR_X                                    796
-#define LR_Y                                    -94
+#define LR_X 796
+#define LR_Y -94
 //Lower left
-#define LL_X                                    796
-#define LL_Y                                    57
+#define LL_X 796
+#define LL_Y 57
 //Upper right
-#define UR_X                                    890
-#define UR_Y                                    -82
+#define UR_X 890
+#define UR_Y -82
 //Upper left
-#define UL_X                                    894
-#define UL_Y                                    62
+#define UL_X 894
+#define UL_Y 62
 
 class boss_xt002 : public CreatureScript
 {
@@ -855,7 +855,7 @@ class spell_xt002_searing_light : public SpellScriptLoader
                 if (unitList.empty())
                     return;
 
-                _target = SelectRandomContainerElement(unitList);
+                _target = Trinity::Containers::SelectRandomContainerElement(unitList);
                 unitList.clear();
                 unitList.push_back(_target);
             }
@@ -927,7 +927,7 @@ class spell_xt002_gravity_bomb : public SpellScriptLoader
                 if (unitList.empty())
                     return;
 
-                _target = SelectRandomContainerElement(unitList);
+                _target = Trinity::Containers::SelectRandomContainerElement(unitList);
                 unitList.clear();
                 unitList.push_back(_target);
             }

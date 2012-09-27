@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptPCH.h"
 #include "ulduar.h"
@@ -22,79 +22,79 @@
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603240,
-    SAY_HARDMODE_ON                             = -1603241,
-    SAY_MKII_ACTIVATE                           = -1603242,
-    SAY_MKII_SLAY_1                             = -1603243,
-    SAY_MKII_SLAY_2                             = -1603244,
-    SAY_MKII_DEATH                              = -1603245,
-    SAY_VX001_ACTIVATE                          = -1603246,
-    SAY_VX001_SLAY_1                            = -1603247,
-    SAY_VX001_SLAY_2                            = -1603248,
-    SAY_VX001_DEATH                             = -1603249,
-    SAY_AERIAL_ACTIVATE                         = -1603250,
-    SAY_AERIAL_SLAY_1                           = -1603251,
-    SAY_AERIAL_SLAY_2                           = -1603252,
-    SAY_AERIAL_DEATH                            = -1603253,
-    SAY_V07TRON_ACTIVATE                        = -1603254,
-    SAY_V07TRON_SLAY_1                          = -1603255,
-    SAY_V07TRON_SLAY_2                          = -1603256,
-    SAY_V07TRON_DEATH                           = -1603257,
-    SAY_BERSERK                                 = -1603258,
-    SAY_YS_HELP                                 = -1603259
+    SAY_AGGRO = -1603240,
+    SAY_HARDMODE_ON = -1603241,
+    SAY_MKII_ACTIVATE = -1603242,
+    SAY_MKII_SLAY_1 = -1603243,
+    SAY_MKII_SLAY_2 = -1603244,
+    SAY_MKII_DEATH = -1603245,
+    SAY_VX001_ACTIVATE = -1603246,
+    SAY_VX001_SLAY_1 = -1603247,
+    SAY_VX001_SLAY_2 = -1603248,
+    SAY_VX001_DEATH = -1603249,
+    SAY_AERIAL_ACTIVATE = -1603250,
+    SAY_AERIAL_SLAY_1 = -1603251,
+    SAY_AERIAL_SLAY_2 = -1603252,
+    SAY_AERIAL_DEATH = -1603253,
+    SAY_V07TRON_ACTIVATE = -1603254,
+    SAY_V07TRON_SLAY_1 = -1603255,
+    SAY_V07TRON_SLAY_2 = -1603256,
+    SAY_V07TRON_DEATH = -1603257,
+    SAY_BERSERK = -1603258,
+    SAY_YS_HELP = -1603259
 };
 
-#define EMOTE_LEVIATHAN                         "Leviathan MK II begins to cast Plasma Blast!"
+#define EMOTE_LEVIATHAN "Leviathan MK II begins to cast Plasma Blast!"
 
 enum Spells
 {
     // Leviathan MK II
-    SPELL_MINES_SPAWN                           = 65347,
-    SPELL_PROXIMITY_MINES                       = 63027,
-    SPELL_PLASMA_BLAST                          = 62997,
-    SPELL_SHOCK_BLAST                           = 63631,
-    SPELL_EXPLOSION                             = 66351,
-    SPELL_NAPALM_SHELL                          = 63666,
+    SPELL_MINES_SPAWN = 65347,
+    SPELL_PROXIMITY_MINES = 63027,
+    SPELL_PLASMA_BLAST = 62997,
+    SPELL_SHOCK_BLAST = 63631,
+    SPELL_EXPLOSION = 66351,
+    SPELL_NAPALM_SHELL = 63666,
 
     // VX-001
-    SPELL_RAPID_BURST                           = 63382,
-    SPELL_RAPID_BURST_LEFT_10                   = 63387,
-    SPELL_RAPID_BURST_RIGHT_10                  = 64019,
-    SPELL_RAPID_BURST_LEFT_25                   = 64531,
-    SPELL_RAPID_BURST_RIGHT_25                  = 64532,
-    SPELL_ROCKET_STRIKE                         = 63036,
-    SPELL_ROCKET_STRIKE_AURA                    = 64064,
-    SPELL_ROCKET_STRIKE_DMG                     = 63041,
-    SPELL_SPINNING_UP                           = 63414,
-    SPELL_HEAT_WAVE                             = 63677,
-    SPELL_HAND_PULSE                            = 64348,
+    SPELL_RAPID_BURST = 63382,
+    SPELL_RAPID_BURST_LEFT_10 = 63387,
+    SPELL_RAPID_BURST_RIGHT_10 = 64019,
+    SPELL_RAPID_BURST_LEFT_25 = 64531,
+    SPELL_RAPID_BURST_RIGHT_25 = 64532,
+    SPELL_ROCKET_STRIKE = 63036,
+    SPELL_ROCKET_STRIKE_AURA = 64064,
+    SPELL_ROCKET_STRIKE_DMG = 63041,
+    SPELL_SPINNING_UP = 63414,
+    SPELL_HEAT_WAVE = 63677,
+    SPELL_HAND_PULSE = 64348,
 
     // Aerial Command Unit
-    SPELL_PLASMA_BALL                           = 63689,
-    SPELL_MAGNETIC_CORE                         = 64436,
-    SPELL_MAGNETIC_CORE_VISUAL                  = 64438,
-    SPELL_BOOM_BOT                              = 63801,
-    SPELL_MAGNETIC_FIELD                        = 64668,
-    SPELL_HOVER                                 = 57764, // Set Hover position
-    SPELL_BERSERK                               = 47008,
+    SPELL_PLASMA_BALL = 63689,
+    SPELL_MAGNETIC_CORE = 64436,
+    SPELL_MAGNETIC_CORE_VISUAL = 64438,
+    SPELL_BOOM_BOT = 63801,
+    SPELL_MAGNETIC_FIELD = 64668,
+    SPELL_HOVER = 57764, // Set Hover position
+    SPELL_BERSERK = 47008,
 
     // Hard Mode
-    SPELL_SELF_DESTRUCTION                      = 64610,
-    SPELL_SELF_DESTRUCTION_VISUAL               = 64613,
-    SPELL_EMERGENCY_MODE                        = 64582,
-    SPELL_FLAME_SUPPRESSANT                     = 64570,
-    SPELL_FLAME_SUPPRESSANT_VX001               = 65192,
-    SPELL_SUMMON_FLAMES_INITIAL                 = 64563,
-    SPELL_FLAME                                 = 64561,
-    SPELL_FROST_BOMB                            = 64624,
-    SPELL_FROST_BOMB_EXPLOSION_10               = 64626,
-    SPELL_FROST_BOMB_EXPLOSION_25               = 65333,
-    SPELL_WATER_SPRAY                           = 64619,
-    SPELL_DEAFENING_SIREN                       = 64616,
+    SPELL_SELF_DESTRUCTION = 64610,
+    SPELL_SELF_DESTRUCTION_VISUAL = 64613,
+    SPELL_EMERGENCY_MODE = 64582,
+    SPELL_FLAME_SUPPRESSANT = 64570,
+    SPELL_FLAME_SUPPRESSANT_VX001 = 65192,
+    SPELL_SUMMON_FLAMES_INITIAL = 64563,
+    SPELL_FLAME = 64561,
+    SPELL_FROST_BOMB = 64624,
+    SPELL_FROST_BOMB_EXPLOSION_10 = 64626,
+    SPELL_FROST_BOMB_EXPLOSION_25 = 65333,
+    SPELL_WATER_SPRAY = 64619,
+    SPELL_DEAFENING_SIREN = 64616,
 
     // NPCs
-    SPELL_BOMB_BOT                              = 63801, // should be 63767
-    SPELL_NOT_SO_FRIENDLY_FIRE                  = 65040
+    SPELL_BOMB_BOT = 63801, // should be 63767
+    SPELL_NOT_SO_FRIENDLY_FIRE = 65040
 };
 
 enum Events
@@ -164,28 +164,28 @@ enum Actions
 
 enum Npcs
 {
-    NPC_ROCKET                                  = 34050,
-    NPC_BURST_TARGET                            = 34211,
-    NPC_JUNK_BOT                                = 33855,
-    NPC_ASSAULT_BOT                             = 34057,
-    NPC_BOOM_BOT                                = 33836,
-    NPC_EMERGENCY_BOT                           = 34147,
-    NPC_FLAMES_INITIAL                          = 34363,
-    NPC_FLAME_SPREAD                            = 34121,
-    NPC_FROST_BOMB                              = 34149,
-    NPC_MKII_TURRET                             = 34071,
-    NPC_PROXIMITY_MINE                          = 34362
+    NPC_ROCKET = 34050,
+    NPC_BURST_TARGET = 34211,
+    NPC_JUNK_BOT = 33855,
+    NPC_ASSAULT_BOT = 34057,
+    NPC_BOOM_BOT = 33836,
+    NPC_EMERGENCY_BOT = 34147,
+    NPC_FLAMES_INITIAL = 34363,
+    NPC_FLAME_SPREAD = 34121,
+    NPC_FROST_BOMB = 34149,
+    NPC_MKII_TURRET = 34071,
+    NPC_PROXIMITY_MINE = 34362
 };
 
 // Achievements
-#define ACHIEVEMENT_SET_UP_US_THE_BOMB          RAID_MODE(2989, 3237) // TODO
+#define ACHIEVEMENT_SET_UP_US_THE_BOMB RAID_MODE(2989, 3237) // TODO
 
 enum MimironChests
 {
-    CACHE_OF_INNOVATION_10                      = 194789,
-    CACHE_OF_INNOVATION_HARDMODE_10             = 194957,
-    CACHE_OF_INNOVATION_25                      = 194956,
-    CACHE_OF_INNOVATION_HARDMODE_25             = 194958
+    CACHE_OF_INNOVATION_10 = 194789,
+    CACHE_OF_INNOVATION_HARDMODE_10 = 194957,
+    CACHE_OF_INNOVATION_25 = 194956,
+    CACHE_OF_INNOVATION_HARDMODE_25 = 194958
 };
 
 Position const SummonPos[9] =
@@ -204,8 +204,8 @@ Position const SummonPos[9] =
 #define FLAME_CAP 200 // find a good (blizzlike!) value
 
 /*---------------------------------------------*
- *                   Mimiron                   *
- *---------------------------------------------*/
+* Mimiron *
+*---------------------------------------------*/
 
 class boss_mimiron : public CreatureScript
 {
@@ -229,7 +229,7 @@ class boss_mimiron : public CreatureScript
                     return;
 
                 for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-                    (*iter)->ForcedDespawn();
+					(*iter)->DespawnOrUnsummon();
             }
 
             void Reset()
@@ -301,7 +301,7 @@ class boss_mimiron : public CreatureScript
                 }
 
                 EnterEvadeMode();
-                me->ForcedDespawn(5000);
+                me->DespawnOrUnsummon(5000);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -750,8 +750,8 @@ class boss_mimiron : public CreatureScript
 
 
 /*---------------------------------------------*
- *              Leviathan MK II                *
- *---------------------------------------------*/
+* Leviathan MK II *
+*---------------------------------------------*/
 
 class boss_leviathan_mk : public CreatureScript
 {
@@ -989,7 +989,7 @@ class boss_leviathan_mk_turret : public CreatureScript
                     if (playerList.empty())
                         return NULL;
 
-                    return SelectRandomContainerElement(playerList);
+                    return Trinity::Containers::SelectRandomContainerElement(playerList);
                 }
                 else
                     return NULL;
@@ -1050,7 +1050,7 @@ public:
             if (!Boom && me->IsWithinDistInMap(who, 0.5f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
             {
                 DoCastAOE(SPELL_EXPLOSION);
-                me->ForcedDespawn(1000);
+                me->DespawnOrUnsummon(1000);
                 Boom = true;
             }
         }
@@ -1062,7 +1062,7 @@ public:
                 if (!Boom)
                 {
                     DoCastAOE(SPELL_EXPLOSION);
-                    me->ForcedDespawn(1000);
+                    me->DespawnOrUnsummon(1000);
                     Boom = true;
                 }
             }
@@ -1073,8 +1073,8 @@ public:
 
 
 /*---------------------------------------------*
- *                    VX-001                   *
- *---------------------------------------------*/
+* VX-001 *
+*---------------------------------------------*/
 
 class boss_vx_001 : public CreatureScript
 {
@@ -1327,7 +1327,7 @@ public:
                             me->GetCreatureListWithEntryInGrid(_flames, NPC_FLAME_SPREAD, 150.0f);
                             if (!_flames.empty())
                             {
-                                if (Creature* flame = SelectRandomContainerElement(_flames))
+                                if (Creature* flame = Trinity::Containers::SelectRandomContainerElement(_flames))
                                     me->SummonCreature(NPC_FROST_BOMB, *flame, TEMPSUMMON_TIMED_DESPAWN, 11000);
                             }
                             else
@@ -1361,7 +1361,7 @@ public:
         npc_rocket_strikeAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-            me->ForcedDespawn(10000);
+            me->DespawnOrUnsummon(10000);
             DoCast(me, SPELL_ROCKET_STRIKE_AURA);
         }
     };
@@ -1410,8 +1410,8 @@ class spell_rapid_burst : public SpellScriptLoader
 };
 
 /*---------------------------------------------*
- *             Aerial Command Unit             *
- *---------------------------------------------*/
+* Aerial Command Unit *
+*---------------------------------------------*/
 
 class boss_aerial_unit : public CreatureScript
 {
@@ -1661,7 +1661,7 @@ class npc_magnetic_core : public CreatureScript
             npc_magnetic_coreAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                me->ForcedDespawn(21000);
+                me->DespawnOrUnsummon(21000);
                 if (Creature* AerialUnit = me->FindNearestCreature(NPC_AERIAL_COMMAND_UNIT, 100.0f, true))
                 {
                     AerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
@@ -1807,7 +1807,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 {
                     _despawn = true;
                     DoCast(me, SPELL_BOMB_BOT, true);
-                    me->ForcedDespawn(500);
+                    me->DespawnOrUnsummon(500);
                 }
             }
 
@@ -1822,8 +1822,8 @@ class npc_mimiron_bomb_bot : public CreatureScript
 };
 
 /*---------------------------------------------*
- *           DO NOT PUSH THIS BUTTON!          *
- *---------------------------------------------*/
+* DO NOT PUSH THIS BUTTON! *
+*---------------------------------------------*/
 
 class go_not_push_button : public GameObjectScript
 {
@@ -1875,7 +1875,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
                     case SPELL_FROST_BOMB_EXPLOSION_25:
                     case SPELL_WATER_SPRAY:
                         _flameTimer = 1000;
-                        me->ForcedDespawn(500);
+                        me->DespawnOrUnsummon(500);
                         break;
                     default:
                         break;
@@ -1952,7 +1952,7 @@ class npc_mimiron_flame_spread : public CreatureScript
                     case SPELL_WATER_SPRAY:
                         if (Creature* mimiron = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_MIMIRON) : 0))
                             mimiron->AI()->DoAction(DO_DECREASE_FLAME_COUNT);
-                        me->ForcedDespawn(500);
+                        me->DespawnOrUnsummon(500);
                         break;
                     default:
                         break;
@@ -1962,7 +1962,7 @@ class npc_mimiron_flame_spread : public CreatureScript
             void UpdateAI(uint32 const /*diff*/)
             {
                 if (_instance && _instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
             }
 
         private:

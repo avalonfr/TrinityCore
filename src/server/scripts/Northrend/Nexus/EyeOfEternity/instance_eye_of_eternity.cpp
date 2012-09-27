@@ -266,7 +266,7 @@ class instance_eye_of_eternity : public InstanceMapScript
                             if (Unit* pDisk = pPlayer->GetVehicleBase())
                             {
                                 pPlayer->ExitVehicle();
-                                pDisk->ToCreature()->ForcedDespawn();
+                                pDisk->ToCreature()->DespawnOrUnsummon();
                             }
                         }
                     }

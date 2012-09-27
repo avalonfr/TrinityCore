@@ -781,7 +781,7 @@ public:
 			}
 
 			// more details may apply, instead of just despawn
-			pCreature->ForcedDespawn(5000);
+			pCreature->DespawnOrUnsummon(5000);
 		}
 		return true;
 	}

@@ -1532,7 +1532,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                         New->SetRespawnTime(Old->GetRespawnTime());
                                         Old->GetVehicleKit()->Uninstall();
                                         Old->SetVisible(true);
-                                        Old->ForcedDespawn();
+                                        Old->DespawnOrUnsummon();
                                         Vehicle *vehicle = New->GetVehicleKit();
                                         Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
                                         //Driver->_EnterVehicle(vehicle, 0);
@@ -1573,7 +1573,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                         New->SetRespawnTime(Old->GetRespawnTime());
                                         Old->GetVehicleKit()->Uninstall();
                                         Old->SetVisible(true);
-                                        Old->ForcedDespawn();
+                                        Old->DespawnOrUnsummon();
                                         Vehicle *vehicle = New->GetVehicleKit();
                                         Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
                                         //Driver->_EnterVehicle(vehicle, 0);
@@ -1620,7 +1620,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                         New->SetRespawnTime(Old->GetRespawnTime());
                                         Old->GetVehicleKit()->Uninstall();
                                         Old->SetVisible(true);
-                                        Old->ForcedDespawn();
+                                        Old->DespawnOrUnsummon();
                                         Vehicle *vehicle = New->GetVehicleKit();
                                         Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
                                         //Driver->_EnterVehicle(vehicle, 0);
@@ -1661,7 +1661,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                         New->SetRespawnTime(Old->GetRespawnTime());
                                         Old->GetVehicleKit()->Uninstall();
                                         Old->SetVisible(true);
-                                        Old->ForcedDespawn();
+                                        Old->DespawnOrUnsummon();
                                         Vehicle *vehicle = New->GetVehicleKit();
                                         Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
                                         //Driver->_EnterVehicle(vehicle, 0);

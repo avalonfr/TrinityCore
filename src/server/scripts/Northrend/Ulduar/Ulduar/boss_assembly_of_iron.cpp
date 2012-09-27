@@ -582,7 +582,7 @@ public:
             if (me->IsWithinMeleeRange(me->getVictim()) && !Casted)
             {
                 me->CastSpell(me, SPELL_LIGHTNING_BLAST, true);
-                me->ForcedDespawn(500);
+                me->DespawnOrUnsummon(500);
                 Casted = true;
             }
         }
@@ -612,7 +612,7 @@ public:
         void Reset()
         {
             SummonTimer = 1500;
-            me->ForcedDespawn(12500);
+            me->DespawnOrUnsummon(12500);
             DoCast(me, SPELL_RUNE_OF_SUMMONING_VISUAL);
         }
 
@@ -650,7 +650,7 @@ public:
         void Reset()
         {
             DoCast(me, SPELL_RUNE_OF_POWER_VISUAL, true);
-            me->ForcedDespawn(35000);
+            me->DespawnOrUnsummon(35000);
         }
     };
 

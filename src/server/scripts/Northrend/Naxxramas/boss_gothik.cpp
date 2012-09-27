@@ -429,7 +429,8 @@ class boss_gothik : public CreatureScript
                                     if (!CheckGroupSplitted())
                                     {
                                         GothikDoorState(GO_STATE_ACTIVE);
-                                        summons.DoAction(0, 0);
+										DummyEntryCheckPredicate pred;
+                                        summons.DoAction(0,pred);
                                         summons.DoZoneInCombat();
                                         mergedSides = true;
                                     }
@@ -444,7 +445,8 @@ class boss_gothik : public CreatureScript
                                 DoTeleportTo(PosGroundLiveSide);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                                summons.DoAction(0, 0);
+								DummyEntryCheckPredicate pred;
+                                summons.DoAction(0, pred);
                                 summons.DoZoneInCombat();
                                 events.ScheduleEvent(EVENT_BOLT, 1000);
                                 events.ScheduleEvent(EVENT_HARVEST, urand(3000, 5000));

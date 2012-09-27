@@ -1837,102 +1837,6 @@ public:
     }
 };
 
-/*#####
-# npc_spring_rabbit
-UPDATE `creature_template` SET `ScriptName`='npc_spring_rabbit' WHERE `entry`=32791;
-UPDATE `achievement_criteria_data` SET `value1`=186 WHERE `criteria_id`=9199 AND `type`=6;
-#####*/
-
-enum rabbitSpells
-{
-    SPELL_SPRING_FLING = 61875,
-    SPELL_SPRING_RABBIT_JUMP = 61724,
-    SPELL_SPRING_RABBIT_WANDER = 61726,
-    SPELL_SUMMON_BABY_BUNNY = 61727,
-    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
-    NPC_SPRING_RABBIT = 32791
-};
-
-class npc_spring_rabbit : public CreatureScript
-{
-public:
-    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_spring_rabbitAI(creature);
-    }
-
-    struct npc_spring_rabbitAI : public ScriptedAI
-    {
-        npc_spring_rabbitAI(Creature* c) : ScriptedAI(c) { }
-
-        bool inLove;
-        uint32 jumpTimer;
-        uint32 bunnyTimer;
-        uint32 searchTimer;
-        uint64 rabbitGUID;
-
-        void Reset()
-        {
-            inLove = false;
-            rabbitGUID = 0;
-            jumpTimer = urand(5000, 10000);
-            bunnyTimer = urand(10000, 20000);
-            searchTimer = urand(5000, 10000);
-            if (Unit* owner = me->GetOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-        }
-
-        void EnterCombat(Unit * /*who*/) { }
-
-        void DoAction(const int32 /*param*/)
-        {
-            inLove = true;
-            if (Unit* owner = me->GetOwner())
-                owner->CastSpell(owner, SPELL_SPRING_FLING, true);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (inLove)
-            {
-                if (jumpTimer <= diff)
-                {
-                    if (Unit* rabbit = Unit::GetUnit(*me, rabbitGUID))
-                        DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
-                    jumpTimer = urand(5000, 10000);
-                } else jumpTimer -= diff;
-
-                if (bunnyTimer <= diff)
-                {
-                    DoCast(SPELL_SUMMON_BABY_BUNNY);
-                    bunnyTimer = urand(20000, 40000);
-                } else bunnyTimer -= diff;
-            }
-            else
-            {
-                if (searchTimer <= diff)
-                {
-                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 10.0f))
-                    {
-                        if (rabbit == me || rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
-                            return;
-
-                        me->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, me);
-                        DoAction(1);
-                        rabbit->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, rabbit);
-                        rabbit->AI()->DoAction(1);
-                        rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
-                        rabbitGUID = rabbit->GetGUID();
-                    }
-                    searchTimer = urand(5000, 10000);
-                } else searchTimer -= diff;
-            }
-        }
-    };
-};
-
 class npc_mirror_image : public CreatureScript
 {
 public:
@@ -3902,7 +3806,8 @@ public:
                 PostionEventoHallowends[AreaFire + j].AlreadyFired = false;
             for (uint8 i = 0; i < 2; i++)
                 SaidPhrase[i] = false;
-            Fires.DoAction(NPC_HEADLESS_HORSEMAN_FIRE_DND,ACTION_START_EVENT);
+			EntryCheckPredicate pred(NPC_HEADLESS_HORSEMAN_FIRE_DND);
+            Fires.DoAction(ACTION_START_EVENT,pred);
             Creature *summon = me->SummonCreature(NPC_SHADE_OF_THE_HORSEMAN,0,0,0)->ToCreature();
             if (summon)
                 Fires.Summon(summon);
@@ -3912,13 +3817,16 @@ public:
         {
             if (!EventPassed)
             {
-                Fires.DoAction(NPC_HEADLESS_HORSEMAN_FIRE_DND,ACTION_FAIL_EVENT);
-                Fires.DoAction(NPC_SHADE_OF_THE_HORSEMAN,ACTION_FAIL_EVENT);
+				EntryCheckPredicate pred(NPC_HEADLESS_HORSEMAN_FIRE_DND);
+                Fires.DoAction(ACTION_FAIL_EVENT,pred);
+				EntryCheckPredicate pred2(NPC_SHADE_OF_THE_HORSEMAN);
+                Fires.DoAction(ACTION_FAIL_EVENT,pred2);
             }
             else
             {
                 EventComplete(100.0f);
-                Fires.DoAction(NPC_SHADE_OF_THE_HORSEMAN,ACTION_PASS_EVENT);
+				EntryCheckPredicate pred(NPC_SHADE_OF_THE_HORSEMAN);
+                Fires.DoAction(ACTION_PASS_EVENT,pred);
             }
             EventProgress = false;
         }
@@ -3939,7 +3847,8 @@ public:
                 if (!SaidPhrase[0])
                     if (TimerDuration <= 280*IN_MILLISECONDS)
                     {
-                        Fires.DoAction(NPC_SHADE_OF_THE_HORSEMAN,ACTION_SAY_1);
+						EntryCheckPredicate pred(NPC_SHADE_OF_THE_HORSEMAN);
+                        Fires.DoAction(ACTION_SAY_1,pred);
                         SaidPhrase[0] = true;
                     } else
                         TimerDuration -= diff;
@@ -3947,7 +3856,8 @@ public:
                     if (!SaidPhrase[1])
                         if (TimerDuration <= 130*IN_MILLISECONDS)
                         {
-                            Fires.DoAction(NPC_SHADE_OF_THE_HORSEMAN,ACTION_SAY_2);
+							EntryCheckPredicate pred(NPC_SHADE_OF_THE_HORSEMAN);
+                            Fires.DoAction(ACTION_SAY_2,pred);
                             SaidPhrase[1] = true;
                         } else
                             TimerDuration -= diff;

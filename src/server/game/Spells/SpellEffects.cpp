@@ -773,7 +773,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         }
 
         if (m_originalCaster && damage > 0 && apply_direct_bonus)
-            damage = m_originalCaster->SpellDamageBonus(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
+            damage = m_originalCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
 
         m_damage += damage;
     }
@@ -813,7 +813,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
-                    unitTarget->ToCreature()->setDeathState(JUST_ALIVED);
+                    unitTarget->ToCreature()->setDeathState(ALIVE);
                     return;
                 }
                 case 12162:                                 // Deep wounds
@@ -824,7 +824,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         return;
 
                     // apply percent damage mods
-                    damage = m_caster->SpellDamageBonus(unitTarget, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
+                    damage = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
 
                     switch (m_spellInfo->Id)
                     {
@@ -1303,7 +1303,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         return;
                     m_caster->CastSpell(m_caster, 55809, true, NULL);       // Trigger Aid of the Earthen
                     m_caster->ToPlayer()->KilledMonsterCredit(30035, unitTarget->GetGUID());
-                    unitTarget->ToCreature()->ForcedDespawn();
+                    unitTarget->ToCreature()->DespawnOrUnsummon();
                     break;
                 }
                 case 55046:            // Ice Shard
@@ -1323,7 +1323,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         {
                             plr->KilledMonsterCredit(29734,0);
                             plr->KilledMonsterCredit(29709,0);
-                        target_crature->ForcedDespawn();
+                        target_crature->DespawnOrUnsummon();
                         //caster_crature->ForcedDespawn();
                         }
                     }
@@ -4422,7 +4422,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 				else if (m_spellInfo->Id == 20467)
 				{
 					spell_bonus += int32(0.08f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-					spell_bonus += int32(0.13f * m_caster->SpellBaseDamageBonus(m_spellInfo->GetSchoolMask()));
+					spell_bonus += int32(0.13f * m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()));
 				}
 				break;
             // Seal of Command Unleashed

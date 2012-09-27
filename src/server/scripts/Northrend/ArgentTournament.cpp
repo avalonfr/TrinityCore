@@ -495,7 +495,7 @@ public:
                         pDoneBy->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
 
                     me->setFaction(35);
-                    me->ForcedDespawn(5000);
+                    me->DespawnOrUnsummon(5000);
                     me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
                     EnterEvadeMode();
                 }
@@ -505,7 +505,7 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             me->setFaction(35);
-            me->ForcedDespawn(5000);
+            me->DespawnOrUnsummon(5000);
             DoScriptText(NPC_ARGENT_VAILIANT_TEXT_SAY_LOOSE, me);
             me->CombatStop(true);
         }
@@ -1978,7 +1978,7 @@ public:
                         pDoneBy->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT,0);
                     
                     me->setFaction(35);
-                    me->ForcedDespawn(5000);
+                    me->DespawnOrUnsummon(5000);
                     me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
                     EnterEvadeMode();
                 }
@@ -1988,7 +1988,7 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             me->setFaction(35);
-            me->ForcedDespawn(5000);           
+            me->DespawnOrUnsummon(5000);           
             me->CombatStop(true);
         }      
        
@@ -2685,7 +2685,7 @@ public:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_MAIDEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             pPlayer->SEND_GOSSIP_MENU(MAIDEN_DEFAULT_TEXTID, pCreature->GetGUID());
-            pCreature->ForcedDespawn(10000);
+            pCreature->DespawnOrUnsummon(10000);
             return true;
         }
 
@@ -2770,14 +2770,14 @@ public:
                             go->RemoveFromWorld();
                         if (GameObject* go = GameObject::GetGameObject(*me,secondGobGuid))
                             go->RemoveFromWorld();
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                         break;
                     default:
                         if (GameObject* go = GameObject::GetGameObject(*me,firstGobGuid))
                             go->RemoveFromWorld();
                         if (GameObject* go = GameObject::GetGameObject(*me,secondGobGuid))
                             go->RemoveFromWorld();
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                     break;
                 }
             }
