@@ -82,31 +82,6 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
-{
-    uint32 playersNum = sWorld->GetPlayerCount();
-    uint32 maxPlayersNum = sWorld->GetMaxPlayerCount();
-    uint32 activeClientsNum = sWorld->GetActiveSessionCount();
-    uint32 queuedClientsNum = sWorld->GetQueuedSessionCount();
-    uint32 maxActiveClientsNum = sWorld->GetMaxActiveSessionCount();
-    uint32 maxQueuedClientsNum = sWorld->GetMaxQueuedSessionCount();
-    std::string uptime = secsToTimeString(sWorld->GetUptime());
-    uint32 updateTime = sWorld->GetUpdateTime();
-
-    /*SendSysMessage(_FULLVERSION);*/
-	SendSysMessage("Avalon Core Version 2.2");
-	SendSysMessage("REV du 25/06/12");
-    PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
-    PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
-    PSendSysMessage(LANG_UPTIME, uptime.c_str());
-    PSendSysMessage(LANG_UPDATE_DIFF, updateTime);
-    //! Can't use sWorld->ShutdownMsg here in case of console command
-    if (sWorld->IsShuttingDown())
-        PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());
-
-    return true;
-}
-
 bool ChatHandler::HandleDismountCommand(const char* /*args*/)
 {
     Player* player = m_session->GetPlayer();
@@ -152,48 +127,6 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
         player->SaveToDB();
 
     return true;
-}
-
-/// Display the 'Message of the day' for the realm
-bool ChatHandler::HandleServerMotdCommand(const char* /*args*/)
-{
-    PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd());
-    return true;
-}
-
-
-bool ChatHandler::HandlePlayerQuestCompleteCommand(const char *args)
-{
-	Player* pPlayer = m_session->GetPlayer();
-
-	char* cId = extractKeyFromLink((char*)args,"Hquest");
-	if (!cId)
-		return false;
-	uint32 entry = atol(cId);
-
-	Quest const* pQuest = sObjectMgr->GetQuestTemplate(entry);
-
-	if (!pQuest)
-	{
-		PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND,entry);
-		SetSentErrorMessage(true);
-		return true;
-	}
-	QueryResult result = WorldDatabase.PQuery("SELECT COUNT(quest_id) FROM quest_bug_list WHERE quest_id='%d'",entry);
-	if ((*result)[0].GetUInt32() != 1)
-	{
-	PSendSysMessage(LANG_QUEST_NOBUG);
-	SetSentErrorMessage(true);
-	return false;
-	}
-	if (pPlayer->GetQuestStatus(entry) == QUEST_STATUS_NONE)
-	{
-	PSendSysMessage(LANG_HAVENT_QUEST);
-	SetSentErrorMessage(true);
-	return false;
-	}
-	pPlayer->CompleteQuest(entry);
-	return true;
 }
 
 /*      char** ChatHandler::split(char* chaine,const char* delim,int vide)      */

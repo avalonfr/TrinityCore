@@ -411,6 +411,27 @@ public:
     }
 };
 
+class achievement_not_even_a_scratch : public AchievementCriteriaScript
+{
+    public:
+        achievement_not_even_a_scratch() : AchievementCriteriaScript("achievement_not_even_a_scratch") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            Battleground* battleground = source->GetBattleground();
+            if (!battleground)
+                return false;
+
+            if (static_cast<BattlegroundSA*>(battleground)->notEvenAScratch(source->GetTeam()))
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_resilient_victory();
@@ -433,4 +454,5 @@ void AddSC_achievement_scripts()
 	new achievement_food_fight();
 	new achievement_tilted();
 	new achievement_wg_vehicular_gnomeslaughter();
+    new achievement_not_even_a_scratch();
 }

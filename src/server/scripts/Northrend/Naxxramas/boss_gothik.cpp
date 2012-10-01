@@ -20,7 +20,11 @@ UPDATE `creature_template` SET `spell8` = 27928 WHERE `entry` IN (16125, 29985);
 UPDATE `creature_template` SET `spell8` = 27935 WHERE `entry` IN (16126, 29986);
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "GridNotifiers.h"
+#include "CombatAI.h"
 #include "naxxramas.h"
 
 enum Yells
@@ -30,6 +34,7 @@ enum Yells
     SAY_DEATH                   = -1533042,
     SAY_TELEPORT                = -1533043
 };
+
 //Gothik
 enum Spells
 {
@@ -41,8 +46,11 @@ enum Spells
     SPELL_INFORM_LIVE_RIDER     = 27935,
     SPELL_INFORM_DEAD_TRAINEE   = 27915,
     SPELL_INFORM_DEAD_KNIGHT    = 27931,
-    SPELL_INFORM_DEAD_RIDER     = 27937
+    SPELL_INFORM_DEAD_RIDER     = 27937,
+
+    SPELL_SHADOW_MARK           = 27825
 };
+
 enum Creatures
 {
     MOB_LIVE_TRAINEE    = 16124,
@@ -602,8 +610,35 @@ class mob_gothik_minion : public CreatureScript
         }
 };
 
+class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
+{
+    public:
+        spell_gothik_shadow_bolt_volley() : SpellScriptLoader("spell_gothik_shadow_bolt_volley") { }
+
+        class spell_gothik_shadow_bolt_volley_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gothik_shadow_bolt_volley_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_SHADOW_MARK));
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gothik_shadow_bolt_volley_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gothik_shadow_bolt_volley_SpellScript();
+        }
+};
+
 void AddSC_boss_gothik()
 {
     new boss_gothik();
     new mob_gothik_minion();
+    new spell_gothik_shadow_bolt_volley();
 }
