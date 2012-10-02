@@ -2853,7 +2853,7 @@ class DontLooksDirectlyInGazeCheck
     public:
         DontLooksDirectlyInGazeCheck(Unit* caster) : _caster(caster) { }
 
-        bool operator() (Unit* unit)
+        bool operator() (WorldObject* unit)
         {
             Position pos;
             _caster->GetPosition(&pos);
@@ -2873,15 +2873,15 @@ class spell_lunatic_gaze_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_lunatic_gaze_targeting_SpellScript)
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(DontLooksDirectlyInGazeCheck(GetCaster()));
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -2947,9 +2947,9 @@ class NotIsWeakenedImmortalCheck
     public:
         NotIsWeakenedImmortalCheck() { }
 
-        bool operator() (Unit* unit)
+        bool operator() (WorldObject* unit)
         {
-            return !(unit->HasAura(SPELL_WEAKENED));
+            return !(unit->ToUnit()->HasAura(SPELL_WEAKENED));
         }
 };
 
@@ -2962,14 +2962,14 @@ class spell_titanic_storm_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_titanic_storm_targeting_SpellScript)
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(NotIsWeakenedImmortalCheck());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_titanic_storm_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_titanic_storm_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 

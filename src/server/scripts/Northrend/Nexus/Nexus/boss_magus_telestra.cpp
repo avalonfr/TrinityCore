@@ -382,24 +382,24 @@ class spell_nexus_critter_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_nexus_critter_targeting_SpellScript);
 
-            void FilterTargetsInitial(std::list<Unit*>& unitList)
+            void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
-                sharedUnitList = unitList;
+                sharedUnitList = targets;
             }
 
-            void FilterTargetsSubsequent(std::list<Unit*>& unitList)
+            void FilterTargetsSubsequent(std::list<WorldObject*>& targets)
             {
-                unitList = sharedUnitList;
+                targets = sharedUnitList;
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_nexus_critter_targeting_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_nexus_critter_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_nexus_critter_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nexus_critter_targeting_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nexus_critter_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nexus_critter_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
-            std::list<Unit*> sharedUnitList;
+            std::list<WorldObject*> sharedUnitList;
         };
 
         SpellScript* GetSpellScript() const

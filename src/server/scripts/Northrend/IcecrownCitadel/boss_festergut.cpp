@@ -482,7 +482,7 @@ class PlagueStenchTargetSelector
     public:
         PlagueStenchTargetSelector(Unit* caster) : _caster(caster) { }
 
-        bool operator()(Unit* unit)
+        bool operator()(WorldObject* unit)
         {
             return !unit->IsWithinLOSInMap(_caster);
         }
@@ -508,14 +508,14 @@ class spell_stinky_plague_stench : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(PlagueStenchTargetSelector(GetCaster()));
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_stinky_plague_stench_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_stinky_plague_stench_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 

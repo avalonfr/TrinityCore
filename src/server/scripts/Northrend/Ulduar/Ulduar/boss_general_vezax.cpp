@@ -557,14 +557,14 @@ class spell_general_vezax_mark_of_the_faceless_drain : public SpellScriptLoader
         {
             PrepareSpellScript(spell_general_vezax_mark_of_the_faceless_drain_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove(this->GetExplTargetUnit());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_general_vezax_mark_of_the_faceless_drain_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_general_vezax_mark_of_the_faceless_drain_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
             }
 
             Unit* _target;

@@ -1293,24 +1293,28 @@ class go_twilight_portal : public GameObjectScript
                 {
                     case GO_HALION_PORTAL_EXIT:
                         gameobject->SetPhaseMask(0x20, true);
+                        _spellId = gameobject->GetGOInfo()->goober.spellId;
                         break;
                     case GO_HALION_PORTAL_1:
-                    case GO_HALION_PORTAL_2:
+                    case GO_HALION_PORTAL_2: // Not used, not seen in sniffs. Just in case.
                         gameobject->SetPhaseMask(0x1, true);
+                        /// Because WDB template has non-existent spell-ID, not seen in sniffs either, meh
+                        _spellId = SPELL_TWILIGHT_REALM;
                         break;
                     default:
+                        _spellId = 0;
                         break;
                 }
             }
 
             bool GossipHello(Player* player)
             {
-                if (uint32 spellID = go->GetGOInfo()->goober.spellId)
-                    player->CastSpell(player, spellID, true);
+                if (_spellId != 0)
+                    player->CastSpell(player, _spellId, true);
                 return false;
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (_instance->GetBossState(DATA_HALION) == IN_PROGRESS)
                     return;
@@ -1325,6 +1329,7 @@ class go_twilight_portal : public GameObjectScript
         private:
             InstanceScript* _instance;
             bool _deleted;
+            uint32 _spellId;
         };
 
         GameObjectAI* GetAI(GameObject* gameobject) const
@@ -1424,38 +1429,33 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
 class spell_halion_marks : public SpellScriptLoader
 {
     public:
-        spell_halion_marks(char const* scriptName, uint32 summonSpell) : SpellScriptLoader(scriptName), _summonSpell(summonSpell) { }
+        spell_halion_marks(char const* scriptName, uint32 summonSpell, uint32 removeSpell) : SpellScriptLoader(scriptName),
+            _summonSpell(summonSpell), _removeSpell(removeSpell) { }
 
         class spell_halion_marks_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_halion_marks_AuraScript);
 
         public:
-            spell_halion_marks_AuraScript(uint32 summonSpell) : AuraScript(), _summonSpell(summonSpell) { }
+            spell_halion_marks_AuraScript(uint32 summonSpell, uint32 removeSpell) : AuraScript(),
+                _summonSpellId(summonSpell), _removeSpellId(removeSpell) { }
 
             bool Validate(SpellEntry const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(_summonSpell))
+                if (!sSpellMgr->GetSpellInfo(_summonSpellId))
                     return false;
                 return true;
             }
 
-            //! We were purged. Force removed stacks to zero
-            //! and trigger the appropriated remove handler.
-            //! See spell_halion_combustion_consumption_AuraScript::OnRemove
+            /// We were purged. Force removed stacks to zero and trigger the appropriated remove handler.
             void BeforeDispel(DispelInfo* dispelData)
             {
-                Unit* dispelledUnit = dispelData->GetDispelled();
                 // Prevent any stack from being removed at this point.
                 dispelData->SetRemovedCharges(0);
 
-                if (!dispelledUnit) // Should never be false. Just checking.
-                    return;
-
-                if (dispelledUnit->HasAura(SPELL_FIERY_COMBUSTION))
-                    dispelledUnit->RemoveAurasDueToSpell(SPELL_FIERY_COMBUSTION, 0, 0, AURA_REMOVE_BY_EXPIRE);
-                else if (dispelledUnit->HasAura(SPELL_SOUL_CONSUMPTION))
-                    dispelledUnit->RemoveAurasDueToSpell(SPELL_SOUL_CONSUMPTION, 0, 0, AURA_REMOVE_BY_EXPIRE);
+                if (Unit* dispelledUnit = GetUnitOwner())
+                    if (dispelledUnit->HasAura(_removeSpellId)) // Trigger `spell_halion_combustion_consumption_AuraScript::OnRemove`
+                        dispelledUnit->RemoveAurasDueToSpell(_removeSpellId, 0, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1465,16 +1465,8 @@ class spell_halion_marks : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                InstanceScript* instance = target->GetInstanceScript();
-                if (!instance)
-                    return;
-
-                uint8 stacks = aurEff->GetBase()->GetStackAmount();
-
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_BASE_POINT1, stacks);
-
-                target->CastCustomSpell(_summonSpell, values, target, true, NULL, NULL, GetCasterGUID());
+                // Stacks marker
+                target->CastCustomSpell(_summonSpellId, SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount(), target, TRIGGERED_FULL_MASK, NULL, NULL, GetCasterGUID());
             }
 
             void Register()
@@ -1483,17 +1475,22 @@ class spell_halion_marks : public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_halion_marks_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
-            uint32 _summonSpell;
+            uint32 _summonSpellId;
+            uint32 _removeSpellId;
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_halion_marks_AuraScript(_summonSpell);
+            return new spell_halion_marks_AuraScript(_summonSpell, _removeSpell);
         }
 
     private:
         uint32 _summonSpell;
+        uint32 _removeSpell;
 };
+
+
+
 
 class spell_halion_damage_aoe_summon : public SpellScriptLoader
 {
@@ -1652,7 +1649,7 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_halion_twilight_cutter_SpellScript);
 
-            void RemoveNotBetween(std::list<Unit*>& unitList)
+            void RemoveNotBetween(std::list<WorldObject*>& unitList)
             {
                 if (unitList.empty())
                     return;
@@ -1673,7 +1670,7 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_halion_twilight_cutter_SpellScript::RemoveNotBetween, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halion_twilight_cutter_SpellScript::RemoveNotBetween, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1765,8 +1762,8 @@ void AddSC_boss_halion()
     new spell_halion_meteor_strike_marker();
     new spell_halion_combustion_consumption("spell_halion_soul_consumption", SPELL_MARK_OF_CONSUMPTION);
     new spell_halion_combustion_consumption("spell_halion_fiery_combustion", SPELL_MARK_OF_COMBUSTION);
-    new spell_halion_marks("spell_halion_mark_of_combustion", SPELL_FIERY_COMBUSTION_SUMMON);
-    new spell_halion_marks("spell_halion_mark_of_consumption", SPELL_SOUL_CONSUMPTION_SUMMON);
+    new spell_halion_marks("spell_halion_mark_of_combustion", SPELL_FIERY_COMBUSTION_SUMMON, SPELL_FIERY_COMBUSTION);
+    new spell_halion_marks("spell_halion_mark_of_consumption", SPELL_SOUL_CONSUMPTION_SUMMON, SPELL_SOUL_CONSUMPTION);
     new spell_halion_damage_aoe_summon();
     new spell_halion_twilight_realm_handlers("spell_halion_leave_twilight_realm", SPELL_SOUL_CONSUMPTION, false);
     new spell_halion_twilight_realm_handlers("spell_halion_enter_twilight_realm", SPELL_FIERY_COMBUSTION, true);

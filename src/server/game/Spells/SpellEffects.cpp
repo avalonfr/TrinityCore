@@ -4330,7 +4330,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(2, unitTarget);
                 }
             }
-			            // Heroic Strike
+			// Heroic Strike
             else if (m_spellInfo->SpellFamilyFlags[0] & 0x64)
             {
                 // only rank 10+ gives the bonus damage
@@ -4338,7 +4338,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     // check for daze
                     if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
                         spell_bonus += (m_spellInfo->Effects[EFFECT_0].CalcValue() * 0.35);
-
+            }
             if (m_spellInfo->SpellFamilyFlags[0] & 0x8000000) // Mocking Blow
             {
                 if (unitTarget->IsImmunedToSpellEffect(m_spellInfo,EFFECT_1) || unitTarget->GetTypeId() == TYPEID_PLAYER)
@@ -4401,44 +4401,36 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 totalDamagePercentMod *= 1.36f; //136% damage
             }
 			//Templar's Verdict
-				if (m_spellInfo->Id == 85256)
-				{
+			if (m_spellInfo->Id == 85256)
+			{
 				switch (m_caster->GetPower(POWER_HOLY_POWER))
 				{
-			// 1 Holy Power
-				case 1:
-				totalDamagePercentMod *= 1.30f; // 130%
-				(m_caster->HasAura(31866 || 31867 || 31868)) ? totalDamagePercentMod += 0.3f : 0; //Crusade Rank 1,2,3 - 133%
-				break;
-			// 2 Holy Power
-				case 2:
-				totalDamagePercentMod *= 1.30f; // 130%
-				(m_caster->HasAura(31866 || 31867 || 31868)) ? totalDamagePercentMod += 0.3f : 0; //Crusade Rank 1,2,3 - 133%
-				break;
-			// 3 Holy Power
-				case 3:
-				totalDamagePercentMod *= 1.90f; // 190%
-				(m_caster->HasAura(31866 || 31867 || 31868)) ? totalDamagePercentMod += 0.9f : 0; //Crusade Rank 1,2,3 - 199%
-				break;
-					}
-					(m_caster->HasAura(63220)) ? totalDamagePercentMod *= 1.15f : 0 ; // Glyphe of Templar's Verdict
-					m_caster->SetPower(POWER_HOLY_POWER, 0);
-					}
-
-            // Seal of Command Unleashed
-				else if (m_spellInfo->Id == 20467)
-				{
-					spell_bonus += int32(0.08f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-					spell_bonus += int32(0.13f * m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()));
+					// 1 Holy Power
+					case 1:
+						totalDamagePercentMod *= 1.30f; // 130%
+						(m_caster->HasAura(31866 || 31867 || 31868)) ? totalDamagePercentMod += 0.3f : 0; //Crusade Rank 1,2,3 - 133%
+						break;
+					// 2 Holy Power
+					case 2:
+						totalDamagePercentMod *= 1.30f; // 130%
+						(m_caster->HasAura(31866 || 31867 || 31868)) ? totalDamagePercentMod += 0.3f : 0; //Crusade Rank 1,2,3 - 133%
+						break;
+					// 3 Holy Power
+					case 3:
+						totalDamagePercentMod *= 1.90f; // 190%
+						(m_caster->HasAura(31866 || 31867 || 31868)) ? totalDamagePercentMod += 0.9f : 0; //Crusade Rank 1,2,3 - 199%
+						break;
 				}
-				break;
+				(m_caster->HasAura(63220)) ? totalDamagePercentMod *= 1.15f : 0 ; // Glyphe of Templar's Verdict
+				m_caster->SetPower(POWER_HOLY_POWER, 0);
+			}
             // Seal of Command Unleashed
-            if (m_spellInfo->Id == 20467)
-            {
-                spell_bonus += int32(0.08f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-                spell_bonus += int32(0.13f * m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()));
-            }
-            break;
+			else if (m_spellInfo->Id == 20467)
+			{
+				spell_bonus += int32(0.08f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
+				spell_bonus += int32(0.13f * m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()));
+			}
+				break;
         }
         case SPELLFAMILY_SHAMAN:
         {

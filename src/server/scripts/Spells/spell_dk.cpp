@@ -350,21 +350,6 @@ class spell_dk_death_pact : public SpellScriptLoader
                 return SPELL_FAILED_NO_PET;
             }
 
-            SpellCastResult CheckCast()
-            {
-                // Check if we have valid targets, otherwise skip spell casting here
-                if (Player* player = GetCaster()->ToPlayer())
-                    for (Unit::ControlList::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
-                        if (Creature* undeadPet = (*itr)->ToCreature())
-                            if (undeadPet->isAlive() &&
-                                undeadPet->GetOwnerGUID() == player->GetGUID() &&
-                                undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
-                                undeadPet->IsWithinDist(player, 100.0f, false))
-                                return SPELL_CAST_OK;
-
-                return SPELL_FAILED_NO_PET;
-            }
-
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 Unit* unit_to_add = NULL;
