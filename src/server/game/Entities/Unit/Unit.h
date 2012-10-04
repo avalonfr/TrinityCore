@@ -619,17 +619,24 @@ enum UnitFlags
 // Value masks for UNIT_FIELD_FLAGS_2
 enum UnitFlags2
 {
-    UNIT_FLAG2_FEIGN_DEATH          = 0x00000001,
-    UNIT_FLAG2_UNK1                 = 0x00000002,   // Hide unit model (show only player equip)
-    UNIT_FLAG2_IGNORE_REPUTATION    = 0x00000004,
-    UNIT_FLAG2_COMPREHEND_LANG      = 0x00000008,
-    UNIT_FLAG2_MIRROR_IMAGE         = 0x00000010,
-    UNIT_FLAG2_FORCE_MOVE           = 0x00000040,
-    UNIT_FLAG2_DISARM_OFFHAND       = 0x00000080,
-    UNIT_FLAG2_DISARM_RANGED        = 0x00000400,   // this does not disable ranged weapon display (maybe additional flag needed?)
-    UNIT_FLAG2_REGENERATE_POWER     = 0x00000800,
-    UNIT_FLAG2_ALLOW_ENEMY_INTERACT = 0x00004000,
-    UNIT_FLAG2_ALLOW_CHEAT_SPELLS   = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_FEIGN_DEATH                  = 0x00000001,
+    UNIT_FLAG2_UNK1                         = 0x00000002,   // Hide unit model (show only player equip)
+    UNIT_FLAG2_IGNORE_REPUTATION            = 0x00000004,
+    UNIT_FLAG2_COMPREHEND_LANG              = 0x00000008,
+    UNIT_FLAG2_MIRROR_IMAGE                 = 0x00000010,
+    UNIT_FLAG2_INSTANTLY_APPEAR_MODEL       = 0x00000020,   // Unit model instantly appears when summoned (does not fade in)
+    UNIT_FLAG2_FORCE_MOVEMENT               = 0x00000040,
+    UNIT_FLAG2_DISARM_OFFHAND               = 0x00000080,
+    UNIT_FLAG2_DISABLE_PRED_STATS           = 0x00000100,   // Player has disabled predicted stats (Used by raid frames)
+    UNIT_FLAG2_DISARM_RANGED                = 0x00000400,   // this does not disable ranged weapon display (maybe additional flag needed?)
+    UNIT_FLAG2_REGENERATE_POWER             = 0x00000800,
+    UNIT_FLAG2_RESTRICT_PARTY_INTERACTION   = 0x00001000,   // Restrict interaction to party or raid
+    UNIT_FLAG2_PREVENT_SPELL_CLICK          = 0x00002000,   // Prevent spellclick
+    UNIT_FLAG2_ALLOW_ENEMY_INTERACT         = 0x00004000,
+    UNIT_FLAG2_DISABLE_TURN                 = 0x00008000,
+    UNIT_FLAG2_UNK2                         = 0x00010000,
+    UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
+    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
 };
 
 /// Non Player Character flags
@@ -965,24 +972,6 @@ struct SpellPeriodicAuraLogInfo
 };
 
 uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition);
-
-enum UnitAnimationState
-{
-    ANIMATION_ON_GROUND = 0,
-    ANIMATION_SWIMMING  = 1,
-    ANIMATION_HOVER     = 2,
-    ANIMATION_FLYING    = 3,
-};
-
-struct MonsterMoveData
-{
-    MonsterMoveData() : SplineFlag(0), AnimationState(ANIMATION_ON_GROUND), Time(0), SpeedZ(0.0f) {}
-    Position DestLocation;
-    uint32 SplineFlag;
-    UnitAnimationState AnimationState;  // Only used with SPLINEFLAG_ANIMATIONTIER
-    uint32 Time;
-    float SpeedZ;                       // Only used with SPLINEFLAG_TRAJECTORY
-};
 
 #define MAX_DECLINED_NAME_CASES 5
 
@@ -1659,6 +1648,7 @@ class Unit : public WorldObject
         virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
 
         uint64 GetOwnerGUID() const { return  GetUInt64Value(UNIT_FIELD_SUMMONEDBY); }
+        void SetOwnerGUID(uint64 owner);
         uint64 GetCreatorGUID() const { return GetUInt64Value(UNIT_FIELD_CREATEDBY); }
         void SetCreatorGUID(uint64 creator) { SetUInt64Value(UNIT_FIELD_CREATEDBY, creator); }
         uint64 GetMinionGUID() const { return GetUInt64Value(UNIT_FIELD_SUMMON); }

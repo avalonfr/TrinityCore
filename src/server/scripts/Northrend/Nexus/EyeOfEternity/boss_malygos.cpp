@@ -15,7 +15,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "PassiveAI.h"
 #include "eye_of_eternity.h"
 #include "WorldPacket.h"
 #include "ObjectAccessor.h"
