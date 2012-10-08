@@ -1491,7 +1491,6 @@ void AddSC_quest_spell_scripts()
 	new spell_q12237_rescue_villager();
     new spell_q12237_drop_off_villager();
     new spell_q9452_cast_net();
-	new spell_q12277_wintergarde_mine_explosion();
     new spell_q12987_read_pronouncement();
     new spell_q12277_wintergarde_mine_explosion();
     new spell_q12066_bunny_kill_credit();
