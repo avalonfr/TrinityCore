@@ -989,7 +989,7 @@ public:
         {
             casted = false;
             me->SetReactState(REACT_PASSIVE);
-            me->ForcedDespawn(60*IN_MILLISECONDS);
+            me->DespawnOrUnsummon(60*IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 /*diff*/)
