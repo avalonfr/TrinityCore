@@ -820,7 +820,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         case 12850: ApplyPctN(damage, 32); break; // Rank 2
                         case 12868: ApplyPctN(damage, 48); break; // Rank 3
                         default:
-                            sLog->outError("Spell::EffectDummy: Spell %u not handled in DW", m_spellInfo->Id);
+                            sLog->outError(LOG_FILTER_SPELLS_AURAS,"Spell::EffectDummy: Spell %u not handled in DW", m_spellInfo->Id);
                             return;
                     }
 
@@ -847,7 +847,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             m_caster->CastCustomSpell(unitTarget, 26470, &damage, NULL, NULL, true);
                             break;
                         default:
-                            sLog->outError("EffectDummy: Non-handled case for spell 13567 for triggered aura %u", m_triggeredByAuraSpell->Id);
+                            sLog->outError(LOG_FILTER_SPELLS_AURAS,"EffectDummy: Non-handled case for spell 13567 for triggered aura %u", m_triggeredByAuraSpell->Id);
                             break;
                     }
                     return;
@@ -1961,7 +1961,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
     if (!unitTarget)
     {
         if (gameObjTarget || itemTarget)
-            sLog->outError("Spell::EffectTriggerSpell (Spell: %u): Unsupported non-unit case!", m_spellInfo->Id);
+            sLog->outError(LOG_FILTER_SPELLS_AURAS,"Spell::EffectTriggerSpell (Spell: %u): Unsupported non-unit case!", m_spellInfo->Id);
         return;
     }
     uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;

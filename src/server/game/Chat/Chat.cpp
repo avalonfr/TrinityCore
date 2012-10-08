@@ -60,47 +60,6 @@ static size_t appendCommandTable(ChatCommand* target, const ChatCommand* source)
 
 ChatCommand* ChatHandler::getCommandTable()
 {
-static ChatCommand boutiqueCommandTable[] =
-    {
-		{ "infos",		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueInfos>, 					"", NULL },
-		{ "item", 		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueAdditem>, 					"", NULL },
-		{ "level", 		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueLevel>, 					"", NULL },
-		{ "rename", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueRename>, 					"", NULL },
-		{ "custom", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueCustomize>, 				"", NULL },
-		{ "race", 		SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueRace>, 					"", NULL },
-		{ "faction", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueFaction>, 					"", NULL },
-		{ "metier", 	SEC_PLAYER, 			true, 	OldHandler<&ChatHandler::BoutiqueMetier>, 					"", NULL },
-		{ NULL, 		0, 						false, 	NULL, 											"", NULL }
-    };
-	
- 
-    static ChatCommand wintergraspCommandTable[] =
-    {
-        { "status",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspStatusCommand>,       "", NULL },
-        { "enable",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspEnableCommand>,       "", NULL },
-        { "start",          SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspStartCommand>,        "", NULL },
-        { "stop",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspStopCommand>,         "", NULL },
-        { "switch",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspSwitchTeamCommand>,   "", NULL },
-        { "timer",          SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspTimerCommand>,        "", NULL },
-        { NULL,             0,                  false, NULL,                                               "", NULL }
-    };
-
-	static ChatCommand questBugTable[] =
-	{
-	{ "add", SEC_GAMEMASTER, false, OldHandler<&ChatHandler::HandleQuestBugAddCommand>, "", NULL },
-	{ "remove", SEC_GAMEMASTER, false, OldHandler<&ChatHandler::HandleQuestBugRemoveCommand>, "", NULL },
-	{ NULL, 0, false, NULL, "", NULL }
-	};
-
-    static ChatCommand commandTable[] =
-    {
-        { "wg",             SEC_ADMINISTRATOR,  false, NULL,                                 "", wintergraspCommandTable },
-		{ "boutique",       SEC_PLAYER,         true,  NULL,                                           "", boutiqueCommandTable  },
-		{ "questbug",		SEC_GAMEMASTER,		false, NULL, "", questBugTable },
-		{ "boutique",       SEC_PLAYER,         true,  NULL,                                           "", boutiqueCommandTable  },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
     // cache for commands, needed because some commands are loaded dynamically through ScriptMgr
     // cache is never freed and will show as a memory leak in diagnostic tools
     // can't use vector as vector storage is implementation-dependent, eg, there can be alignment gaps between elements

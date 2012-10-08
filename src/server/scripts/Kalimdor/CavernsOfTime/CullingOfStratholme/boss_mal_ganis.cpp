@@ -241,7 +241,7 @@ public:
                 instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
                 DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
                 // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
-                DoCastAOE(me, SPELL_KILL_CREDIT);
+                DoCast(me, SPELL_KILL_CREDIT);
 				
                 float x, y, z;
                 me->GetPosition(x, y, z);

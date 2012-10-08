@@ -130,13 +130,13 @@ Transport* MapManager::LoadTransportInMap(Map* instance, uint32 goEntry, uint32 
 
     if (!goInfo)
     {
-        sLog->outErrorDb("Transport ID:%u, will not be loaded, gameobject_template missing", goEntry);
+        sLog->outError(LOG_FILTER_TRANSPORTS,"Transport ID:%u, will not be loaded, gameobject_template missing", goEntry);
         return NULL;
     }
 
     if (goInfo->type != GAMEOBJECT_TYPE_MO_TRANSPORT)
     {
-        sLog->outErrorDb("Transport ID:%u, Name: %s, will not be loaded, gameobject_template type wrong", goEntry, goInfo->name.c_str());
+        sLog->outError(LOG_FILTER_TRANSPORTS,"Transport ID:%u, Name: %s, will not be loaded, gameobject_template type wrong", goEntry, goInfo->name.c_str());
         return NULL;
     }
 
@@ -144,7 +144,7 @@ Transport* MapManager::LoadTransportInMap(Map* instance, uint32 goEntry, uint32 
     std::set<uint32> mapsUsed;
     if (!t->GenerateWaypoints(goInfo->moTransport.taxiPathId, mapsUsed))
     {
-        sLog->outErrorDb("Transport (path id %u) path size = 0. Transport ignored, check DBC files or the gameobject's data0 field.", goInfo->moTransport.taxiPathId);
+        sLog->outError(LOG_FILTER_TRANSPORTS,"Transport (path id %u) path size = 0. Transport ignored, check DBC files or the gameobject's data0 field.", goInfo->moTransport.taxiPathId);
         delete t;
         return NULL;
     }
@@ -785,7 +785,7 @@ Creature* Transport::AddNPCPassengerInInstance(uint32 entry, float x, float y, f
 
         if (!pCreature->IsPositionValid())
         {
-                sLog->outError("Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", pCreature->GetGUIDLow(), pCreature->GetEntry(), pCreature->GetPositionX(), pCreature->GetPositionY());
+                sLog->outError(LOG_FILTER_TRANSPORTS,"Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", pCreature->GetGUIDLow(), pCreature->GetEntry(), pCreature->GetPositionX(), pCreature->GetPositionY());
                 delete pCreature;
                 return NULL;
         }

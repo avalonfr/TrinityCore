@@ -19782,10 +19782,10 @@ void Player::SendAutoRepeatCancel(Unit* target)
 void Player::WriteWowArmoryDatabaseLog(uint32 type, uint32 data)
 {
     uint32 pGuid = GetGUIDLow();
-    sLog->outDetail("WoWArmory: write feed log (guid: %u, type: %u, data: %u", pGuid, type, data);
+    sLog->outError(LOG_FILTER_PLAYER,"WoWArmory: write feed log (guid: %u, type: %u, data: %u", pGuid, type, data);
     if (type <= 0)  // Unknown type
     {
-        sLog->outError("WoWArmory: unknown type id: %d, ignore.", type);
+        sLog->outError(LOG_FILTER_PLAYER,"WoWArmory: unknown type id: %d, ignore.", type);
         return;
     }
     if (type == 3)  // Do not write same bosses many times - just update counter.

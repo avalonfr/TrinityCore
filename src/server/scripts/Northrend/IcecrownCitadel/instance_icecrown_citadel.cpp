@@ -1493,7 +1493,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                if(TeamInInstance == HORDE)
                 {
-					sLog->outError("TeamInInstance == HORDE **********************************");
                  if(Transport* t = sMapMgr->LoadTransportInMap(instance, GO_THE_SKYBREAKER_HORDE_ICC, 77800))
 				{
                         t->AddNPCPassengerInInstance(NPC_GB_SKYBREAKER, -17.156807f, -1.633260f, 20.81273f, 4.52672f);

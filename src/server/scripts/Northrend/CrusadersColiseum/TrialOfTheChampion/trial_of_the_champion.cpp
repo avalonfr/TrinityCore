@@ -26,9 +26,7 @@ EndScriptData */
 npc_announcer_toc5
 EndContentData */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "ScriptPCH.h"
 #include "trial_of_the_champion.h"
 #include "Vehicle.h"
 
@@ -275,7 +273,7 @@ public:
                     {
                         if (!announceID.empty())
                         {
-                            int32 announce = Trinity::Containers::SelectRandomContainerElement(announceID);
+                            int32 announce = SelectRandomContainerElement(announceID);
                             DoScriptText(announce, me, player);
                             announceID.erase(announce);
                         }

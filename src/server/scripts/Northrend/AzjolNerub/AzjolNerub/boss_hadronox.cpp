@@ -111,7 +111,6 @@ class boss_hadronox : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
 me->GetMotionMaster()->Clear();
 me->GetMotionMaster()->MovePoint(50,me->GetHomePosition());
-sLog->outError("RESET *******************************************");
 
 _WaveCount = 0;
                 _wpCount = 0;
@@ -136,7 +135,6 @@ _WaveCount = 0;
             {
                 if (type != POINT_MOTION_TYPE || id != _wpCount)
                     return;
-sLog->outError("point id %u *************************",id);
                 if (id == 10)
                 {
                     // TODO: web doors

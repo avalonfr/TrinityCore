@@ -329,7 +329,7 @@ void InstanceScript::DoCompleteAchievement(uint32 achievement)
   Map::PlayerList const &PlayerList = instance->GetPlayers();
   if (!pAE)
   {
-      sLog->outError("TSCR: DoCompleteAchievement called for not existing achievement %u", achievement);
+      sLog->outError(LOG_FILTER_ACHIEVEMENTSYS,"TSCR: DoCompleteAchievement called for not existing achievement %u", achievement);
       return;
   }
 

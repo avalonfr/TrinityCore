@@ -36,6 +36,76 @@
 #define GOSSIP_HELLO_DEMO3  "Build siege engine."
 #define GOSSIP_HELLO_DEMO4  "I cannot build more!"
 
+class npc_demolisher_engineerer : public CreatureScript
+{
+	public:
+	    npc_demolisher_engineerer() : CreatureScript("npc_demolisher_engineerer") { }
+	
+	
+	bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+	{
+	    if (pCreature->isQuestGiver())
+	        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+	
+	    if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
+	    {
+	        if (pPlayer->HasAura(SPELL_CORPORAL))
+	            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
+	        else if (pPlayer->HasAura(SPELL_LIEUTENANT))
+	        {
+	            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
+	            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO2, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+1);
+	            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO3, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
+	        }
+	    }
+	    else
+	        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO4, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+9);
+	
+	    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+	    return true;
+	}
+	
+	bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+	{
+	    pPlayer->CLOSE_GOSSIP_MENU();
+	    if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
+	    {
+	        switch(uiAction - GOSSIP_ACTION_INFO_DEF)
+	        {
+	            case 0: pPlayer->CastSpell(pPlayer, 56663, false, NULL, NULL, pCreature->GetGUID()); break;
+	            case 1: pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, pCreature->GetGUID()); break;
+	            case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID()); break;
+	        }
+	    }
+	
+	    return true;
+	}
+	
+	CreatureAI* GetAI(Creature* pCreature) const
+	{
+	    return new npc_demolisher_engineererAI(pCreature);
+	}
+	
+	struct npc_demolisher_engineererAI : public ScriptedAI
+	{
+	    npc_demolisher_engineererAI(Creature* pCreature) : ScriptedAI(pCreature)
+	    {
+	        me->SetReactState(REACT_PASSIVE);
+	    }
+	};
+	
+};
+enum WGqueuenpctext
+{
+    WG_NPCQUEUE_TEXT_H_NOWAR = 14775,
+    WG_NPCQUEUE_TEXT_H_QUEUE = 14790,
+    WG_NPCQUEUE_TEXT_H_WAR = 14777,
+    WG_NPCQUEUE_TEXT_A_NOWAR = 14782,
+    WG_NPCQUEUE_TEXT_A_QUEUE = 14791,
+    WG_NPCQUEUE_TEXT_A_WAR = 14781,
+    WG_NPCQUEUE_TEXTOPTION_JOIN = -1850507,
+};
+
 enum Spells
 {
     // Demolisher engineers spells
@@ -43,136 +113,54 @@ enum Spells
     SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE = 56662,
     SPELL_BUILD_CATAPULT_FORCE = 56664,
     SPELL_BUILD_DEMOLISHER_FORCE = 56659,
-    SPELL_ACTIVATE_CONTROL_ARMS = 49899
-};
+    SPELL_ACTIVATE_CONTROL_ARMS = 49899,
+    SPELL_RIDE_WG_VEHICLE = 60968,
 
-
-class npc_demolisher_engineerer : public CreatureScript
-{
-public:
-    npc_demolisher_engineerer() : CreatureScript("npc_demolisher_engineerer") { }
-
-
-bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-{
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
-    if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
-    {
-        if (pPlayer->HasAura(SPELL_CORPORAL))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
-        else if (pPlayer->HasAura(SPELL_LIEUTENANT))
-        {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO2, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO3, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
-        }
-    }
-    else
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO4, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+9);
-
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    pPlayer->CLOSE_GOSSIP_MENU();
-    if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
-    {
-        switch(uiAction - GOSSIP_ACTION_INFO_DEF)
-        {
-            case 0: pPlayer->CastSpell(pPlayer, 56663, false, NULL, NULL, pCreature->GetGUID()); break;
-            case 1: pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, pCreature->GetGUID()); break;
-            case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID()); break;
-        }
-    }
-
-    return true;
-}
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_demolisher_engineererAI(pCreature);
-    }
-
-    struct npc_demolisher_engineererAI : public ScriptedAI
-    {
-        npc_demolisher_engineererAI(Creature* pCreature) : ScriptedAI(pCreature)
-        {
-            me->SetReactState(REACT_PASSIVE);
-        }
-    };
-
-};
-
-enum WGqueuenpctext
-{
-    WG_NPCQUEUE_TEXT_H_NOWAR            = 14775,
-    WG_NPCQUEUE_TEXT_H_QUEUE            = 14790,
-    WG_NPCQUEUE_TEXT_H_WAR              = 14777,
-    WG_NPCQUEUE_TEXT_A_NOWAR            = 14782,
-    WG_NPCQUEUE_TEXT_A_QUEUE            = 14791,
-    WG_NPCQUEUE_TEXT_A_WAR              = 14781,
-    WG_NPCQUEUE_TEXTOPTION_JOIN         = -1850507,
-};
-
-enum Spells
-{
-    // Demolisher engineers spells
-    SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE     = 61409,
-    SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE  = 56662,
-    SPELL_BUILD_CATAPULT_FORCE                = 56664,
-    SPELL_BUILD_DEMOLISHER_FORCE              = 56659,
-    SPELL_ACTIVATE_CONTROL_ARMS               = 49899,
-    SPELL_RIDE_WG_VEHICLE                     = 60968,
-
-    SPELL_VEHICLE_TELEPORT                    = 49759,
+    SPELL_VEHICLE_TELEPORT = 49759,
 
     // Spirit guide
-    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011,
+    SPELL_CHANNEL_SPIRIT_HEAL = 22011,
 };
 
 enum CreatureIds
 {
-    NPC_GOBLIN_MECHANIC                             = 30400,
-    NPC_GNOMISH_ENGINEER                            = 30499,
+    NPC_GOBLIN_MECHANIC = 30400,
+    NPC_GNOMISH_ENGINEER = 30499,
 
-    NPC_WINTERGRASP_CONTROL_ARMS                    = 27852,
+    NPC_WINTERGRASP_CONTROL_ARMS = 27852,
 
-    NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC   = 23472,
+    NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC = 23472,
 };
 
 enum QuestIds
 {
-    QUEST_BONES_AND_ARROWS_HORDE_ATT              = 13193,
-    QUEST_JINXING_THE_WALLS_HORDE_ATT             = 13202,
-    QUEST_SLAY_THEM_ALL_HORDE_ATT                 = 13180,
-    QUEST_FUELING_THE_DEMOLISHERS_HORDE_ATT       = 13200,
-    QUEST_HEALING_WITH_ROSES_HORDE_ATT            = 13201,
-    QUEST_DEFEND_THE_SIEGE_HORDE_ATT              = 13223,
+    QUEST_BONES_AND_ARROWS_HORDE_ATT = 13193,
+    QUEST_JINXING_THE_WALLS_HORDE_ATT = 13202,
+    QUEST_SLAY_THEM_ALL_HORDE_ATT = 13180,
+    QUEST_FUELING_THE_DEMOLISHERS_HORDE_ATT = 13200,
+    QUEST_HEALING_WITH_ROSES_HORDE_ATT = 13201,
+    QUEST_DEFEND_THE_SIEGE_HORDE_ATT = 13223,
 
-    QUEST_BONES_AND_ARROWS_HORDE_DEF              = 13199,
-    QUEST_WARDING_THE_WALLS_HORDE_DEF             = 13192,
-    QUEST_SLAY_THEM_ALL_HORDE_DEF                 = 13178,
-    QUEST_FUELING_THE_DEMOLISHERS_HORDE_DEF       = 13191,
-    QUEST_HEALING_WITH_ROSES_HORDE_DEF            = 13194,
-    QUEST_TOPPLING_THE_TOWERS_HORDE_DEF           = 13539,
-    QUEST_STOP_THE_SIEGE_HORDE_DEF                = 13185,
+    QUEST_BONES_AND_ARROWS_HORDE_DEF = 13199,
+    QUEST_WARDING_THE_WALLS_HORDE_DEF = 13192,
+    QUEST_SLAY_THEM_ALL_HORDE_DEF = 13178,
+    QUEST_FUELING_THE_DEMOLISHERS_HORDE_DEF = 13191,
+    QUEST_HEALING_WITH_ROSES_HORDE_DEF = 13194,
+    QUEST_TOPPLING_THE_TOWERS_HORDE_DEF = 13539,
+    QUEST_STOP_THE_SIEGE_HORDE_DEF = 13185,
 
-    QUEST_BONES_AND_ARROWS_ALLIANCE_ATT           = 13196,
-    QUEST_WARDING_THE_WARRIORS_ALLIANCE_ATT       = 13198,
+    QUEST_BONES_AND_ARROWS_ALLIANCE_ATT = 13196,
+    QUEST_WARDING_THE_WARRIORS_ALLIANCE_ATT = 13198,
     QUEST_NO_MERCY_FOR_THE_MERCILESS_ALLIANCE_ATT = 13179,
-    QUEST_DEFEND_THE_SIEGE_ALLIANCE_ATT           = 13222,
-    QUEST_A_RARE_HERB_ALLIANCE_ATT                = 13195,
+    QUEST_DEFEND_THE_SIEGE_ALLIANCE_ATT = 13222,
+    QUEST_A_RARE_HERB_ALLIANCE_ATT = 13195,
 
-    QUEST_BONES_AND_ARROWS_ALLIANCE_DEF           = 13154,
-    QUEST_WARDING_THE_WARRIORS_ALLIANCE_DEF       = 13153,
+    QUEST_BONES_AND_ARROWS_ALLIANCE_DEF = 13154,
+    QUEST_WARDING_THE_WARRIORS_ALLIANCE_DEF = 13153,
     QUEST_NO_MERCY_FOR_THE_MERCILESS_ALLIANCE_DEF = 13177,
-    QUEST_SHOUTHERN_SABOTAGE_ALLIANCE_DEF         = 13538,
-    QUEST_STOP_THE_SIEGE_ALLIANCE_DEF             = 13186,
-    QUEST_A_RARE_HERB_ALLIANCE_DEF                = 13156,
+    QUEST_SHOUTHERN_SABOTAGE_ALLIANCE_DEF = 13538,
+    QUEST_STOP_THE_SIEGE_ALLIANCE_DEF = 13186,
+    QUEST_A_RARE_HERB_ALLIANCE_DEF = 13156,
 };
 
 uint8 const MAX_WINTERGRASP_VEHICLES = 4;
@@ -433,7 +421,7 @@ class npc_wg_quest_giver : public CreatureScript
                     else if (status == QUEST_STATUS_INCOMPLETE)
                         qm.AddMenuItem(questId, 4);
                     //else if (status == QUEST_STATUS_AVAILABLE)
-                    //    qm.AddMenuItem(quest_id, 2);
+                    // qm.AddMenuItem(quest_id, 2);
                 }
 
                 for (QuestRelations::const_iterator i = objectQR.first; i != objectQR.second; ++i)

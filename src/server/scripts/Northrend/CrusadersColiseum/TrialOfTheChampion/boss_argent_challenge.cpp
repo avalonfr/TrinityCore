@@ -99,7 +99,7 @@ class OrientationCheck : public std::unary_function<Unit*, bool>
 {
     public:
         explicit OrientationCheck(Unit* _caster) : caster(_caster) { }
-        bool operator() (WorldObject* unit)
+        bool operator() (Unit* unit)
         {
             return !unit->isInFront(caster, 2.5f) || !unit->IsWithinDist(caster, 40.0f);;
         }
@@ -115,15 +115,15 @@ class spell_eadric_radiance : public SpellScriptLoader
         class spell_eadric_radiance_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_eadric_radiance_SpellScript);
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                targets.remove_if(OrientationCheck(GetCaster()));
+                unitList.remove_if(OrientationCheck(GetCaster()));
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -145,7 +145,7 @@ class spell_eadric_hammer_of_righteous : public SpellScriptLoader
             void HandleBeforeHit()
             {
                 Unit* caster = GetCaster();
-                Unit* target = GetExplTargetUnit();
+                Unit* target = GetTargetUnit();
 
                 if(!caster || !target)
                     return;

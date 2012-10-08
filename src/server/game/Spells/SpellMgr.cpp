@@ -3335,10 +3335,11 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
 			case 64752: // Druid T8 Feral 2P Bonus
                 spellInfo->EffectSpellClassMask[EFFECT_0] = flag96(0x00001000, 0x00000100, 0x00200000);
+				break;
             case 63163: // Apply Enchanted Bridle (Argent Tournament)
                 spellInfo->EffectDieSides[0] = 0; // was 1, that should probably mean seat 0, but instead it's treated as spell 1
                 spellInfo->EffectBasePoints[0] = 52391; // Ride Vehicle (forces seat 0)
-				break,
+				break;
             case 64949: // Idol of the Flourishing Life
                 spellInfo->EffectSpellClassMask[EFFECT_0] = flag96(0x00000000, 0x02000000, 0x00000000);
                 spellInfo->EffectApplyAuraName[EFFECT_0] = SPELL_AURA_ADD_FLAT_MODIFIER;

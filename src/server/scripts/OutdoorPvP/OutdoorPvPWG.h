@@ -23,6 +23,7 @@
 
 #include "OutdoorPvP.h"
 #include "BattlegroundMgr.h"
+#include "BattlefieldWG.h"
 #include "Player.h"
 
 #define ZONE_DALARAN             4395
@@ -30,11 +31,11 @@
 #define POS_X_CENTER             5100
 #define MAX_VEHICLE_PER_WORKSHOP    4
 
-const uint32 WintergraspFaction[3] = {1802, 1801, 35};
+//const uint32 WintergraspFaction[3] = {1802, 1801, 35};
 const uint32 WG_MARK_OF_HONOR = 43589;
-const uint32 VehNumWorldState[2] = {3680,3490};
-const uint32 MaxVehNumWorldState[2] = {3681,3491};
-const uint32 ClockWorldState[2] = {3781,4354};
+//const uint32 VehNumWorldState[2] = {3680,3490};
+//const uint32 MaxVehNumWorldState[2] = {3681,3491};
+//const uint32 ClockWorldState[2] = {3781,4354};
 const uint8 CapturePointArtKit[3] = {2, 1, 21};
 char const *fmtstring(char const *format, ...);
 const Team TeamId2Team[3] = {ALLIANCE, HORDE, TEAM_OTHER};
@@ -42,7 +43,7 @@ const Team TeamId2Team[3] = {ALLIANCE, HORDE, TEAM_OTHER};
 enum OutdoorPvPWGSpell
 {
     // Wartime auras
-    SPELL_RECRUIT                                = 37795,
+/*    SPELL_RECRUIT                                = 37795,
     SPELL_CORPORAL                               = 33280,
     SPELL_LIEUTENANT                             = 55629,
     SPELL_TENACITY                               = 58549,
@@ -57,13 +58,13 @@ enum OutdoorPvPWGSpell
     SPELL_DESTROYED_TOWER                        = 59136,
     SPELL_DAMAGED_BUILDING                       = 59201,
     SPELL_INTACT_BUILDING                        = 59203,
-
+*/
     SPELL_TELEPORT_ALLIENCE_CAMP                 = 58632,
     SPELL_TELEPORT_HORDE_CAMP                    = 58633,
-    SPELL_TELEPORT_FORTRESS                      = 59096,
+//    SPELL_TELEPORT_FORTRESS                      = 59096,
 
-    SPELL_TELEPORT_DALARAN                       = 53360,
-    SPELL_VICTORY_AURA                           = 60044,
+/*    SPELL_TELEPORT_DALARAN                       = 53360,
+    SPELL_VICTORY_AURA                           = 60044,*/
 };
 
 const uint16 GameEventWintergraspDefender[2] = {50, 51};

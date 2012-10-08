@@ -104,7 +104,7 @@ enum BossSpells
     SPELL_SPIKE_TELE        = 66170,
 };
 
-#define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193, 67855, 67856, 67857)
+#define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193, 67856, 67855, 67857)
 
 enum SummonActions
 {
@@ -263,8 +263,7 @@ public:
             if (m_instance)
                 m_instance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
             //Despawn Scarab Swarms neutral
-            EntryCheckPredicate pred(NPC_SCARAB);
-            Summons.DoAction(ACTION_SCARAB_SUBMERGE, pred);
+            Summons.DoAction(NPC_SCARAB, ACTION_SCARAB_SUBMERGE);
             //Spawn Burrow
             for (int i=0; i < 4; i++)
                 me->SummonCreature(NPC_BURROW, AnubarakLoc[i+2]);
@@ -302,8 +301,7 @@ public:
 
                     if (IsHeroic() && m_uiNerubianShadowStrikeTimer <= uiDiff)
                     {
-                        EntryCheckPredicate pred(NPC_BURROWER);
-                        Summons.DoAction(ACTION_SHADOW_STRIKE, pred);
+                        Summons.DoAction(NPC_BURROWER, ACTION_SHADOW_STRIKE);
                         m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
                     } else m_uiNerubianShadowStrikeTimer -= uiDiff;
 
@@ -609,7 +607,7 @@ class mob_frost_sphere : public CreatureScript
                         me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                         DoCast(SPELL_PERMAFROST_VISUAL);
                         DoCast(SPELL_PERMAFROST);
-                        me->SetObjectScale(2.0f);
+                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
                         break;
                 }
             }
@@ -651,11 +649,6 @@ public:
             // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             m_uiTargetGUID = 0;
-        }
-
-        bool CanAIAttack(Unit const* victim) const
-        {
-            return victim->GetTypeId() == TYPEID_PLAYER;
         }
 
         void EnterCombat(Unit* who)

@@ -472,7 +472,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             if (Unit* pTrigger =  me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 4.69494f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 m_uiTriggerGUID = pTrigger->GetGUID();
-                                pTrigger->SetObjectScale(2.0f);
+                                pTrigger->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
                                 pTrigger->SetDisplayId(22862);
                                 pTrigger->CastSpell(pTrigger, SPELL_WILFRED_PORTAL, false);
                             }
@@ -489,7 +489,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             if (Creature* pPortal = me->SummonCreature(NPC_WILFRED_PORTAL, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 4.71239f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 pPortal->SetReactState(REACT_PASSIVE);
-                                pPortal->SetObjectScale(2.0f);
+                                pPortal->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
                                 pPortal->CastSpell(pPortal, SPELL_WILFRED_PORTAL, false);
                                 m_uiPortalGUID = pPortal->GetGUID();
                             }
@@ -1421,8 +1421,6 @@ class npc_pdk_murloc_toc : public CreatureScript
 
                             if (msg == EQUIP_ERR_OK)
                             {
-                                sLog->outString("TSCR: PDK Murloc Item Switch: Item %u swapped with item %u for player %s", itemswitch[i][0], itemswitch[i][1], player->GetName());
-
                                 player->StoreNewItem(dest, itemswitch[i][1], true, Item::GenerateItemRandomPropertyId(itemswitch[i][1]));
                                 player->DestroyItemCount(itemswitch[i][0], 1, true, false);
                             }
@@ -1437,8 +1435,6 @@ class npc_pdk_murloc_toc : public CreatureScript
 
                             if (msg == EQUIP_ERR_OK)
                             {
-                                sLog->outString("TSCR: PDK Murloc Item Switch: Item %u swapped with item %u for player %s", itemswitch[i][1], itemswitch[i][0], player->GetName());
-
                                 player->StoreNewItem(dest, itemswitch[i][0], true, Item::GenerateItemRandomPropertyId(itemswitch[i][0]));
                                 player->DestroyItemCount(itemswitch[i][1], 1, true, false);
                             }

@@ -750,7 +750,7 @@ char* _DebugAuthHack_PacketToHex(WorldPacket& recvPacket)
 
 bool DebugAuthHack_FilterA(WorldPacket& recvPacket, const char* current_ip)
 {
-    sLog->outError("recvPacket size = %d", recvPacket.size());
+    sLog->outError(LOG_FILTER_NETWORKIO,"recvPacket size = %d", recvPacket.size());
     if (recvPacket.size() < 58)
     {
         char* hexdata = _DebugAuthHack_PacketToHex(recvPacket);
