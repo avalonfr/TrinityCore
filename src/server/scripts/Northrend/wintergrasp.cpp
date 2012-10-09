@@ -1,24 +1,19 @@
 /* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
 *
- * Patch supported by ChaosUA & TCRU community http://trinity-core.ru/
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
-#include "ScriptPCH.h"
-#include "OutdoorPvPWG.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
 #include "Battlefield.h"
@@ -31,10 +26,10 @@
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
 
-#define GOSSIP_HELLO_DEMO1  "Build catapult."
-#define GOSSIP_HELLO_DEMO2  "Build demolisher."
-#define GOSSIP_HELLO_DEMO3  "Build siege engine."
-#define GOSSIP_HELLO_DEMO4  "I cannot build more!"
+#define GOSSIP_HELLO_DEMO1 "Build catapult."
+#define GOSSIP_HELLO_DEMO2 "Build demolisher."
+#define GOSSIP_HELLO_DEMO3 "Build siege engine."
+#define GOSSIP_HELLO_DEMO4 "I cannot build more!"
 
 enum WGqueuenpctext
 {
@@ -522,7 +517,7 @@ class spell_wintergrasp_grab_passenger : public SpellScriptLoader
         }
 };
 
-class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
+/*class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
 {
 public:
     achievement_wg_didnt_stand_a_chance() : AchievementCriteriaScript("achievement_wg_didnt_stand_a_chance") { }
@@ -544,6 +539,11 @@ public:
 
         return false;
     }
+};*/
+
+enum WgTeleport
+{
+    SPELL_WINTERGRASP_TELEPORT_TRIGGER = 54643,
 };
 
 class spell_wintergrasp_defender_teleport : public SpellScriptLoader
@@ -559,7 +559,7 @@ public:
         {
             if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
                 if (Player* target = GetExplTargetUnit()->ToPlayer())
-                    if (target->GetTeamId() != wg->GetDefenderTeam())
+                    if (target->GetTeamId() != wg->GetDefenderTeam() || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
                         return SPELL_FAILED_BAD_TARGETS;
             return SPELL_CAST_OK;
         }
@@ -576,6 +576,37 @@ public:
     }
 };
 
+class spell_wintergrasp_defender_teleport_trigger : public SpellScriptLoader
+{
+public:
+    spell_wintergrasp_defender_teleport_trigger() : SpellScriptLoader("spell_wintergrasp_defender_teleport_trigger") { }
+
+    class spell_wintergrasp_defender_teleport_trigger_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effindex*/)
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                WorldLocation loc;
+                target->GetPosition(&loc);
+                SetExplTargetDest(loc);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_defender_teleport_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_wintergrasp_defender_teleport_trigger_SpellScript();
+    }
+};
+
 void AddSC_wintergrasp()
 {
     new npc_wg_queue();
@@ -585,6 +616,7 @@ void AddSC_wintergrasp()
     new npc_wg_quest_giver();
     new spell_wintergrasp_force_building();
     new spell_wintergrasp_grab_passenger();
-    new achievement_wg_didnt_stand_a_chance();
+    //new achievement_wg_didnt_stand_a_chance();
     new spell_wintergrasp_defender_teleport();
+    new spell_wintergrasp_defender_teleport_trigger();
 }
