@@ -1239,9 +1239,9 @@ void World::LoadConfigSettings(bool reload)
 	m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower", 750);
 	m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding", 750);
 	m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding", 1500);
-	m_bool_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE] = ConfigMgr::GetBoolDefault("OutdoorPvP.Wintergrasp.Antifarm.Enable", false);
-	m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Atk", 5);
-	m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Def", 5);
+	m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE] = ConfigMgr::GetBoolDefault("OutdoorPvP.Wintergrasp.Antifarm.Enable", false);
+	m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Atk", 5);
+	m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Def", 5);
 
 	//Debug AUTH Hack
 	m_bool_configs[CONFIG_DEBUG_AUTH_HACK_ENABLE] = ConfigMgr::GetBoolDefault("DebugAuthHack.enbale", false);
@@ -3042,27 +3042,26 @@ CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
 
 void World::SendWintergraspState()
 {
-	OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
-	if (!pvpWG)
-		return;
-	
-	for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-	{
-		if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
-			continue;
-	
-		if (pvpWG->isWarTime())
-		{
-			// "Battle in progress"
-			itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
-		} else
-		// Time to next battle
-		{
-			pvpWG->SendInitWorldStatesTo(itr->second->GetPlayer());
-			itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
-			// Hide unneeded info which in center of screen
-			itr->second->GetPlayer()->SendInitWorldStates(itr->second->GetPlayer()->GetZoneId(), itr->second->GetPlayer()->GetAreaId());
-		}
-	}
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
+    if (!pvpWG)
+        return;
+
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
+        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
+            continue;
+
+        if (pvpWG->isWarTime()) // "Battle in progress"
+        {
+            itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
+        } 
+        else // Time to next battle
+        {
+            pvpWG->SendInitWorldStatesTo(itr->second->GetPlayer());
+            itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
+            // Hide unneeded info which in center of screen
+            itr->second->GetPlayer()->SendInitWorldStates(itr->second->GetPlayer()->GetZoneId(), itr->second->GetPlayer()->GetAreaId());
+        }
+    }
 }
