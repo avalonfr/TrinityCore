@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `speed_walk` = 0.642857, `mechanic_immune_mask` = 617296767 WHERE `entry` IN (36609, 39120, 39121, 39122);
