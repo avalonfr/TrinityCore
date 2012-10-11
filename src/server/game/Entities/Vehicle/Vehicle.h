@@ -23,6 +23,7 @@
 #include "VehicleDefines.h"
 
 struct VehicleEntry;
+struct Position;
 class Unit;
 
 typedef std::set<uint64> GuidSet;
@@ -57,6 +58,7 @@ class Vehicle
         void Dismiss();
         void TeleportVehicle(float x, float y, float z, float ang);
         bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
+		void Relocate(Position pos);
 
         SeatMap Seats;
 
