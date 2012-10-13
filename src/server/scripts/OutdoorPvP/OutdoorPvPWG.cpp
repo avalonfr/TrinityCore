@@ -1041,8 +1041,12 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
             {
                 if (!creature->isAlive())
                     creature->Respawn(true);
-                creature->setFaction(Wg_WintergraspFaction[getDefenderTeam()]);
+				if (creature->GetAreaId() == 4581 || creature->GetAreaId() == 4582 || creature->GetAreaId() == 4583)
+					creature->setFaction(Wg_WintergraspFaction[getAttackerTeam()]);
+				else
+					creature->setFaction(Wg_WintergraspFaction[getDefenderTeam()]);
                 creature->SetVisible(true);
+				creature->SetPhaseMask(1,true);
             } else {
                 if (creature->IsVehicle() && creature->GetVehicleKit())
                     creature->GetVehicleKit()->RemoveAllPassengers();
