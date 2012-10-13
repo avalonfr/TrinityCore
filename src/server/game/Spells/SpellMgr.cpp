@@ -3679,6 +3679,17 @@ void SpellMgr::LoadDbcDataCorrections()
             case 69846: // Frost Bomb
                 spellInfo->speed = 0.0f;    // This spell's summon happens instantly
                 break;
+			case 51590: // Toss Ice Boulder
+				spellInfo->MaxAffectedTargets = 1;
+				break;
+			case 74412: // Emergency Recall [Final]
+				for (int8 i = 0; i < 3; ++i)
+					spellInfo->EffectImplicitTargetB[i] = TARGET_UNIT_TARGET_ANY;
+				break;
+			case 75545: case 75536: // Explosion (prevent error message in console)
+			case 75553: // Emergency Recall [Camera trigger]
+				spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
+				break;
             case 71614: // Ice Lock
                 spellInfo->Mechanic = MECHANIC_STUN;
                 break;
