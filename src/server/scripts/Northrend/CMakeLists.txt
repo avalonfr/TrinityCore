@@ -34,10 +34,10 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/Ulduar/boss_xt002.cpp
   Northrend/Ulduar/Ulduar/boss_mimiron.cpp
   Northrend/Ulduar/Ulduar/ulduar.h
-  Northrend/Ulduar/Ulduar/ulduar.cpp
   Northrend/Ulduar/Ulduar/boss_freya.cpp
   Northrend/Ulduar/Ulduar/boss_razorscale.cpp
   Northrend/Ulduar/Ulduar/boss_kologarn.cpp
+  Northrend/Ulduar/Ulduar/ulduar_trash.cpp
   Northrend/Ulduar/HallsOfStone/boss_krystallus.cpp
   Northrend/Ulduar/HallsOfStone/halls_of_stone.h
   Northrend/Ulduar/HallsOfStone/instance_halls_of_stone.cpp
@@ -60,7 +60,7 @@ set(scripts_STAT_SRCS
   Northrend/FrozenHalls/PitOfSaron/boss_scourgelord_tyrannus.cpp
   Northrend/FrozenHalls/PitOfSaron/pit_of_saron.h
   Northrend/FrozenHalls/PitOfSaron/instance_pit_of_saron.cpp
-   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.h
+  Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.h
   Northrend/FrozenHalls/HallsOfReflection/boss_falric.cpp
   Northrend/FrozenHalls/HallsOfReflection/instance_halls_of_reflection.cpp
   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.cpp
