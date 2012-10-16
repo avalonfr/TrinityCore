@@ -74,13 +74,13 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionTy
 ## Prepping the Speech
 ######*/
 
-UPDATE `quest_template` SET `PrevQuestId` = '25283', `NextQuestId` = '25287' WHERE `entry` = '25286';
-UPDATE `quest_template` SET `NextQuestId` = '25286' WHERE `entry` = '25283';
+UPDATE `quest_template` SET `PrevQuestId` = '25283', `NextQuestId` = '25287' WHERE `id` = '25286';
+UPDATE `quest_template` SET `NextQuestId` = '25286' WHERE `id` = '25283';
 UPDATE `creature_template` SET `ScriptName` = 'npc_mekkatorque', `scale` = '0.6', `unit_flags` = '33554752' WHERE `entry` = '39712';
 DELETE FROM `creature_template_addon` WHERE (`entry` = '39712');
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39712', '0', '0', '0', '0', '0', '8326');
 -- Cleanup [delete unused quest]
-DELETE FROM `quest_template` WHERE (`entry` = '25500');
+DELETE FROM `quest_template` WHERE (`id` = '25500');
 DELETE FROM `creature_questrelation` WHERE (`quest` = '25500');
 DELETE FROM `gameobject_questrelation` WHERE (`quest` = '25500');
 DELETE FROM `creature_involvedrelation` WHERE (`quest` = '25500');
@@ -114,7 +114,7 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 UPDATE `creature` SET `position_x` = '-5424.462891', `position_y` = '531.410095', `position_z` = '386.743347', `orientation` = '5.2' WHERE `id` = '39271';
 UPDATE `creature` SET `phaseMask`= '1' WHERE `id` = '7937';
 
-DELETE FROM `vehicle_accessory` WHERE `entry` = '39860';
+DELETE FROM `vehicle_accessory` WHERE `accessory_entry` = '39860';
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN ('39820', '39273', '39910');
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES

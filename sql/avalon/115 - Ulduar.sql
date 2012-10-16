@@ -27,7 +27,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 -- Ignis Flame_Jets target filtering
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (62680, 63472);
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62680, 'spell_ignis_flame_jets'),
 (63472, 'spell_ignis_flame_jets');
 
@@ -126,8 +126,8 @@ INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `
 -- Add additional target selection script, i.e. a SpellScript that is used aside the AuraScript that already got attached to
 -- these spells.
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_xt002_gravity_bomb_aura_target';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(63024, 'spell_xt002_gravity_bomb_aura_target'), 
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(63024, 'spell_xt002_gravity_bomb_aura_target'),
 (64234, 'spell_xt002_gravity_bomb_aura_target');
 
 -- make XT Deconstructors heart not regen hp
@@ -143,7 +143,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_kologarn_arm' WHERE `entry` IN 
 
 -- Add achievement scripts to corresponding criterias
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10284, 10722, 10285, 10095, 10290, 10133);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 (10284, 11, 0, 0, 'achievement_disarmed'),
 (10284, 12, 0, 0, ''),
 (10722, 11, 0, 0, 'achievement_disarmed_25'),
@@ -159,7 +159,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 
 -- Assembly of Iron
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (61902, 61911, 63495, 61920);
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (61902, 'spell_steelbreaker_electrical_charge'),
 (61911, 'spell_steelbreaker_static_disruption'),
 (63495, 'spell_steelbreaker_static_disruption'),
@@ -171,7 +171,7 @@ INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equip
 (33956, 603, 3, 1, 0, 0, 1438.6, 114.639, 423.642, 2.11325, 120, 0, 0, 75600, 0, 0, 0, 0, 0);
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10084,10087,10088,10418,10419,10089,10420,10421,10090,10422,10423,10091,10424,10425);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 (10084, 11, 0, 0, 'achievement_i_choose_you'), -- achievement 2941
 (10084, 12, 0, 0, ''),
 (10087, 11, 0, 0, 'achievement_i_choose_you_25'), -- achievement 2944
@@ -207,22 +207,22 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 -- Moved check to script.
 -- 10 man handling.
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10223, 10240, 10241);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
-(10223, 11, 0, 0, 'achievement_staying_buffed_all_winter'), 
-(10223, 12, 0, 0, ''), 
-(10240, 11, 0, 0, 'achievement_staying_buffed_all_winter'), 
-(10240, 12, 0, 0, ''), 
-(10241, 11, 0, 0, 'achievement_staying_buffed_all_winter'), 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(10223, 11, 0, 0, 'achievement_staying_buffed_all_winter'),
+(10223, 12, 0, 0, ''),
+(10240, 11, 0, 0, 'achievement_staying_buffed_all_winter'),
+(10240, 12, 0, 0, ''),
+(10241, 11, 0, 0, 'achievement_staying_buffed_all_winter'),
 (10241, 12, 0, 0, '');
 
 -- 25 man handling.
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10229, 10238, 10239);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
-(10229, 12, 1, 0, ''), 
-(10229, 11, 0, 0, 'achievement_staying_buffed_all_winter_25'), 
-(10238, 12, 1, 0, ''), 
-(10238, 11, 0, 0, 'achievement_staying_buffed_all_winter_25'), 
-(10239, 12, 1, 0, ''), 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(10229, 12, 1, 0, ''),
+(10229, 11, 0, 0, 'achievement_staying_buffed_all_winter_25'),
+(10238, 12, 1, 0, ''),
+(10238, 11, 0, 0, 'achievement_staying_buffed_all_winter_25'),
+(10239, 12, 1, 0, ''),
 (10239, 11, 0, 0, 'achievement_staying_buffed_all_winter_25');
 
 -- adding hodir a weapon in 25m mode
@@ -323,7 +323,7 @@ UPDATE `creature` SET `spawndist`=50 WHERE `id` IN (33528, 33733);
 -- Mimiron
 -- @DorianGrey
 -- SQL-updates related to Mimiron-encounter, Ulduar.
--- While I've changed many parts of their encounter-script, this SQL-update is almost completely (apart from the achievement-stuff) 
+-- While I've changed many parts of their encounter-script, this SQL-update is almost completely (apart from the achievement-stuff)
 -- adopted from https://github.com/darkman1983/TrinityCore , so all credits should go to them.
 
 -- First gameobject for the tram from inner sanctuary -> Mimiron.
@@ -343,6 +343,10 @@ UPDATE `creature_template` SET `ScriptName`='boss_leviathan_mk_turret' WHERE `en
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=33432;
 INSERT INTO `vehicle_template_accessory` VALUES
 (33432, 34071, 3, 1, 'Leviathan Mk II turret', 8, 0);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=33432;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(33432, 46598, 1, 0);
+
 -- Leviathan skills and skill-helper
 UPDATE `creature_template` SET `ScriptName`='npc_proximity_mine' WHERE `entry`=34362;
 UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` IN (28831, 28841, 28979);
@@ -385,12 +389,15 @@ DELETE FROM `creature` WHERE `id` IN (33110, 32874, 32875);
 -- Algalons Celestial Planetarium Access is spawned via core
 DELETE FROM `gameobject` WHERE `id`=194752;
 
+-- correcting quest chain leading to Algalon
+UPDATE `quest_template` SET `PrevQuestId`=13607, `NextQuestId`=13614, `ExclusiveGroup`=-13609 WHERE `Id` IN (13606, 13609, 13610, 13611);
+
 -- Achievement "Firefighter" (3180 / 3189)
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10450, 10463);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
-(10450, 12, 0, 0, ''), 
-(10450, 11, 0, 0, 'achievement_firefighter'), 
-(10463, 12, 1, 0, ''), 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(10450, 12, 0, 0, ''),
+(10450, 11, 0, 0, 'achievement_firefighter'),
+(10463, 12, 1, 0, ''),
 (10463, 11, 0, 0, 'achievement_firefighter_25');
 
 -- Spell stuff
@@ -403,7 +410,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- General Vezax
 -- Register spell-scripts
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (62692, 63276, 63278);
-INSERT INTO `spell_script_names` VALUES 
+INSERT INTO `spell_script_names` VALUES
 (62692,'spell_aura_of_despair_aura'),
 (63276,'spell_mark_of_the_faceless'),
 (63278,'spell_mark_of_the_faceless_drain');
@@ -418,21 +425,21 @@ UPDATE `creature_template` SET `flags_extra`=`flags_extra` |1 WHERE `entry`=3352
 
 -- Achievements "I love the smell of saronite in the morning" and "Shadowdodger"
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10451, 10462, 10173, 10306);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
-(10451, 11, 0, 0, 'achievement_i_love_the_smell_of_saronite_in_the_morning'), 
-(10451, 12, 0, 0, ''), 
-(10462, 11, 0, 0, 'achievement_i_love_the_smell_of_saronite_in_the_morning_25'), 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(10451, 11, 0, 0, 'achievement_i_love_the_smell_of_saronite_in_the_morning'),
+(10451, 12, 0, 0, ''),
+(10462, 11, 0, 0, 'achievement_i_love_the_smell_of_saronite_in_the_morning_25'),
 (10462, 12, 1, 0, ''),
-(10173, 11, 0, 0, 'achievement_shadowdodger'), 
-(10173, 12, 0, 0, ''), 
-(10306, 11, 0, 0, 'achievement_shadowdodger_25'), 
+(10173, 11, 0, 0, 'achievement_shadowdodger'),
+(10173, 12, 0, 0, ''),
+(10306, 11, 0, 0, 'achievement_shadowdodger_25'),
 (10306, 12, 1, 0, '');
 
 -- YoggSaron
 -- Updates for the various NPCs in Yogg-Saron encounter.
 UPDATE `creature_template` SET `ScriptName`='npc_yogg_saron_encounter_controller' WHERE `entry`=29224;
 DELETE FROM `creature` WHERE `id`=29224;
-INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES 
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 (29224, 603, 3, 1, 0, 0, 1980.28, -25.5868, 329.397, 2.91365, 300, 0, 0, 7841, 0, 0, 0, 0, 0);
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry`=33134;
 UPDATE `creature_template` SET `ScriptName`='npc_ominous_cloud' WHERE `entry`=33292;
@@ -458,36 +465,36 @@ UPDATE `item_template` SET `ScriptName`='item_unbound_fragments_of_valanyr' WHER
 UPDATE `creature_template` SET `RegenHealth`=1 WHERE `entry` IN (33134, 34332, 33890, 33954); -- No health regeneration for Sara and Brain of Yogg-saron
 
 DELETE FROM `gameobject` WHERE `id`=194625;
-INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `spawntimesecs`, `animprogress`, `state`) VALUES 
+INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `spawntimesecs`, `animprogress`, `state`) VALUES
 (194625, 603, 3, 1, 2001.4, -59.66, 245.07, 60, 100, 1),
 (194625, 603, 3, 1, 1941.61, -25.88, 244.98, 60, 100, 1),
 (194625, 603, 3, 1, 2001.18, 9.409, 245.24, 60, 100, 1);
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (64466,64139,64143,64133,63120,64174,64172,63802,64164,64168,62670,62671,62702,62650);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(64466,'spell_empowering_shadows'),    -- Heal Trigger for Empowering Shadows
-(64139,'spell_summon_tentacle_position'),  -- Correct Summon Position of Tentacle
+(64466,'spell_empowering_shadows'), -- Heal Trigger for Empowering Shadows
+(64139,'spell_summon_tentacle_position'), -- Correct Summon Position of Tentacle
 (64143,'spell_summon_tentacle_position'),
 (64133,'spell_summon_tentacle_position'),
-(63120,'spell_insane_death_effekt'),   -- Insane Death trigger on Remove
-(64174,'spell_hodir_protective_gaze'),   -- Hodir Secound Aura Script
-(64172,'spell_titanic_storm_targeting'),  -- Needed for Titanic Storm, Script for Target have Weakened Aura
-(63802,'spell_brain_link_periodic_dummy'),  -- Trigger Effekt on Near Player with Brain Link
+(63120,'spell_insane_death_effekt'), -- Insane Death trigger on Remove
+(64174,'spell_hodir_protective_gaze'), -- Hodir Secound Aura Script
+(64172,'spell_titanic_storm_targeting'), -- Needed for Titanic Storm, Script for Target have Weakened Aura
+(63802,'spell_brain_link_periodic_dummy'), -- Trigger Effekt on Near Player with Brain Link
 (64164,'spell_lunatic_gaze_targeting'),
-(64168,'spell_lunatic_gaze_targeting'),   -- Script for Target Faces Caster
+(64168,'spell_lunatic_gaze_targeting'), -- Script for Target Faces Caster
 (62670,'spell_keeper_support_aura_targeting'), -- Auras shouldn't hit other friendly NPCs
 (62671,'spell_keeper_support_aura_targeting'),
 (62702,'spell_keeper_support_aura_targeting'),
 (62650,'spell_keeper_support_aura_targeting');
 
 DELETE FROM `conditions` WHERE `SourceEntry` IN (64184, 63882, 63886, 64172, 64465, 65719, 62714);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
 (13, 0, 64184, 31, 3, 33288, 'Effect on YoggSaron'), -- Create Val'anyr on Yogg-Saron
 (13, 0, 63882, 31, 3, 33882, 'Effect on Death Orb'), -- Deathray Effect on Death Orb
 (13, 0, 63886, 31, 3, 33882, 'Effect on Death Orb'),
 (13, 0, 64172, 31, 3, 33988, 'Effect only for Immortal Guardians'), -- Condition because NPCs need this else no hit
 (13, 0, 64465, 31, 3, 33988, 'Effect only for Immortal Guardians'),
-(13, 1, 65719, 31, 3, 33134, 'Spell should hit only Sara'),		-- Shadow Nova
+(13, 1, 65719, 31, 3, 33134, 'Spell should hit only Sara'),	-- Shadow Nova
 (13, 1, 62714, 31, 3, 33136, 'Effect should hit only Guardians'),
 (13, 2, 62714, 31, 4, 0, 'Effect should hit only Players');
 
@@ -503,9 +510,9 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2
 32930, 33909, -- Kologarn
 32906, 33360, -- Freya
 32845, 32846, -- Hodir
-33350,        -- Mimiron
+33350, -- Mimiron
 33432, 34106, -- Leviathan MK II
-34071,        -- Leviathan MK II turret
+34071, -- Leviathan MK II turret
 33651, 34108, -- VX-001
 33670, 34109, -- Aerial Unit
 32865, 33147, -- Thorim
@@ -513,7 +520,7 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2
 33524, 34152, -- Saronite Animus
 33288, 33955, -- Yogg-Saron
 33134, 34332, -- Sara
-33890, 33954  -- Brain of Yogg-Saron
+33890, 33954 -- Brain of Yogg-Saron
 );
 
 -- Stormcaller Brundir (stun and interrupt immunities are handled in scripts)
@@ -538,8 +545,8 @@ UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_natures_blade' WHE
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_guardian_of_life' WHERE `entry`=33528;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_storm_tempered_keeper' WHERE `entry` IN (33699, 33722);
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_charged_sphere' WHERE `entry`=33715;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_faceless_horror' WHERE `entry`=33772; 
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_adherent' WHERE `entry`=33818; 
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_faceless_horror' WHERE `entry`=33772;
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_adherent' WHERE `entry`=33818;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_frost_mage' WHERE `entry`=33819;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_pyromancer' WHERE `entry`=33820;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_enslaved_fire_elemental' WHERE `entry`=33838;
@@ -574,7 +581,7 @@ UPDATE `creature_template` SET `flags_extra`=`flags_extra` |128 WHERE `entry`=34
 -- Magma Rager
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=34086;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=34086;
-INSERT INTO `smart_scripts` (`entryorguid`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `target_type`, `comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `target_type`, `comment`) VALUES
 (34086, 6, 5000, 10000, 5000, 10000, 11, 5, 'Magma Rager - Cast Fire Blast');
 
 -- Forge Construct
@@ -588,7 +595,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `
 
 -- making some objects be spawned in all versions of Ulduar
 UPDATE `gameobject` SET `spawnMask`=3 WHERE `guid` IN (35446, 35393, 35413, 35417, 55630, 34041, 54961, 54971, 55043, 55194, 35381, 35462, 42047, 42076, 42520, 42543, 42649, 42868, 42916, 42918, 42919, 42958, 43112, 43115, 44885, 45021, 45090, 45094, 45096, 45097, 45116, 4784597, 4784598,
-45175, 45209, 48905, 50363, 55002, 55692, 55702, 127, 55734, 55862, 55926, 55965, 34155, 281, 35467, 35497, 35516, 35517, 42960, 43113, 43114, 44883, 34057, 45225, 45229, 45230, 45500, 56130, 56244, 56245, 56295, 56296, 56301, 56312, 56351, 56359, 56372, 56411, 54995, 55078, 56422, 56424, 56426, 
+45175, 45209, 48905, 50363, 55002, 55692, 55702, 127, 55734, 55862, 55926, 55965, 34155, 281, 35467, 35497, 35516, 35517, 42960, 43113, 43114, 44883, 34057, 45225, 45229, 45230, 45500, 56130, 56244, 56245, 56295, 56296, 56301, 56312, 56351, 56359, 56372, 56411, 54995, 55078, 56422, 56424, 56426,
 289, 35524, 56107, 56125, 42867, 42879, 55974, 55647, 285) OR `id` IN (194569, 189973, 190170, 190171, 191019, 194905, 194907) AND `map`=603;
 
 -- enlarging hitbox of bosses
