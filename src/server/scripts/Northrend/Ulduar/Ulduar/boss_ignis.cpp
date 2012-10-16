@@ -329,13 +329,25 @@ class boss_ignis : public CreatureScript
                             events.ScheduleEvent(EVENT_SCORCH, 25*IN_MILLISECONDS);
                             return;
                         case EVENT_CONSTRUCT:
+                            Talk(SAY_SUMMON);
+
                             if (!summons.empty())
                             {
-                                Talk(SAY_SUMMON);
-                                DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
-                                events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                                uint64 selectedConstruct = Trinity::Containers::SelectRandomContainerElement(summons);
+                                if (Creature* construct = ObjectAccessor::GetCreature(*me, selectedConstruct))
+                                {
+                                    construct->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
+                                    construct->SetReactState(REACT_AGGRESSIVE);
+                                    construct->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
+                                    construct->AI()->AttackStart(me->getVictim());
+                                    construct->AI()->DoZoneInCombat();
+                                    DoCast(me, SPELL_STRENGTH, true);
+                                    // Due to Spellworks, this spell requires a given target position.
+                                    me->CastSpell(construct->GetPositionX(), construct->GetPositionY(), construct->GetPositionZ(), SPELL_ACTIVATE_CONSTRUCT, true);
+                                }
                             }
-                            return;
+                            events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                            break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);
                             Talk(SAY_BERSERK);
@@ -398,22 +410,6 @@ class npc_iron_construct : public CreatureScript
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
                     me->DespawnOrUnsummon(1*IN_MILLISECONDS);
-                }
-            }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
-            {
-                if (spell->Id == SPELL_ACTIVATE_CONSTRUCT)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
-                    me->AI()->DoZoneInCombat();
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IGNIS)))
-                    {
-                        me->AI()->AttackStart(ignis->getVictim());
-                        ignis->CastSpell(ignis, SPELL_STRENGTH, true);
-                    }
                 }
             }
 
@@ -595,7 +591,7 @@ class spell_ignis_flame_jets : public SpellScriptLoader
             return new spell_ignis_flame_jets_SpellScript();
         }
 };
-
+/*
 class spell_ignis_activate_construct : public SpellScriptLoader
 {
     public:
@@ -625,7 +621,7 @@ class spell_ignis_activate_construct : public SpellScriptLoader
             return new spell_ignis_activate_construct_SpellScript();
         }
 };
-
+*/
 class achievement_ignis_shattered : public AchievementCriteriaScript
 {
     public:
@@ -648,7 +644,7 @@ void AddSC_boss_ignis()
     new spell_ignis_slag_pot();
     new spell_ignis_flame_jets();
     new achievement_ignis_shattered();
-    new spell_ignis_activate_construct();
+    /*new spell_ignis_activate_construct();*/
 }
 
 #undef SPELL_BRITTLE 
