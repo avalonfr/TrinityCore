@@ -591,37 +591,7 @@ class spell_ignis_flame_jets : public SpellScriptLoader
             return new spell_ignis_flame_jets_SpellScript();
         }
 };
-/*
-class spell_ignis_activate_construct : public SpellScriptLoader
-{
-    public:
-        spell_ignis_activate_construct() : SpellScriptLoader("spell_ignis_activate_construct") {}
 
-        class spell_ignis_activate_construct_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_ignis_activate_construct_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (WorldObject* _target = Trinity::Containers::SelectRandomContainerElement(targets))
-                {
-                    targets.clear();
-                    targets.push_back(_target);
-                }
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ignis_activate_construct_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_ignis_activate_construct_SpellScript();
-        }
-};
-*/
 class achievement_ignis_shattered : public AchievementCriteriaScript
 {
     public:
@@ -644,7 +614,6 @@ void AddSC_boss_ignis()
     new spell_ignis_slag_pot();
     new spell_ignis_flame_jets();
     new achievement_ignis_shattered();
-    /*new spell_ignis_activate_construct();*/
 }
 
 #undef SPELL_BRITTLE 

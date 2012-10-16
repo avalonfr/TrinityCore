@@ -130,9 +130,15 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (63024, 'spell_xt002_gravity_bomb_aura_target'),
 (64234, 'spell_xt002_gravity_bomb_aura_target');
 
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_xt002_gravity_bomb_aura_target';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(63024, 'spell_xt002_gravity_bomb_aura_target'),
+(64234, 'spell_xt002_gravity_bomb_aura_target');
+
 -- make XT Deconstructors heart not regen hp
-UPDATE `creature_template` SET `RegenHealth`=0 WHERE `entry` IN (33329, 33995);
+UPDATE `creature_template` SET `RegenHealth`=0, `unit_flags`=`unit_flags`&~32768,`dynamicflags`=0,`type_flags`=`type_flags`&~524288 WHERE `entry` IN (33329, 33995);
 UPDATE `vehicle_template_accessory` SET `minion`=0 WHERE `entry`=33293;
+UPDATE `npc_spellclick_spells` SET `cast_flags`=0 WHERE `npc_entry`=33293 AND `spell_id`=63852;
 
 -- removing spell_xt002_heart_overload_periodic
 DELETE FROM `spell_script_names` WHERE `spell_id`=62791;
@@ -848,10 +854,11 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33293, 5, 0, 'I''m tired of these toys. I don''t want to play anymore!', 14, 0, 100, 0, 0, 15730, 'XT002 SAY_BERSERK'),
 (33293, 6, 0, 'You are bad... Toys... Very... Baaaaad!', 14, 0, 100, 0, 0, 15731, 'XT002 SAY_DEATH'),
 (33293, 7, 0, 'Time for a new game! My old toys will fight my new toys!', 14, 0, 100, 0, 0, 15732, 'XT002 SAY_SUMMON'),
+/*
 (33293, 8, 0, 'XT-002 Deconstructor begins to cause the earth to quake.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_TYMPANIC'),
 (33293, 9, 0, 'XT-002 Deconstructor''s heart is exposed and leaking energy.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_HEART'),
 (33343, 0, 0, 'XT-002 Deconstructor consumes a scrap bot to repair himself!', 41, 0, 100, 0, 0, 0, 'XS-013 Scrapbot EMOTE_REPAIR');
-
+*/
 -- Assembly of Iron
 DELETE FROM `script_texts` WHERE `npc_entry` IN (32867, 32927, 32857);
 DELETE FROM `creature_text` WHERE `entry` IN (32867, 32927, 32857);
