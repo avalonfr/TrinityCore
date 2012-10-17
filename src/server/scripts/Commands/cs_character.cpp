@@ -64,7 +64,7 @@ public:
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
 
-/*		static ChatCommand boutiqueCommandTable[] =
+		static ChatCommand boutiqueCommandTable[] =
 		{
 			{ "infos",		SEC_PLAYER, 			true, 	&BoutiqueInfos, 					"", NULL },
 			{ "item", 		SEC_PLAYER, 			true, 	&BoutiqueAdditem, 					"", NULL },
@@ -76,13 +76,13 @@ public:
 			{ "metier", 	SEC_PLAYER, 			true, 	&BoutiqueMetier, 					"", NULL },
 			{ NULL, 		0, 						false, 	NULL, 								"", NULL }
 		};
-*/
+
         static ChatCommand commandTable[] =
         {
             { "character",      SEC_GAMEMASTER,     true,  NULL,                                    "", characterCommandTable },
             { "levelup",        SEC_ADMINISTRATOR,  false, &HandleLevelUpCommand,                   "", NULL },
             { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                    "", pdumpCommandTable },
-/*			{ "boutique",		SEC_PLAYER,			true,  NULL,									"", boutiqueCommandTable  },*/
+			{ "boutique",		SEC_PLAYER,			true,  NULL,									"", boutiqueCommandTable  },
             { NULL,             0,                  false, NULL,                                    "", NULL }
         };
         return commandTable;
