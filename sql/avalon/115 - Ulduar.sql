@@ -130,18 +130,13 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (63024, 'spell_xt002_gravity_bomb_aura_target'),
 (64234, 'spell_xt002_gravity_bomb_aura_target');
 
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_xt002_gravity_bomb_aura_target';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(63024, 'spell_xt002_gravity_bomb_aura_target'),
-(64234, 'spell_xt002_gravity_bomb_aura_target');
-
 -- make XT Deconstructors heart not regen hp
 UPDATE `creature_template` SET `RegenHealth`=0, `unit_flags`=`unit_flags`&~32768,`dynamicflags`=0,`type_flags`=`type_flags`&~524288 WHERE `entry` IN (33329, 33995);
 UPDATE `vehicle_template_accessory` SET `minion`=0 WHERE `entry`=33293;
 UPDATE `npc_spellclick_spells` SET `cast_flags`=0 WHERE `npc_entry`=33293 AND `spell_id`=63852;
 
 -- removing spell_xt002_heart_overload_periodic
-DELETE FROM `spell_script_names` WHERE `spell_id`=62791;
+--DELETE FROM `spell_script_names` WHERE `spell_id`=62791;
 
 -- Kologarn
 -- Add script to arms.
@@ -853,7 +848,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33293, 4, 1, 'I guess it doesn''t bend that way.', 14, 0, 100, 0, 0, 15729, 'XT002 SAY_SLAY_2'),
 (33293, 5, 0, 'I''m tired of these toys. I don''t want to play anymore!', 14, 0, 100, 0, 0, 15730, 'XT002 SAY_BERSERK'),
 (33293, 6, 0, 'You are bad... Toys... Very... Baaaaad!', 14, 0, 100, 0, 0, 15731, 'XT002 SAY_DEATH'),
-(33293, 7, 0, 'Time for a new game! My old toys will fight my new toys!', 14, 0, 100, 0, 0, 15732, 'XT002 SAY_SUMMON'),
+(33293, 7, 0, 'Time for a new game! My old toys will fight my new toys!', 14, 0, 100, 0, 0, 15732, 'XT002 SAY_SUMMON');
 /*
 (33293, 8, 0, 'XT-002 Deconstructor begins to cause the earth to quake.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_TYMPANIC'),
 (33293, 9, 0, 'XT-002 Deconstructor''s heart is exposed and leaking energy.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_HEART'),
@@ -1103,3 +1098,267 @@ INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `
 
 -- Thorim (no need to add custom lootmode, hardmode cache is spawned only when it should)
 UPDATE `gameobject_loot_template` SET `lootmode`=1 WHERE `entry` IN (26955, 26956, 27074);
+
+
+/*/////miscs/////*/
+--razorscale
+DELETE FROM `spell_script_names` WHERE `spell_id`=63308;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`)
+VALUES
+(63308,'spell_razorscale_devouring_flame');
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (63317,64021);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`)
+VALUES
+(63317,'spell_razorscale_flame_breath'),
+(64021,'spell_razorscale_flame_breath');
+
+DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (10066,10067);
+
+DELETE FROM `conditions` WHERE `SourceEntry`=63317;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`comment`)
+VALUES
+(13,0,63317,0,18,1,33388,0,0,'','Flame Breath - Dark Rune Guardian');
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10066,10067) AND `type`=11;
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`)
+VALUES
+(10066,11,0,0,'achievement_iron_dwarf_medium_rare'),
+(10067,11,0,0,'achievement_iron_dwarf_medium_rare');
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10062,10063);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
+(10062,12,0,0, 'achievement_quick_shave'),
+(10063,12,1,0, 'achievement_quick_shave');
+
+DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (10062,10063);
+
+--xt 002
+DELETE FROM `spell_script_names` WHERE `spell_id` IN(63018,65121,62791,64234,63024,64233,63025,62775,37751,37752);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+( 63018, 'spell_xt002_searing_light_spawn_life_spark'),
+( 65121, 'spell_xt002_searing_light_spawn_life_spark'),
+( 64234, 'spell_xt002_gravity_bomb_aura'),
+( 63024, 'spell_xt002_gravity_bomb_aura'),
+( 64233, 'spell_xt002_gravity_bomb_damage'),
+( 63025, 'spell_xt002_gravity_bomb_damage'),
+( 62791, 'spell_xt002_heart_overload_periodic'),
+( 62775, 'spell_xt002_tympanic_tantrum'),
+( 37751, 'spell_xt002_submerged'),
+( 37752, 'spell_xt002_stand');
+
+DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN(10074,10075,10220,10221,10077,10079);
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN(10074,10075,10220,10221,10077,10079);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`ScriptName`) VALUES
+-- Nerf Engineering 10m
+(10074,11,0,'achievement_nerf_engineering'),
+(10074,12,0,''),
+-- Nerf Engineering 25m
+(10075,11,0,'achievement_nerf_engineering'),
+(10075,12,1,''),
+-- Heartbreaker 10m
+(10221,11,0,'achievement_heartbreaker'),
+(10221,12,0,''),
+-- Heartbreaker 25m
+(10220,11,0,'achievement_heartbreaker'),
+(10220,12,1,''),
+-- Nerf Gravity Bombs 10m
+(10077,11,0,'achievement_nerf_gravity_bombs'),
+(10077,12,0,''),
+-- Nerf Gravity Bombs 25m
+(10079,11,0,'achievement_nerf_gravity_bombs'),
+(10079,12,1,'');
+
+
+--assembly of irons
+DELETE FROM `spell_script_names` WHERE `spell_id`=61889;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`)
+VALUES
+(61889,'spell_assembly_meltdown');
+
+UPDATE `creature_template` SET `ScriptName` = 'mob_lightning_elemental' WHERE `entry` = 32958;
+UPDATE `creature_template` SET `ScriptName` = 'mob_rune_of_summoning' WHERE `entry` = 33051;
+UPDATE `creature_template` SET `ScriptName`= 'mob_rune_of_power' WHERE entry = 33705;
+
+DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` BETWEEN 10082 AND 10087;
+ 
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` BETWEEN 10082 AND 10087 AND `type` IN (11,12);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`)
+VALUES
+(10082,11,0,0,'achievement_i_choose_you'),
+(10083,11,0,0,'achievement_i_choose_you'),
+(10084,11,0,0,'achievement_i_choose_you'),
+(10085,11,0,0,'achievement_i_choose_you'),
+(10086,11,0,0,'achievement_i_choose_you'),
+(10087,11,0,0,'achievement_i_choose_you'),
+(10082,12,0,0,''),
+(10083,12,0,0,''),
+(10084,12,0,0,''),
+(10085,12,1,0,''),
+(10086,12,1,0,''),
+(10087,12,1,0,'');
+ 
+DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (10088,10418,10419,10089,10420,10421);
+ 
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10088,10418,10419,10089,10420,10421) AND `type` IN (11,12);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`)
+VALUES
+(10088,11,0,0,'achievement_but_i_am_on_your_side'),
+(10418,11,0,0,'achievement_but_i_am_on_your_side'),
+(10419,11,0,0,'achievement_but_i_am_on_your_side'),
+(10088,12,0,0,''),
+(10418,12,0,0,''),
+(10419,12,0,0,''),
+(10089,11,0,0,'achievement_but_i_am_on_your_side'),
+(10420,11,0,0,'achievement_but_i_am_on_your_side'),
+(10421,11,0,0,'achievement_but_i_am_on_your_side'),
+(10089,12,1,0,''),
+(10420,12,1,0,''),
+(10421,12,1,0,'');
+
+DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (10090,10422,10423,10424,10425,10091);
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10090,10422,10423,10424,10425,10091) AND `type` IN (11,12);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
+(10090,11,0,0,'achievement_cant_do_that_while_stunned'),
+(10422,11,0,0,'achievement_cant_do_that_while_stunned'),
+(10423,11,0,0,'achievement_cant_do_that_while_stunned'),
+(10090,12,0,0,''),
+(10422,12,0,0,''),
+(10423,12,0,0,''),
+(10424,11,0,0,'achievement_cant_do_that_while_stunned'),
+(10425,11,0,0,'achievement_cant_do_that_while_stunned'),
+(10091,11,0,0,'achievement_cant_do_that_while_stunned'),
+(10424,12,1,0,''),
+(10425,12,1,0,''),
+(10091,12,1,0,'');
+
+SET @NPC_ARCHIVUM := 33874;
+-- SmartAI and invisibility
+UPDATE `creature_template` SET `AIName`='SmartAI', `flags_extra`=`flags_extra`|2|128 WHERE `entry`=@NPC_ARCHIVUM;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@NPC_ARCHIVUM AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@NPC_ARCHIVUM, 0, 1, 0, 38, 0, 100, 0, 1, 1, 0, 0, 1, 16, 3500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Data Set - Say Freya Analysis 1'),
+(@NPC_ARCHIVUM, 0, 2, 0, 52, 0, 100, 0, 16, @NPC_ARCHIVUM, 0, 0, 1, 17, 4000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Freya Analysis 1 Over - Say Freya Analysis 2'),
+(@NPC_ARCHIVUM, 0, 3, 0, 52, 0, 100, 0, 17, @NPC_ARCHIVUM, 0, 0, 1, 18, 7500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Freya Analysis 2 Over - Say Freya Analysis 3'),
+(@NPC_ARCHIVUM, 0, 4, 0, 52, 0, 100, 0, 18, @NPC_ARCHIVUM, 0, 0, 1, 19, 6000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Freya Analysis 3 Over - Say Freya Analysis 4'),
+(@NPC_ARCHIVUM, 0, 5, 0, 52, 0, 100, 0, 19, @NPC_ARCHIVUM, 0, 0, 1, 20, 5500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Freya Analysis 4 Over - Say Freya Analysis 5'),
+(@NPC_ARCHIVUM, 0, 6, 0, 52, 0, 100, 0, 20, @NPC_ARCHIVUM, 0, 0, 1, 21, 9000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Freya Analysis 5 Over - Say Freya Analysis 6'),
+(@NPC_ARCHIVUM, 0, 7, 0, 52, 0, 100, 0, 21, @NPC_ARCHIVUM, 0, 0, 1, 22, 14000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Freya Analysis 6 Over - Say Freya Analysis 7'),
+(@NPC_ARCHIVUM, 0, 8, 0, 52, 0, 100, 0, 22, @NPC_ARCHIVUM, 0, 0, 45, 5, 5, 0, 0, 0, 0, 15, 194555, 3, 0, 0, 0, 0, 0, 'Archivum System - On Text Freya Analysis 7 Over - Reset GO'),
+(@NPC_ARCHIVUM, 0, 9, 0, 38, 0, 100, 0, 2, 2, 0, 0, 1, 23, 4000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Data Set - Say Hodir Analysis 1'),
+(@NPC_ARCHIVUM, 0, 10, 0, 52, 0, 100, 0, 23, @NPC_ARCHIVUM, 0, 0, 1, 24, 4500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Hodir Analysis 1 Over - Say Hodir Analysis 2'),
+(@NPC_ARCHIVUM, 0, 11, 0, 52, 0, 100, 0, 24, @NPC_ARCHIVUM, 0, 0, 1, 25, 8000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Hodir Analysis 2 Over - Say Hodir Analysis 3'),
+(@NPC_ARCHIVUM, 0, 12, 0, 52, 0, 100, 0, 25, @NPC_ARCHIVUM, 0, 0, 1, 26, 6500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Hodir Analysis 3 Over - Say Hodir Analysis 4'),
+(@NPC_ARCHIVUM, 0, 13, 0, 52, 0, 100, 0, 26, @NPC_ARCHIVUM, 0, 0, 1, 27, 5500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Hodir Analysis 4 Over - Say Hodir Analysis 5'),
+(@NPC_ARCHIVUM, 0, 14, 0, 52, 0, 100, 0, 27, @NPC_ARCHIVUM, 0, 0, 45, 5, 5, 0, 0, 0, 0, 15, 194555, 3, 0, 0, 0, 0, 0, 'Archivum System - On Text Hodir Analysis 5 Over - Reset GO'),
+(@NPC_ARCHIVUM, 0, 15, 0, 38, 0, 100, 0, 3, 3, 0, 0, 1, 28, 3500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Data Set - Say Thorim Analysis 1'),
+(@NPC_ARCHIVUM, 0, 16, 0, 52, 0, 100, 0, 28, @NPC_ARCHIVUM, 0, 0, 1, 29, 6400, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Thorim Analysis 1 Over - Say Thorim Analysis 2'),
+(@NPC_ARCHIVUM, 0, 17, 0, 52, 0, 100, 0, 29, @NPC_ARCHIVUM, 0, 0, 1, 30, 6250, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Thorim Analysis 2 Over - Say Thorim Analysis 3'),
+(@NPC_ARCHIVUM, 0, 18, 0, 52, 0, 100, 0, 30, @NPC_ARCHIVUM, 0, 0, 1, 31, 16000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Thorim Analysis 3 Over - Say Thorim Analysis 4'),
+(@NPC_ARCHIVUM, 0, 19, 0, 52, 0, 100, 0, 31, @NPC_ARCHIVUM, 0, 0, 45, 5, 5, 0, 0, 0, 0, 15, 194555, 3, 0, 0, 0, 0, 0, 'Archivum System - On Text Thorim Analysis 4 Over - Reset GO'),
+(@NPC_ARCHIVUM, 0, 20, 0, 38, 0, 100, 0, 4, 4, 0, 0, 1, 32, 3500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Data Set - Say Mimiron Analysis 1'),
+(@NPC_ARCHIVUM, 0, 21, 0, 52, 0, 100, 0, 32, @NPC_ARCHIVUM, 0, 0, 1, 33, 7750, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Mimiron Analysis 1 Over - Say Mimiron Analysis 2'),
+(@NPC_ARCHIVUM, 0, 22, 0, 52, 0, 100, 0, 33, @NPC_ARCHIVUM, 0, 0, 1, 34, 7100, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Mimiron Analysis 2 Over - Say Mimiron Analysis 3'),
+(@NPC_ARCHIVUM, 0, 23, 0, 52, 0, 100, 0, 34, @NPC_ARCHIVUM, 0, 0, 1, 35, 7000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum System - On Text Mimiron Analysis 3 Over - Say Mimiron Analysis 4'),
+(@NPC_ARCHIVUM, 0, 24, 0, 52, 0, 100, 0, 35, @NPC_ARCHIVUM, 0, 0, 45, 5, 5, 0, 0, 0, 0, 15, 194555, 3, 0, 0, 0, 0, 0, 'Archivum System - On Text Mimiron Analysis 4 Over - Reset GO');
+-- spawn
+DELETE FROM `creature` WHERE `id`=@NPC_ARCHIVUM;
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(@NPC_ARCHIVUM, 603, 3, 1, 0, 0, 1435.66, 118.783, 425.397, 6.24149, 300, 0, 0, 17010, 0, 0, 0, 0, 0);
+-- texts and sounds
+DELETE FROM `creature_text` WHERE `entry`=@NPC_ARCHIVUM;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+-- First dialogue with Brann Bronzebeard (Archivum Data Disc completed)
+(@NPC_ARCHIVUM, 0, 0, 'Entry denied. Access level insufficient.', 12, 0, 100, 0, 0, 15426, 'Assembly of Iron: ARCHIV_SAY_1'),
+(@NPC_ARCHIVUM, 1, 0, 'Access to the Archivum granted. Intrusion protection mechanisms suspended.', 12, 0, 100, 0, 0, 15427, 'Assembly of Iron: ARCHIV_SAY_2'),
+(@NPC_ARCHIVUM, 2, 0, 'Initiating query. The Algalon Failsafe is an automated emergency signal following a Prime Designate''s demise.', 12, 0, 100, 0, 0, 15428, 'Assembly of Iron: ARCHIV_SAY_3'),
+(@NPC_ARCHIVUM, 3, 0, 'Affirmative. Timestamp of Prime Designate Loken''s destruction coincides with signal activation.', 12, 0, 100, 0, 0, 15429, 'Assembly of Iron: ARCHIV_SAY_4'),
+(@NPC_ARCHIVUM, 4, 0, 'Searching... Destruction of Prime Designate is considered the first warning sign of systemic planetary failure. Algalon observer entity''s arrival is followed by planetary diagnostics resulting in one of two possible reply signals. Reply-code Alpha, signaling "All is well" and Reply-code Omega, signaling planetary re-origination.', 12, 0, 100, 0, 0, 15430, 'Assembly of Iron: ARCHIV_SAY_5'),
+(@NPC_ARCHIVUM, 5, 0, 'The decomposition of the planet and its living organisms into base elements: metals, rocks, gases. This is followed by a period of reconstitution of each element into the original planetary blueprint.', 12, 0, 100, 0, 0, 15431, 'Assembly of Iron: ARCHIV_SAY_6'),
+(@NPC_ARCHIVUM, 6, 0, 'Request denied. Reply-codes built into Algalon observer entity. He is both messenger and message.', 12, 0, 100, 0, 0, 15432, 'Assembly of Iron: ARCHIV_SAY_7'),
+(@NPC_ARCHIVUM, 7, 0, 'Algalon diagnostics assess danger of systemic Old God corruption in planetary vital functions. Calculating chance of Omega Reply-code...', 12, 0, 100, 0, 0, 15433, 'Assembly of Iron: ARCHIV_SAY_8'),
+(@NPC_ARCHIVUM, 8, 0, 'Ninety-nine point nine nine percent.', 12, 0, 100, 0, 0, 15434, 'Assembly of Iron: ARCHIV_SAY_9'),
+(@NPC_ARCHIVUM, 9, 0, 'That''s repeating of course.', 12, 0, 100, 0, 0, 15435, 'Assembly of Iron: ARCHIV_SAY_10'),
+-- Second dialogue with Brann Bronzebeard (The Celestial Planetarium completed)
+(@NPC_ARCHIVUM, 10, 0, 'Request denied. Access requires manual verification of the four watchers'' sigils.', 12, 0, 100, 0, 0, 15436, 'Assembly of Iron: UR_Archivum_Planetarium01'),
+(@NPC_ARCHIVUM, 11, 0, 'The four watchers of Ulduar: Freya, Thorim, Hodir and Mimiron. The sigils are tied to their physical and mental integrity. All four sigils are required for access to the Celestial Planetarium.', 12, 0, 100, 0, 0, 15437, 'Assembly of Iron: UR_Archivum_Planetarium02'),
+(@NPC_ARCHIVUM, 12, 0, 'Analyzing watchers status. Please wait.', 12, 0, 100, 0, 0, 15438, 'Assembly of Iron: UR_Archivum_Planetarium03'),
+(@NPC_ARCHIVUM, 13, 0, 'Corruption found. External influence gaining control over watchers. Sigils compromised.', 12, 0, 100, 0, 0, 15439, 'Assembly of Iron: UR_Archivum_Planetarium04'),
+(@NPC_ARCHIVUM, 14, 0, 'Sufficient use of force would trigger a reset in watcher functions, removing the external influence.', 12, 0, 100, 0, 0, 15440, 'Assembly of Iron: UR_Archivum_Planetarium05'),
+(@NPC_ARCHIVUM, 15, 0, 'As for not endangering the sigils during this process, I can analyze each watcher''s status and make that information available to you upon completion of calculations.', 12, 0, 100, 0, 0, 15441, 'Assembly of Iron: UR_Archivum_Planetarium06'),
+-- Freya Analysis
+(@NPC_ARCHIVUM, 16, 0, 'Commencing Watcher Freya status analysis.', 12, 0, 100, 0, 3500, 15442, 'Assembly of Iron: UR_Archivum_FreyaAnalysis01'),
+(@NPC_ARCHIVUM, 17, 0, 'Watcher''s powers augmented by presence of Elder servants.', 12, 0, 100, 0, 4000, 15443, 'Assembly of Iron: UR_Archivum_FreyaAnalysis02'),
+(@NPC_ARCHIVUM, 18, 0, 'Analyzing Elder Brightleaf enhancement. Persistent area defenses powered by solar amplification.', 12, 0, 100, 0, 7500, 15444, 'Assembly of Iron: UR_Archivum_FreyaAnalysis03'),
+(@NPC_ARCHIVUM, 19, 0, 'Elder Stonebark analysis reveals a sonic defense that disrupts use of magic.', 12, 0, 100, 0, 6000, 15445, 'Assembly of Iron: UR_Archivum_FreyaAnalysis04'),
+(@NPC_ARCHIVUM, 20, 0, 'Elder Ironbranch scans have uncovered plant based immobilization mechanisms.', 12, 0, 100, 0, 5500, 15446, 'Assembly of Iron: UR_Archivum_FreyaAnalysis05'),
+(@NPC_ARCHIVUM, 21, 0, 'In addition, my analysis links each Elder to an increase in Freya spell-casting, physical or summoning capabilities.', 12, 0, 100, 0, 9000, 15447, 'Assembly of Iron: UR_Archivum_FreyaAnalysis06'),
+(@NPC_ARCHIVUM, 22, 0, 'Destruction of Elder servants will result in lost of enhancements of Watcher Freya. However permanent damage to Freya''s person and possessions including her Watcher sigil highly probable.', 12, 0, 100, 0, 14000, 15448, 'Assembly of Iron: UR_Archivum_FreyaAnalysis07'),
+-- Hodir Analysis
+(@NPC_ARCHIVUM, 23, 0, 'Commencing Watcher Hodir status analysis.', 12, 0, 100, 0, 4000, 15453, 'Assembly of Iron: UR_Archivum_HodirAnalysis01'),
+(@NPC_ARCHIVUM, 24, 0, 'Hodir''s sigil appears to be located inside a cache of artifacts.', 12, 0, 100, 0, 4500, 15454, 'Assembly of Iron: UR_Archivum_HodirAnalysis02'),
+(@NPC_ARCHIVUM, 25, 0, 'Watcher Hodir''s temperament and behavior highly unstable. Destruction of cache highly probable during prolonged combat.', 12, 0, 100, 0, 8000, 15455, 'Assembly of Iron: UR_Archivum_HodirAnalysis03'),
+(@NPC_ARCHIVUM, 26, 0, 'Allies imprisoned in the field of battle are likely to provide synergies and minimize combat duration.', 12, 0, 100, 0, 6500, 15456, 'Assembly of Iron: UR_Archivum_HodirAnalysis04'),
+(@NPC_ARCHIVUM, 27, 0, 'Preservation of cache is essential to recovering Hodir''s sigil.', 12, 0, 100, 0, 5500, 15457, 'Assembly of Iron: UR_Archivum_HodirAnalysis05'),
+-- Thorim Analysis
+(@NPC_ARCHIVUM, 28, 0, 'Commencing Watcher Thorim status analysis.', 12, 0, 100, 0, 3500, 15449, 'Assembly of Iron: UR_Archivum_ThorimAnalysis01'),
+(@NPC_ARCHIVUM, 29, 0, 'An external influence under illusory guise of Thorim''s deceased mate Sif has been detected.', 12, 0, 100, 0, 6400, 15450, 'Assembly of Iron: UR_Archivum_ThorimAnalysis02'),
+(@NPC_ARCHIVUM, 30, 0, 'Mental interference from this presence dangerously close from triggering partial memory damage.', 12, 0, 100, 0, 6250, 15451, 'Assembly of Iron: UR_Archivum_ThorimAnalysis03'),
+(@NPC_ARCHIVUM, 31, 0, 'Tactical analysis suggest approaching the arena from the front and splitting secondary force through a side passage at the ground level. This will maximize odds of reaching Thorim''s outlook before mental domination by external presence is complete.', 12, 0, 100, 0, 16000, 15452, 'Assembly of Iron: UR_Archivum_ThorimAnalysis04'),
+-- Mimiron Analysis
+(@NPC_ARCHIVUM, 32, 0, 'Commencing Watcher Mimiron status analysis.', 12, 0, 100, 0, 3500, 15458, 'Assembly of Iron: UR_Archivum_MimironAnalysis01'),
+(@NPC_ARCHIVUM, 33, 0, 'Watcher Mimiron''s sigil is linked to a self-destruct mechanism connected to entirety of the Corridors of Ingenuity.', 12, 0, 100, 0, 7750, 15459, 'Assembly of Iron: UR_Archivum_MimironAnalysis02'),
+(@NPC_ARCHIVUM, 34, 0, 'Trigger for self-destruct mechanism is code named "Big Red Button". Mimiron''s own creation.', 12, 0, 100, 0, 7100, 15461, 'Assembly of Iron: UR_Archivum_MimironAnalysis03'),
+(@NPC_ARCHIVUM, 35, 0, 'To retrieve Mimiron''s sigil, initiate self-destruct sequence and defeat Mimiron before its completion.', 12, 0, 100, 0, 7000, 15462, 'Assembly of Iron: UR_Archivum_MimironAnalysis04');
+ 
+-- OBJECT Archivum Console (Assembly of Iron event)
+-- SmartAI
+UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI' WHERE `entry`=194555;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=194555 AND `source_type`=1;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(194555, 1, 1, 2, 62, 0, 100, 0, 10368, 1, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 33874, 3, 0, 0, 0, 0, 0, 'Archivum Console - On Gossip Select - Set Data 1 (Freya)'),
+(194555, 1, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Close Gossip'),
+(194555, 1, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Set GO Active'),
+(194555, 1, 4, 5, 62, 0, 100, 0, 10368, 2, 0, 0, 45, 2, 2, 0, 0, 0, 0, 11, 33874, 3, 0, 0, 0, 0, 0, 'Archivum Console - On Gossip Select - Set Data 2 (Hodir)'),
+(194555, 1, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Close Gossip'),
+(194555, 1, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Set GO Active'),
+(194555, 1, 7, 8, 62, 0, 100, 0, 10368, 3, 0, 0, 45, 3, 3, 0, 0, 0, 0, 11, 33874, 3, 0, 0, 0, 0, 0, 'Archivum Console - On Gossip Select - Set Data 3 (Thorim)'),
+(194555, 1, 8, 9, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Close Gossip'),
+(194555, 1, 9, 0, 61, 0, 100, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Set GO Active'),
+(194555, 1, 10, 11, 62, 0, 100, 0, 10368, 4, 0, 0, 45, 4, 4, 0, 0, 0, 0, 11, 33874, 3, 0, 0, 0, 0, 0, 'Archivum Console - On Gossip Select - Set Data 4 (Mimiron)'),
+(194555, 1, 11, 12, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Close Gossip'),
+(194555, 1, 12, 0, 61, 0, 100, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Set GO Active'),
+(194555, 1, 13, 0, 38, 0, 100, 0, 5, 5, 0, 0, 32, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Data Set - Reset GO');
+-- Gossip
+DELETE FROM `gossip_menu` WHERE `entry`=10368;
+INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES
+(10368, 10368);
+DELETE FROM `npc_text` WHERE `ID`=10368;
+INSERT INTO `npc_text` (`ID`,`text0_0`,`text0_1`,`lang0`,`prob0`,`em0_0`,`em0_1`,`em0_2`,`em0_3`,`em0_4`,`em0_5`,`text1_0`,`text1_1`,`lang1`,`prob1`,`em1_0`,`em1_1`,`em1_2`,`em1_3`,`em1_4`,`em1_5`,`text2_0`,`text2_1`,`lang2`,`prob2`,`em2_0`,`em2_1`,`em2_2`,`em2_3`,`em2_4`,`em2_5`,`text3_0`,`text3_1`,`lang3`,`prob3`,`em3_0`,`em3_1`,`em3_2`,`em3_3`,`em3_4`,`em3_5`,`text4_0`,`text4_1`,`lang4`,`prob4`,`em4_0`,`em4_1`,`em4_2`,`em4_3`,`em4_4`,`em4_5`,`text5_0`,`text5_1`,`lang5`,`prob5`,`em5_0`,`em5_1`,`em5_2`,`em5_3`,`em5_4`,`em5_5`,`text6_0`,`text6_1`,`lang6`,`prob6`,`em6_0`,`em6_1`,`em6_2`,`em6_3`,`em6_4`,`em6_5`,`text7_0`,`text7_1`,`lang7`,`prob7`,`em7_0`,`em7_1`,`em7_2`,`em7_3`,`em7_4`,`em7_5`,`WDBVerified`) VALUES
+(10368, 'The console appears ancient through there is no sign of rust or decay. A single slot appears to fit large circular discs.', '', 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, 0, 0, 0, 0, 0, 1);
+DELETE FROM `gossip_menu_option` WHERE `menu_id`=10368;
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_text`,`option_id`,`npc_option_npcflag`) VALUES
+(10368, 1, 'Watcher Analysis: Freya', 1, 1),
+(10368, 2, 'Watcher Analysis: Hodir', 1, 1),
+(10368, 3, 'Watcher Analysis: Thorim', 1, 1),
+(10368, 4, 'Watcher Analysis: Mimiron', 1, 1);
+
+-- NPC Prospector Doren (Assembly of Iron event)
+DELETE FROM `creature` WHERE `id`=33957;
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(33957, 603, 2, 1, 0, 0, 1459.98, 140.83, 423.642, 3.88324, 300, 0, 0, 75600, 0, 0, 0, 0, 0);
+ 
+--Hodir
+UPDATE `creature_template` SET `ScriptName`='npc_ice_block' WHERE `entry`=32938;
+
+
+
+
+
+
+
+
+
+
