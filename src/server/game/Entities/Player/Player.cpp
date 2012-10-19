@@ -9210,6 +9210,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 4100:  // The Culling of Stratholme
             NumberOfFields = 13;
             break;
+		case 4987:  // The Ruby Sanctum
+			NumberOfFields = 3;
+			break;
         case 4273:  // Ulduar
             NumberOfFields = 10;
             break;
