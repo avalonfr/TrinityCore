@@ -210,9 +210,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                 {
                     // Summon Halion on instance loading if conditions are met. Without those lines,
                     // InstanceScript::SetBossState returns false, thus preventing the switch from being called.
-                    /*if (type == DATA_HALION && state != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE && !GetData64(DATA_HALION_CONTROLLER))
+                    if (type == DATA_HALION && state != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE && !GetData64(DATA_HALION_CONTROLLER))
                         if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-                            halionController->AI()->DoAction(ACTION_INTRO_HALION);*/
+                            halionController->AI()->DoAction(ACTION_INTRO_HALION);
                     return false;
                 }
 
@@ -331,9 +331,9 @@ class instance_ruby_sanctum : public InstanceMapScript
 						SetBossState(i, EncounterState(tmpState[i]));
 					}
 					
-					if (tmpState[0] == DONE && tmpState[1] == DONE && tmpState[2] == DONE)
+					/*if (tmpState[0] == DONE && tmpState[1] == DONE && tmpState[2] == DONE)
 						if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-							halionController->AI()->DoAction(ACTION_INTRO_HALION);
+							halionController->AI()->DoAction(ACTION_INTRO_HALION);*/
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;

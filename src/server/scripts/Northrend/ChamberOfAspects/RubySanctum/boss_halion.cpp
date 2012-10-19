@@ -773,7 +773,8 @@ class npc_halion_controller : public CreatureScript
                                 }
 
                                 // Summon Twilight portals
-                                DoCast(me, SPELL_SUMMON_EXIT_PORTALS);
+								if (Player *pPlayer = me->FindNearestPlayer(50.0f,true))
+									pPlayer->CastSpell(me,SPELL_SUMMON_EXIT_PORTALS);
 
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
                                 // Hardcoding doesn't really matter here.
@@ -1289,11 +1290,13 @@ class go_twilight_portal : public GameObjectScript
                 {
                     case GO_HALION_PORTAL_EXIT:
                         gameobject->SetPhaseMask(0x20, true);
+						gameobject->Respawn();   // set phasemask apply correctly
                         _spellId = gameobject->GetGOInfo()->goober.spellId;
                         break;
                     case GO_HALION_PORTAL_1:
                     case GO_HALION_PORTAL_2: // Not used, not seen in sniffs. Just in case.
                         gameobject->SetPhaseMask(0x1, true);
+						gameobject->Respawn(); // set phasemask apply correctly
                         /// Because WDB template has non-existent spell ID, not seen in sniffs either, meh
                         _spellId = SPELL_TWILIGHT_REALM;
                         break;
@@ -1688,7 +1691,8 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
             void Phase()
             {
                 Unit* caster = GetCaster();
-                caster->CastSpell(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), SPELL_SUMMON_TWILIGHT_PORTAL, true);
+                 if (Player *pPlayer = caster->FindNearestPlayer(50.0f,true))
+					 pPlayer->CastSpell(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), SPELL_SUMMON_TWILIGHT_PORTAL, true);
                 caster->GetMap()->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
             }
 

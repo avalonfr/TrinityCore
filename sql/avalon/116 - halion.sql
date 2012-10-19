@@ -186,5 +186,13 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,3120.68,515.3524,72.95515,0,0,0,0,100,0),
 (@PATH,15,3113.711,533.5382,72.96869,0,0,0,0,100,0);
 
+-- Spawnmask updates
+UPDATE `creature` SET `spawnMask`=15 WHERE `id` IN(40091, 40081);
+-- Auras updates (Now in script, can't be used in creature_addon because dynamically spawned)
+DELETE FROM `creature_template_addon` WHERE `entry` IN(39863, 40142);
+
 delete FROM areatrigger_teleport WHERE id = 5869;
 insert into `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) values('5869','The Ruby Sanctum (Entrance)','724','3274','533.531','87.665','3.16');
+
+
+
