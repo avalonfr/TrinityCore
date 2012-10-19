@@ -221,7 +221,6 @@ class boss_xt002 : public CreatureScript
                 transferHealth = 0;
                 phase = PHASE_ONE;
                 heartPhase = PHASE_AT_100_PERCT;
-                events.Reset();
                 events.SetPhase(PHASE_ONE);
 
                 if (!instance)
