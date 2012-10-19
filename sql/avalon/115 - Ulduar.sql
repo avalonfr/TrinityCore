@@ -524,6 +524,9 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2
 33890, 33954 -- Brain of Yogg-Saron
 );
 
+-- General Vezax shouldnt be immune to interrupt
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` & ~33554432 WHERE `entry` IN (33271, 33449);
+
 -- Stormcaller Brundir (stun and interrupt immunities are handled in scripts)
 UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912, `flags_extra`=1 WHERE `entry` IN (32857, 33694);
 
@@ -1087,7 +1090,8 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (33293, 45871, 0, 2, 1);
 
 -- Assembly of Iron - Steelbreaker
-UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=32867 AND `item` IN (45447, 45448, 45449, 45456);
+UPDATE `creature_loot_template` SET `item`=45455 WHERE `item`=25455 AND `entry`=32867;
+UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=32867 AND `item` IN (45447, 45448, 45449, 45456, 45455);
 UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=33693 AND `item` IN (45241, 45242, 45243, 45244, 45245, 45607);
 
 -- Hodir - spawning hardmode caches
@@ -1136,6 +1140,12 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (33955, 7, 100, 8, 0, -34349, 1),
 (33955, 45533, 0, 8, 1, 1, 1),
 (33955, 45693, 100, 16, 0, 1, 1);
+
+-- Algalon's Sack of Ulduar Spoils (10m)
+DELETE FROM `creature_loot_template` WHERE `entry`=45875;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(45875, 45087, 100, 1, 0, 1, 1),
+(45875, 47241, 100, 1, 0, 5, 5);
 
 
 

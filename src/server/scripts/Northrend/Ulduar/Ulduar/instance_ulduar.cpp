@@ -166,7 +166,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 AlgalonDoor1GUID;
             uint64 AlgalonDoor2GUID;
             uint64 AlgalonAccessGUID;
-			uint64 AlgalonChestGUID;
+            uint64 AlgalonChestGUID;
 
             // Creatures
             uint64 KeeperGUIDs[3];
@@ -293,7 +293,7 @@ class instance_ulduar : public InstanceMapScript
                 AlgalonDoor1GUID        = 0;
                 AlgalonDoor2GUID        = 0;
                 AlgalonAccessGUID       = 0;
-				AlgalonChestGUID        = 0;
+                AlgalonChestGUID        = 0;
 
                 // Creatures
                 std::fill(KeeperGUIDs, KeeperGUIDs + 3, 0);
@@ -1194,9 +1194,8 @@ class instance_ulduar : public InstanceMapScript
                     GetBossState(BOSS_MIMIRON) == DONE &&
                     GetBossState(BOSS_HODIR) == DONE &&
                     GetBossState(BOSS_THORIM) == DONE)
-                    if (GameObject* go = instance->GetGameObject(WayToYoggGUID))
+                    if (instance->GetGameObject(WayToYoggGUID))
                         HandleGameObject(WayToYoggGUID, true);
-                        //go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
 
                 return true;
             }
