@@ -3787,6 +3787,21 @@ void SpellMgr::LoadDbcDataCorrections()
 			case 54109: // WintergraspSiegeEngine Ram
 					spellInfo->EffectRadiusIndex[2] = EFFECT_RADIUS_20_YARDS; // SPELL_EFFECT_WMO_DAMAGE, Huck but it must be -> Fortress towers are much bigger than original WMO damage radius of spell
                  break;
+
+			// RUBY SANCTUM SPELLS
+			//
+			case 74769: // Twilight Cutter
+			case 77844: // Twilight Cutter
+			case 77845: // Twilight Cutter
+			case 77846: // Twilight Cutter
+					spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_100_YARDS; // 100yd
+				break;
+			case 75509: // Twilight Mending
+				    spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+					spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+			    break;
+			// ENDOF RUBY SANCTUM SPELLS
+			//
             case 40055: // Introspection
             case 40165: // Introspection
             case 40166: // Introspection
