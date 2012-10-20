@@ -807,7 +807,6 @@ class npc_halion_controller : public CreatureScript
                     _materialDamageTaken = 0;
                     return;
                 }
-
                 float damageRatio = float(_materialDamageTaken) / float(_twilightDamageTaken);
 
                 CorporealityEvent action = CORPOREALITY_NONE;
@@ -849,7 +848,6 @@ class npc_halion_controller : public CreatureScript
 
                 _materialDamageTaken = 0;
                 _twilightDamageTaken = 0;
-
                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, _materialCorporealityValue * 10);
                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 100 - _materialCorporealityValue * 10);
 
@@ -1648,9 +1646,9 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_halion_twilight_cutter_SpellScript);
 
-            void RemoveNotBetween(std::list<WorldObject*>& unitList)
+ 			void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                if (unitList.empty())
+				if (unitList.empty())
                     return;
 
                 Unit* caster = GetCaster();
@@ -1669,7 +1667,7 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halion_twilight_cutter_SpellScript::RemoveNotBetween, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+				OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halion_twilight_cutter_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
