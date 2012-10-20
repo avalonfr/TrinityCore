@@ -65,7 +65,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (64623, 'spell_frost_bomb');
 
 -- Renamed - the resulting effect is called "Pursued", not "Pursue"
-UPDATE `spell_script_names` SET `ScriptName`='spell_pursued' WHERE `spell_id`=62374;
+delete from spell_script_names WHERE `spell_id`=62374;
+--UPDATE `spell_script_names` SET `ScriptName`='spell_pursued' WHERE `spell_id`=62374;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62374, 'spell_pursued');
 
 -- Creatures. I've renamed them, since they are no bosses, as named before
 UPDATE `creature_template` SET `ScriptName`='npc_flame_leviathan_seat' WHERE `entry`=33114;
@@ -1100,12 +1103,12 @@ INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `
 UPDATE `gameobject_loot_template` SET `lootmode`=1 WHERE `entry` IN (26955, 26956, 27074);
 
 
-/*/////miscs/////*/
+--/*/////miscs/////*/
 --razorscale
 DELETE FROM `spell_script_names` WHERE `spell_id`=63308;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`)
 VALUES
-(63308,'spell_razorscale_devouring_flame');
+(63308,"spell_razorscale_devouring_flame");
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (63317,64021);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`)
@@ -1352,6 +1355,8 @@ INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equip
  
 --Hodir
 UPDATE `creature_template` SET `ScriptName`='npc_ice_block' WHERE `entry`=32938;
+delete FROM creature_template WHERE entry = 33173;
+insert into `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `unit_flags2`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('33173','0','0','0','0','0','28470','1126','0','0','Snowpacked Icicle','','','0','80','80','2','16','16','0','1','1.14286','1','0','422','586','0','642','1','2000','0','1','33587200','2048','8','0','0','0','0','0','345','509','103','4','8','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','0','0','0','0','0','0','0','0','1','0','0','0','npc_icicle','12340');
 
 
 
