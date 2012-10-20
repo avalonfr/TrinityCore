@@ -914,7 +914,7 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
                         if (Creature* xt002c = xt002->ToCreature())   // Heartbreak aura indicating hard mode
                             if (xt002c->IsAIEnabled)
                                 if (xt002c->AI()->GetData(DATA_HARD_MODE))
-                                    player->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);    // TODO: Check if casting this spell works as intended, may have problems due to target selection
+                                    xt002c->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
             }
 
             void Register()
@@ -952,7 +952,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
                         if (Creature* xt002c = xt002->ToCreature())   // Heartbreak aura indicating hard mode
                             if (xt002c->IsAIEnabled)
                                 if (xt002c->AI()->GetData(DATA_HARD_MODE))
-                                    player->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);    // TODO: Check if casting this spell works as intended, may have problems due to target selection
+                                    xt002c->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);
             }
 
             void OnPeriodic(AuraEffect const* aurEff)
