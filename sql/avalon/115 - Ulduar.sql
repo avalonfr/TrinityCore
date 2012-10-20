@@ -527,6 +527,9 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2
 33890, 33954 -- Brain of Yogg-Saron
 );
 
+-- General Vezax shouldnt be immune to interrupt
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` & ~33554432 WHERE `entry` IN (33271, 33449);
+
 -- Stormcaller Brundir (stun and interrupt immunities are handled in scripts)
 UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912, `flags_extra`=1 WHERE `entry` IN (32857, 33694);
 
@@ -1090,7 +1093,8 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (33293, 45871, 0, 2, 1);
 
 -- Assembly of Iron - Steelbreaker
-UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=32867 AND `item` IN (45447, 45448, 45449, 45456);
+UPDATE `creature_loot_template` SET `item`=45455 WHERE `item`=25455 AND `entry`=32867;
+UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=32867 AND `item` IN (45447, 45448, 45449, 45456, 45455);
 UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=33693 AND `item` IN (45241, 45242, 45243, 45244, 45245, 45607);
 
 -- Hodir - spawning hardmode caches
@@ -1101,6 +1105,51 @@ INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `
 
 -- Thorim (no need to add custom lootmode, hardmode cache is spawned only when it should)
 UPDATE `gameobject_loot_template` SET `lootmode`=1 WHERE `entry` IN (26955, 26956, 27074);
+
+-- Yogg-saron 10m loot
+DELETE FROM `creature_loot_template` WHERE `entry`=33288;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(33288, 1, 100, 1, 0, -34375, 1),
+(33288, 47241, 100, 1, 0, 1, 1),
+(33288, 2, 100, 1, 0, -12034, 1),
+(33288, 3, 100, 2, 0, -34349, 1),
+(33288, 4, 100, 4, 0, -34350, 1),
+(33288, 5, 10, 4, 0, -34154, 1),
+(33288, 46097, 0, 8, 1, 1, 1),
+(33288, 46096, 0, 8, 1, 1, 1),
+(33288, 46095, 0, 8, 1, 1, 1),
+(33288, 46068, 0, 8, 1, 1, 1),
+(33288, 7, 100, 8, 0, -34154, 1),
+(33288, 6, 100, 8, 0, -34349, 1),
+(33288, 46067, 0, 8, 1, 1, 1),
+(33288, 46312, 100, 16, 0, 1, 1);
+
+-- Yogg-saron 25m loot
+DELETE FROM `creature_loot_template` WHERE `entry`=33955;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(33955, 1, 100, 1, 0, -34376, 2),
+(33955, 45897, 100, 1, 0, 1, 1),
+(33955, 47241, 100, 1, 0, 1, 1),
+(33955, 4, 10, 1, 0, -34154, 1),
+(33955, 2, 100, 1, 0, -12035, 2),
+(33955, 3, 10, 1, 0, -34350, 1),
+(33955, 5, 100, 2, 0, -34349, 1),
+(33955, 6, 100, 4, 0, -34350, 1),
+(33955, 45537, 0, 8, 1, 1, 1),
+(33955, 45536, 0, 8, 1, 1, 1),
+(33955, 45535, 0, 8, 1, 1, 1),
+(33955, 45534, 0, 8, 1, 1, 1),
+(33955, 8, 100, 8, 0, -34154, 1),
+(33955, 7, 100, 8, 0, -34349, 1),
+(33955, 45533, 0, 8, 1, 1, 1),
+(33955, 45693, 100, 16, 0, 1, 1);
+
+-- Algalon's Sack of Ulduar Spoils (10m)
+DELETE FROM `creature_loot_template` WHERE `entry`=45875;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(45875, 45087, 100, 1, 0, 1, 1),
+(45875, 47241, 100, 1, 0, 5, 5);
+
 
 
 --/*/////miscs/////*/
