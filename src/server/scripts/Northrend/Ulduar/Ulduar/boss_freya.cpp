@@ -1984,10 +1984,10 @@ class IsNoAllyOfNature
         }
 };
 
-class spell_essence_targeting_ironbranch : public SpellScriptLoader
+class spell_elder_ironbranch_essence_targeting : public SpellScriptLoader
 {
     public:
-        spell_essence_targeting_ironbranch() : SpellScriptLoader("spell_elder_ironbranch_essence_targeting") {}
+        spell_elder_ironbranch_essence_targeting() : SpellScriptLoader("spell_elder_ironbranch_essence_targeting") {}
 
         class spell_essence_targeting_SpellScript : public SpellScript
         {
@@ -2010,10 +2010,10 @@ class spell_essence_targeting_ironbranch : public SpellScriptLoader
         }
 };
 
-class spell_essence_targeting_brightleaf : public SpellScriptLoader
+class spell_elder_brightleaf_essence_targeting : public SpellScriptLoader
 {
     public:
-        spell_essence_targeting_brightleaf() : SpellScriptLoader("spell_elder_brightleaf_essence_targeting") {}
+        spell_elder_brightleaf_essence_targeting() : SpellScriptLoader("spell_elder_brightleaf_essence_targeting") {}
 
         class spell_essence_targeting_SpellScript : public SpellScript
         {
@@ -2300,8 +2300,8 @@ void AddSC_boss_freya()
     new npc_unstable_sun_beam();
     new npc_iron_roots();
     // new spell_essence_targeting("spell_elder_stonebark_essence_targeting");
-    new spell_essence_targeting_ironbranch();
-    new spell_essence_targeting_brightleaf();
+    new spell_elder_ironbranch_essence_targeting();
+    new spell_elder_brightleaf_essence_targeting();
     new spell_aggregation_pheromones_targeting();       // more or less for NPCs that are always in this area
     new spell_freya_attuned_to_nature_dose_reduction();
     new spell_freya_iron_roots();
