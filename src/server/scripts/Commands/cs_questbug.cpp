@@ -2,7 +2,7 @@
  * Copyright (C) 2011 
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "Chat.h"
 
 class questbug_commandscript : public CommandScript

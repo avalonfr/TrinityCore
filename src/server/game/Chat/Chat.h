@@ -133,6 +133,8 @@ class ChatHandler
 
 		// Quete bug patch
  		bool HandlePlayerQuestCompleteCommand(const char *args);
+		bool HandleQuestBugAddCommand(const char *args);
+		bool HandleQuestBugRemoveCommand(const char *args);
 		
 		//Boutique Avalon
 		
@@ -141,7 +143,17 @@ class ChatHandler
         uint32 getItemId(const char* args);
         bool Additem(int itemid, int count, int type, bool remplacement);
         int coutlevel(int level);
+        bool BoutiqueLevel(const char* args);
+		bool BoutiqueInfos(const char* args);
+        bool BoutiqueAdditem(const char* args);
+		bool BoutiqueMetier(const char* args);
+        bool BoutiqueGold(const char* args);
+		bool BoutiqueSet(const char* args);
         bool AddGold(int gold);
+		bool BoutiqueCustomize(const char* args);
+		bool BoutiqueRename(const char* args);
+		bool BoutiqueRace(const char* args);
+		bool BoutiqueFaction(const char* args);
 		bool apprendreMetier(Player* character, int id, int value);
 		bool ApprendreSort(Player* p , int idSort);
 
