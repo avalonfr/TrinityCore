@@ -1145,15 +1145,15 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (33955, 45693, 100, 16, 0, 1, 1);
 
 -- Algalon's Sack of Ulduar Spoils (10m)
-DELETE FROM `creature_loot_template` WHERE `entry`=45875;
-INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+DELETE FROM `item_loot_template` WHERE `entry`=45875;
+INSERT INTO `item_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (45875, 45087, 100, 1, 0, 1, 1),
 (45875, 47241, 100, 1, 0, 5, 5);
 
 
 
---/*/////miscs/////*/
---razorscale
+-- /*/////miscs/////*/
+-- razorscale
 DELETE FROM `spell_script_names` WHERE `spell_id`=63308;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`)
 VALUES
@@ -1185,7 +1185,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 
 DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (10062,10063);
 
---xt 002
+-- xt 002
 DELETE FROM `spell_script_names` WHERE `spell_id` IN(63018,65121,62791,64234,63024,64233,63025,62775,37751,37752);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 63018, 'spell_xt002_searing_light_spawn_life_spark'),
@@ -1223,7 +1223,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`ScriptNa
 (10079,12,1,'');
 
 
---assembly of irons
+-- assembly of irons
 DELETE FROM `spell_script_names` WHERE `spell_id`=61889;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`)
 VALUES
@@ -1383,6 +1383,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (194555, 1, 11, 12, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Close Gossip'),
 (194555, 1, 12, 0, 61, 0, 100, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Link - Set GO Active'),
 (194555, 1, 13, 0, 38, 0, 100, 0, 5, 5, 0, 0, 32, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - On Data Set - Reset GO');
+
 -- Gossip
 DELETE FROM `gossip_menu` WHERE `entry`=10368;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES
@@ -1402,13 +1403,47 @@ DELETE FROM `creature` WHERE `id`=33957;
 INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 (33957, 603, 2, 1, 0, 0, 1459.98, 140.83, 423.642, 3.88324, 300, 0, 0, 75600, 0, 0, 0, 0, 0);
  
---Hodir
+-- Hodir
 UPDATE `creature_template` SET `ScriptName`='npc_ice_block' WHERE `entry`=32938;
 delete FROM creature_template WHERE entry = 33173;
 insert into `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `unit_flags2`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('33173','0','0','0','0','0','28470','1126','0','0','Snowpacked Icicle','','','0','80','80','2','16','16','0','1','1.14286','1','0','422','586','0','642','1','2000','0','1','33587200','2048','8','0','0','0','0','0','345','509','103','4','8','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','0','0','0','0','0','0','0','0','1','0','0','0','npc_icicle','12340');
 
+-- thorim
 
+-- freya
+DELETE FROM `spell_script_names` WHERE `ScriptName` LIKE 'spell_freya_attuned_to_nature_dose_reduction';
+INSERT INTO `spell_script_names` VALUES
+(62524,'spell_freya_attuned_to_nature_dose_reduction'), -- 2 stack reduction
+(62525,'spell_freya_attuned_to_nature_dose_reduction'), -- 10 stack reduction
+(62521,'spell_freya_attuned_to_nature_dose_reduction'); -- 25 stack reduction
 
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (65158,65160);
+INSERT INTO `spell_script_names`
+VALUES
+(65158, 'spell_freya_iron_roots'),
+(65160, 'spell_freya_iron_roots');
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10445,10758) AND `type` IN (11,18);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`)
+VALUES
+(10445,11,0,0,'achievement_getting_back_to_nature'),
+(10758,11,0,0,'achievement_getting_back_to_nature');
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10447,10448,10449,10459,10460,10461) AND `type` IN (11,12,18);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`)
+VALUES
+(10447,11,0,0,'achievement_knock_on_wood'),
+(10447,12,0,0,''),
+(10448,11,0,0,'achievement_knock_knock_on_wood'),
+(10448,12,0,0,''),
+(10449,11,0,0,'achievement_knock_knock_knock_on_wood'),
+(10449,12,0,0,''),
+(10459,11,0,0,'achievement_knock_on_wood'),
+(10459,12,1,0,''),
+(10460,11,0,0,'achievement_knock_knock_on_wood'),
+(10460,12,1,0,''),
+(10461,11,0,0,'achievement_knock_knock_knock_on_wood'),
+(10461,12,1,0,'');
 
 
 
