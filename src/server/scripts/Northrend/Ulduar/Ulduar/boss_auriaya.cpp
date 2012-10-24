@@ -122,7 +122,6 @@ class boss_auriaya : public CreatureScript
                     if (Creature* sentry = me->SummonCreature(NPC_SANCTUM_SENTRY, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS)) // 30 secs equal the automated respawn time (due to script)
                     {
                         sentry->GetMotionMaster()->MoveFollow(me, (i < 2) ? 0.5f : 4.0f, M_PI - i - 1.5f);
-                        summons.Summon(sentry);
                     }
             }
 
@@ -434,6 +433,9 @@ class npc_feral_defender : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                if (instance && instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+					
                 if (!UpdateVictim())
                     return;
 

@@ -3849,6 +3849,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_remove_flight_auras();
     new spell_gen_trick();
     new spell_gen_trick_or_treat();
+	new spell_gen_tricky_treat();
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_animal_blood();
