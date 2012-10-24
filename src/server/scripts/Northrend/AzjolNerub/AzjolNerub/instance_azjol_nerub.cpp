@@ -15,8 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "ScriptPCH.h"
 #include "azjol_nerub.h"
 
 #define MAX_ENCOUNTER     3
@@ -271,9 +270,7 @@ public:
                         pHadronox->setFaction(35);
                         pHadronox->SetVisible(false);
                     }
-                    if (pCrusher->isAlive())
-                        pCrusher->AI()->EnterEvadeMode();
-                    else
+                    if (!pCrusher->isAlive())
                         pCrusher->Respawn();
                 }
                 else
