@@ -566,52 +566,99 @@ public:
     }
 };
 
-enum SaroniteVaporsSpells
+class spell_saronite_vapors : public SpellScriptLoader  // Spell 63323
 {
-    SPELL_SARONITE_VAPORS_MANA = 63337,
-    SPELL_SARONITE_VAPORS_DAMAGE = 63338
-};
+    public:
+        spell_saronite_vapors() : SpellScriptLoader("spell_saronite_vapors") {}
 
-class spell_saronite_vapors : public SpellScriptLoader // 63278
-{
-public:
-    spell_saronite_vapors() : SpellScriptLoader("spell_saronite_vapors") {}
-
-    class spell_saronite_vapors_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_saronite_vapors_AuraScript);
-
-        bool Validate(SpellInfo const* /*spell*/)
+        class spell_saronite_vapors_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_MANA) || !sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_DAMAGE))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_saronite_vapors_AuraScript);
 
-        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            Unit* caster = GetCaster();
+            void HandleUpdatePeriodic(AuraEffect const* /*aurEff*/)
+            {   
+                if (Unit* caster = ObjectAccessor::FindUnit(_caster))
+                {                    
+                    std::list<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck u_check(caster, 150.0f, true);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, players, u_check);
+                    caster->VisitNearbyObject(30.0f, searcher);
+                    players.sort(Trinity::ObjectDistanceOrderPred(caster));
+                    for (std::list<Player*>::iterator it = players.begin(); it != players.end(); ++it)
+                    {
+                        if (Player* player = *it)
+                        {
+                            if (player->GetDistance(basePos) > 8.0f) // Max. range: 8 yards
+                            {
+                                player->RemoveAurasDueToSpell(SPELL_SARONITE_VAPOR_AURA);
+                                return;
+                            }                        
 
-            if (caster && target)
-            {
-                int32 damage = 50 << GetStackAmount();
-                target->CastCustomSpell(target, SPELL_SARONITE_VAPORS_DAMAGE, &damage, 0, 0, true, 0, 0, caster->GetGUID());
-                damage = damage >> 1;
-                target->CastCustomSpell(target, SPELL_SARONITE_VAPORS_MANA, &damage, 0, 0, true);
+                            uint8 stackCount = 0;
+                            if (Aura* vaporaura = player->GetAura(SPELL_SARONITE_VAPOR_AURA))
+                                stackCount = vaporaura->GetStackAmount() + 1; // #old stacks +1 (which will be applied now)
+                            else
+                                stackCount = 1; // On first apply.
+                            /* Due to Hordeguides, the first 8 stacks lead to mana-gain as mentioned below:
+                            1 -> 100        2^0
+                            2 -> 200        2^1
+                            3 -> 400        2^2
+                            4 -> 800        2^3
+                            5 -> 1600       2^4
+                            6 -> 3200       2^5
+                            7 -> 6400       2^6
+                            8 -> 12800      2^7
+                            [...]
+                            Thus, formula for mana-gain is 100 * (2^(stackAmount-1)),
+                            which results in 2*100*(2^(stackAmount-1)) for health damage.
+
+                            Since I don't like pow(), we will use a left-shift for that, which results in:
+                            managain:       100 << (stackAmount-1)
+                            healthdamage:   2*managain
+                            */
+                            int32 manaGain = std::max( 100 << (stackCount-1), 0 ); // just for the case...
+                            uint32 healthDamage = 2*manaGain; 
+
+                            // Possibly, the modifications below could be done by spells (63338, 63337), but they don't work yet. CastCustomSpell(...) would be an option.
+                            // Emulates shadow damage by spell, which is missing - due to wowhead, this should be reducible shadow-damage.
+                            player->DealDamage(player, healthDamage, 0, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_SHADOW); // Emulates 63338
+                            player->ModifyPower(POWER_MANA, manaGain); // Emulates 63337
+                            /*
+                            S.th. like 
+                            player->CastCustomSpell(63338, SPELLVALUE_BASE_POINT0, healthDamage, player, true);
+                            player->CastCustomSpell(63337, SPELLVALUE_BASE_POINT0, manaGain, player, true);
+                            doesn't work yet, dunno why
+                            */
+                            return; // Avoid prevention mentioned below.
+                        }
+                    }
+                }
             }
-        }
 
-        void Register()
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->GetPosition(&basePos);
+                    _caster = caster->GetGUID();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_saronite_vapors_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_saronite_vapors_AuraScript::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+
+            private:
+                Position basePos;
+                uint64 _caster;
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectApply += AuraEffectApplyFn(spell_saronite_vapors_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            return new spell_saronite_vapors_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_saronite_vapors_AuraScript();
-    }
 };
 
 /************************************************************************/

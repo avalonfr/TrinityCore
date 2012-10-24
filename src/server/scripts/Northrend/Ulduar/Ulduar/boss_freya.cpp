@@ -504,6 +504,7 @@ class boss_freya : public CreatureScript
                 me->CastCustomSpell(SPELL_ATTUNED_TO_NATURE, SPELLVALUE_AURA_STACK, 150, me, true);
 
                 events.ScheduleEvent(EVENT_WAVE, 10*IN_MILLISECONDS);
+				events.ScheduleEvent(EVENT_NATURE_BOMB, 10*IN_MILLISECONDS + urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUNBEAM, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
@@ -1803,8 +1804,7 @@ class npc_eonars_gift : public CreatureScript
 
             void Reset()
             {
-                lifeBindersGiftTimer = 12*IN_MILLISECONDS;
-                cast = false;
+                lifeBindersGiftTimer = 12000;
             }
 
             void IsSummonedBy(Unit* /* summoner */)
@@ -1817,30 +1817,24 @@ class npc_eonars_gift : public CreatureScript
             void UpdateAI(uint32 const diff)
             {
                 if (InstanceScript* inst = me->GetInstanceScript())
-                {
                     if (inst->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                         me->DisappearAndDie();
-                }
-                else 
+                else
                     me->DisappearAndDie();
-                
-                if (!cast)
+
+                if (lifeBindersGiftTimer <= diff)
                 {
-                    if (lifeBindersGiftTimer <= diff)
-                    {
-                        me->RemoveAurasDueToSpell(SPELL_GROW);
-                        DoCast(SPELL_LIFEBINDERS_GIFT);
-                        me->DespawnOrUnsummon(2.5*IN_MILLISECONDS);
-                        cast = true;
-                    }
-                    else
-                        lifeBindersGiftTimer -= diff;
+                    me->RemoveAurasDueToSpell(SPELL_GROW);
+                    DoCast(SPELL_LIFEBINDERS_GIFT);
+                    me->DespawnOrUnsummon(2500);
+                    // lifeBindersGiftTimer = 12000;
                 }
+                else
+                    lifeBindersGiftTimer -= diff;
             }
 
             private:
                 uint32 lifeBindersGiftTimer;
-                bool cast;
         };
 
         CreatureAI* GetAI(Creature* creature) const
