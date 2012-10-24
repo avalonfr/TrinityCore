@@ -226,7 +226,10 @@ CorporealityEntry const _corporealityReference[MAX_CORPOREALITY_STATE] = {
 
 struct generic_halionAI : public BossAI
 {
-    generic_halionAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _canEvade(false) { }
+    generic_halionAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _canEvade(false) 
+	{
+		me->SetHomePosition(HalionSpawnPos);
+	}
 
     void EnterCombat(Unit* who)
     {
