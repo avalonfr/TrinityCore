@@ -66,7 +66,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 -- Renamed - the resulting effect is called "Pursued", not "Pursue"
 delete from spell_script_names WHERE `spell_id`=62374;
---UPDATE `spell_script_names` SET `ScriptName`='spell_pursued' WHERE `spell_id`=62374;
+-- UPDATE `spell_script_names` SET `ScriptName`='spell_pursued' WHERE `spell_id`=62374;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62374, 'spell_pursued');
 
@@ -142,7 +142,7 @@ UPDATE `vehicle_template_accessory` SET `minion`=0 WHERE `entry`=33293;
 UPDATE `npc_spellclick_spells` SET `cast_flags`=0 WHERE `npc_entry`=33293 AND `spell_id`=63852;
 
 -- removing spell_xt002_heart_overload_periodic
---DELETE FROM `spell_script_names` WHERE `spell_id`=62791;
+-- DELETE FROM `spell_script_names` WHERE `spell_id`=62791;
 
 -- Kologarn
 -- Add script to arms.
