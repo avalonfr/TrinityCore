@@ -60,7 +60,9 @@ enum VezaxSpells
 
     // Saronit Vapor
     SPELL_SARONITE_VAPORS                        = 63323,
-    SPELL_SARONITE_VAPOR_AURA                    = 63322, // Unknown Aura Dummy needs Scripting ?
+    //SPELL_SARONITE_VAPOR_AURA                    = 63322, // Unknown Aura Dummy needs Scripting ?
+    SPELL_SARONITE_VAPORS_ENERGIZE 				 = 63337,
+    SPELL_SARONITE_VAPORS_DAMAGE 				 = 63338,
 
     // Player Shaman
     SPELL_SHAMANTIC_RAGE                         = 30823,
@@ -566,12 +568,6 @@ public:
     }
 };
 
-enum SaroniteVaporsSpells
-{
-    SPELL_SARONITE_VAPORS_MANA = 63337,
-    SPELL_SARONITE_VAPORS_DAMAGE = 63338
-};
-
 class spell_saronite_vapors : public SpellScriptLoader // 63278
 {
 public:
@@ -581,37 +577,34 @@ public:
     {
         PrepareAuraScript(spell_saronite_vapors_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_MANA) || !sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_DAMAGE))
-                return false;
-            return true;
-        }
-
-        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            Unit* caster = GetCaster();
-
-            if (caster && target)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                int32 damage = 50 << GetStackAmount();
-                target->CastCustomSpell(target, SPELL_SARONITE_VAPORS_DAMAGE, &damage, 0, 0, true, 0, 0, caster->GetGUID());
-                damage = damage >> 1;
-                target->CastCustomSpell(target, SPELL_SARONITE_VAPORS_MANA, &damage, 0, 0, true);
+                if (!sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_ENERGIZE) || !sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_DAMAGE))
+                    return false;
+                return true;
             }
-        }
 
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_saronite_vapors_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
+            void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 mana = int32(aurEff->GetAmount() * pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
+                    int32 damage = mana * 2;
+                    caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_ENERGIZE, &mana, NULL, NULL, true);
+                    caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_DAMAGE, &damage, NULL, NULL, true);
+                }
+            }
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_saronite_vapors_AuraScript();
-    }
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_saronite_vapors_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+		AuraScript* GetAuraScript() const
+		{
+			return new spell_saronite_vapors_AuraScript();
+		}
 };
 
 /************************************************************************/
