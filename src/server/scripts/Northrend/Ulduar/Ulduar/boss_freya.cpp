@@ -1804,7 +1804,8 @@ class npc_eonars_gift : public CreatureScript
 
             void Reset()
             {
-                lifeBindersGiftTimer = 12000;
+                lifeBindersGiftTimer = 12*IN_MILLISECONDS;
+                cast = false;
             }
 
             void IsSummonedBy(Unit* /* summoner */)
@@ -1817,24 +1818,30 @@ class npc_eonars_gift : public CreatureScript
             void UpdateAI(uint32 const diff)
             {
                 if (InstanceScript* inst = me->GetInstanceScript())
+                {
                     if (inst->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                         me->DisappearAndDie();
-                else
-                    me->DisappearAndDie();
-
-                if (lifeBindersGiftTimer <= diff)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_GROW);
-                    DoCast(SPELL_LIFEBINDERS_GIFT);
-                    me->DespawnOrUnsummon(2500);
-                    // lifeBindersGiftTimer = 12000;
                 }
-                else
-                    lifeBindersGiftTimer -= diff;
+                else 
+                    me->DisappearAndDie();
+                
+                if (!cast)
+                {
+                    if (lifeBindersGiftTimer <= diff)
+                    {
+                        me->RemoveAurasDueToSpell(SPELL_GROW);
+                        DoCast(SPELL_LIFEBINDERS_GIFT);
+                        me->DespawnOrUnsummon(2.5*IN_MILLISECONDS);
+                        cast = true;
+                    }
+                    else
+                        lifeBindersGiftTimer -= diff;
+                }
             }
 
             private:
                 uint32 lifeBindersGiftTimer;
+                bool cast;
         };
 
         CreatureAI* GetAI(Creature* creature) const
