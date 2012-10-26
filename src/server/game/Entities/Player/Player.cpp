@@ -11558,6 +11558,7 @@ InventoryResult Player::CanEquipNewItem(uint8 slot, uint16 &dest, uint32 item, b
     Item* pItem = Item::CreateItem(item, 1, this);
     if (pItem)
     {
+		
         InventoryResult result = CanEquipItem(slot, dest, pItem, swap);
         delete pItem;
         return result;
@@ -11652,10 +11653,11 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             if (eslot == EQUIPMENT_SLOT_OFFHAND)
             {
                 // Do not allow polearm to be equipped in the offhand (rare case for the only 1h polearm 41750)
-                if (pProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM)
+                /*if (pProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM)
                     return EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT;
 
-                else if (type == INVTYPE_WEAPON || type == INVTYPE_WEAPONOFFHAND)
+                else*/
+				if (type == INVTYPE_WEAPON || type == INVTYPE_WEAPONOFFHAND)
                 {
                     if (!CanDualWield())
                         return EQUIP_ERR_CANT_DUAL_WIELD;
@@ -13106,6 +13108,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
 
         uint16 dest;
+		
         InventoryResult msg = CanEquipItem(dstslot, dest, pNewItem, false);
         if (msg != EQUIP_ERR_OK)
         {
@@ -13239,6 +13242,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
         else if (IsEquipmentPos(dst))
         {
             uint16 dest;
+			
             InventoryResult msg = CanEquipItem(dstslot, dest, pSrcItem, false);
             if (msg != EQUIP_ERR_OK)
             {
