@@ -216,8 +216,10 @@ UPDATE `creature_template` SET `dmg_multiplier`=85 WHERE `entry`=39945;
 
 -- Onyx Flamecaller
 UPDATE `creature_template` SET `minlevel`=82,`maxlevel`=82,`faction_A`=103,`faction_H`=103,`exp`=2,`speed_walk`=0.88888,`speed_run`=1.42857,`baseattacktime`=2000,`unit_flags`=32768,`equipment_id`=2468 WHERE `entry`=39815;
-
-
+-- Blazing Aura
+-- NOTE: This still does not work, no clue why. Probably a core-side bug ?
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13,2,75886,0,0,31,0,3,40683,0,0,0, '', 'Blazing Aura can only target Living Embers');
 
 delete FROM areatrigger_teleport WHERE id = 5869;
 insert into `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) values('5869','The Ruby Sanctum (Entrance)','724','3274','533.531','87.665','3.16');

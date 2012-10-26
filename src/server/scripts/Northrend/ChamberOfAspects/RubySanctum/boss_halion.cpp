@@ -1649,9 +1649,9 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_halion_twilight_cutter_SpellScript);
 
- 			void FilterTargets(std::list<WorldObject*>& unitList)
+            void RemoveNotBetween(std::list<WorldObject*>& unitList)
             {
-				if (unitList.empty())
+                if (unitList.empty())
                     return;
 
                 Unit* caster = GetCaster();
@@ -1670,7 +1670,7 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
 
             void Register()
             {
-				OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halion_twilight_cutter_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_halion_twilight_cutter_SpellScript::RemoveNotBetween, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1679,7 +1679,6 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
             return new spell_halion_twilight_cutter_SpellScript();
         }
 };
-
 class spell_halion_twilight_phasing : public SpellScriptLoader
 {
     public:
