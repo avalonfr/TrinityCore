@@ -825,6 +825,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_RARE_CACHE_OF_WINTER_HERO:
                     case GO_HODIR_RARE_CACHE_OF_WINTER:
                         HodirRareCacheGUID = gameObject->GetGUID();
+							gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_HODIR_CHEST_HERO:
                     case GO_HODIR_CHEST:
@@ -1007,9 +1008,9 @@ class instance_ulduar : public InstanceMapScript
 
                         if (GameObject* gameObject = instance->GetGameObject(LeviathanDoorGUID))
                         {
-                            /*if (state == NOT_STARTED || state == IN_PROGRESS)
+                            if (state == NOT_STARTED || state == IN_PROGRESS)
                                 gameObject->SetGoState(GO_STATE_READY);
-                            else*/
+                            else
                                 gameObject->SetGoState(GO_STATE_ACTIVE);
                         }
 

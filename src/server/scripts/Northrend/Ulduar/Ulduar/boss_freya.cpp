@@ -504,6 +504,7 @@ class boss_freya : public CreatureScript
                 me->CastCustomSpell(SPELL_ATTUNED_TO_NATURE, SPELLVALUE_AURA_STACK, 150, me, true);
 
                 events.ScheduleEvent(EVENT_WAVE, 10*IN_MILLISECONDS);
+				events.ScheduleEvent(EVENT_NATURE_BOMB, 10*IN_MILLISECONDS + urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUNBEAM, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));

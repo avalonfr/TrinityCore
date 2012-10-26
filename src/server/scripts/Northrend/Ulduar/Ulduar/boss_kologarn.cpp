@@ -101,6 +101,7 @@ enum Events
     EVENT_SWEEP,
     EVENT_STONE_SHOUT,
     EVENT_STONE_GRIP,
+	EVENT_PETRIFY_BREATH,
     EVENT_FOCUSED_EYEBEAM,
     EVENT_RESPAWN_LEFT_ARM,
     EVENT_RESPAWN_RIGHT_ARM,
@@ -179,7 +180,8 @@ class boss_kologarn : public CreatureScript
                 Talk(SAY_AGGRO);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                events.ScheduleEvent(EVENT_MELEE_CHECK, 6*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_MELEE_CHECK, 4*IN_MILLISECONDS);
+				events.ScheduleEvent(EVENT_PETRIFY_BREATH, urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SMASH, 5*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SWEEP, 19*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_STONE_GRIP, 25*IN_MILLISECONDS);
@@ -198,7 +200,7 @@ class boss_kologarn : public CreatureScript
             void JustDied(Unit* /*victim*/)
             {
                 Talk(SAY_DEATH);
-                DoCast(me, SPELL_KOLOGARN_PACIFY);  // TODO: Check if this works, since... yeah, we're dead.
+                DoCast(me, SPELL_KOLOGARN_PACIFY, true);  // TODO: Check if this works, since... yeah, we're dead.
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning - it's the bridge to inner Ulduar.
@@ -206,8 +208,6 @@ class boss_kologarn : public CreatureScript
                 for (uint8 i = 0; i < 2; ++i)
                     if (Unit* arm = vehicle->GetPassenger(i))
                         arm->ExitVehicle();
-
-                summons.DespawnAll();
 
                 while (Creature* rubbleStalker = me->FindNearestCreature(NPC_RUBBLE_STALKER, 100.0f, true))
                     rubbleStalker->DisappearAndDie();
@@ -410,9 +410,13 @@ class boss_kologarn : public CreatureScript
                     {
                         case EVENT_MELEE_CHECK:
                             if (!me->IsWithinMeleeRange(me->getVictim()))
-                                DoCast(SPELL_PETRIFY_BREATH);
-                            events.ScheduleEvent(EVENT_MELEE_CHECK, 1*IN_MILLISECONDS);
+                                DoCastVictim(SPELL_PETRIFY_BREATH);
+                            events.ScheduleEvent(EVENT_MELEE_CHECK, 4*IN_MILLISECONDS);
                             return;
+                        case EVENT_PETRIFY_BREATH:
+                            DoCastVictim(SPELL_PETRIFY_BREATH);
+                            events.ScheduleEvent(EVENT_PETRIFY_BREATH, urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS));
+                            break;
                         case EVENT_SWEEP:           // Cast for left arm
                             if (haveLeftArm)
                             {
