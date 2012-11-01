@@ -23,7 +23,6 @@ class questbug_commandscript : public CommandScript
         { "questbug",   SEC_GAMEMASTER, false, NULL, "", QuestbugAddRemoveCommandTable},
         { NULL, 0, false, NULL, "", NULL }
       };
-	  
       return QuestbugCommandTable;
     }
 	
@@ -82,6 +81,7 @@ class questbug_commandscript : public CommandScript
             handler->PSendSysMessage(LANG_QUEST_SIGNALED_REMOVED,entry);
             return true;
         }
+
         static bool HandlePlayerQuestCompleteCommand(ChatHandler* handler, const char *args)
         {
             Player*  player = handler->GetSession()->GetPlayer();
@@ -91,7 +91,6 @@ class questbug_commandscript : public CommandScript
             uint32 entry = atol(cId);
 
             Quest const* pQuest = sObjectMgr->GetQuestTemplate(entry);
-
             if (!pQuest)
             {
                 handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND,entry);
@@ -113,7 +112,7 @@ class questbug_commandscript : public CommandScript
             }
             // Add quest items for quests that require items
 			for (uint8 x = 0; x < QUEST_ITEM_OBJECTIVES_COUNT; ++x)
-		{
+			{
 				uint32 id = pQuest->RequiredItemId[x];
 				uint32 count = pQuest->RequiredItemCount[x];
 				if (!id || !count)
