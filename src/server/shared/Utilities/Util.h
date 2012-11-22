@@ -20,7 +20,7 @@
 #define _UTIL_H
 
 #include "Common.h"
-
+#include "Containers.h"
 #include <string>
 #include <vector>
 
@@ -51,7 +51,7 @@ std::string TimeToTimestampStr(time_t t);
 inline uint32 secsToTimeBitFields(time_t secs)
 {
     tm* lt = localtime(&secs);
-    return (lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min;
+    return uint32((lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min);
 }
 
 /* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
@@ -73,7 +73,7 @@ inline uint32 secsToTimeBitFields(time_t secs)
  double rand_norm(void);
 
 /* Return a random double from 0.0 to 99.9999999999999. Floats support only 7 valid decimal digits.
- * A double supports up to 15 valid decimal digits and is used internaly (RAND32_MAX has 10 digits).
+ * A double supports up to 15 valid decimal digits and is used internally (RAND32_MAX has 10 digits).
  * With an FPU, there is usually no difference in performance between float and double. */
  double rand_chance(void);
 
@@ -87,22 +87,6 @@ inline bool roll_chance_f(float chance)
 inline bool roll_chance_i(int chance)
 {
     return chance > irand(0, 99);
-}
-
-inline void ApplyModUInt32Var(uint32& var, int32 val, bool apply)
-{
-    int32 cur = var;
-    cur += (apply ? val : -val);
-    if (cur < 0)
-        cur = 0;
-    var = cur;
-}
-
-inline void ApplyModFloatVar(float& var, float  val, bool apply)
-{
-    var += (apply ? val : -val);
-    if (var < 0)
-        var = 0;
 }
 
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
@@ -652,13 +636,5 @@ public:
         return (part[el]);
     };
 };
-
-/* Select a random element from a container. Note: make sure you explicitly empty check the container */
-template <class C> typename C::value_type const& SelectRandomContainerElement(C const& container)
-{
-    typename C::const_iterator it = container.begin();
-    std::advance(it, urand(0, container.size() - 1));
-    return *it;
-}
 
 #endif

@@ -694,6 +694,30 @@ namespace Trinity
             NearestGameObjectEntryInObjectRangeCheck(NearestGameObjectEntryInObjectRangeCheck const&);
     };
 
+    // Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest GO with a certain type)
+    class NearestGameObjectTypeInObjectRangeCheck
+    {
+    public:
+        NearestGameObjectTypeInObjectRangeCheck(WorldObject const& obj, GameobjectTypes type, float range) : i_obj(obj), i_type(type), i_range(range) {}
+        bool operator()(GameObject* go)
+        {
+            if (go->GetGoType() == i_type && i_obj.IsWithinDistInMap(go, i_range))
+            {
+                i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
+                return true;
+            }
+            return false;
+        }
+        float GetLastRange() const { return i_range; }
+    private:
+        WorldObject const& i_obj;
+        GameobjectTypes i_type;
+        float  i_range;
+
+        // prevent clone this object
+        NearestGameObjectTypeInObjectRangeCheck(NearestGameObjectTypeInObjectRangeCheck const&);
+    };
+
     class GameObjectWithDbGUIDCheck
     {
         public:
@@ -797,7 +821,7 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isTotem())
                     return false;
 
-                if(!u->isTargetableForAttack(false))
+                if (!u->isTargetableForAttack(false))
                     return false;
 
                 return i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u);
@@ -943,7 +967,7 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isTotem())
                     return false;
 
-                if (i_funit->_IsValidAttackTarget(u, _spellInfo) && i_obj->IsWithinDistInMap(u, i_range))
+                if (i_funit->_IsValidAttackTarget(u, _spellInfo,i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : NULL) && i_obj->IsWithinDistInMap(u, i_range))
                     return true;
 
                 return false;
@@ -972,7 +996,7 @@ namespace Trinity
                     return;
 
                 // too far
-                if (!u->IsWithinDistInMap(i_enemy, i_range))
+                if (!u->IsWithinDistInMap(i_funit, i_range))
                     return;
 
                 // only if see assisted creature's enemy
@@ -1287,7 +1311,7 @@ namespace Trinity
         AllWorldObjectsInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
         bool operator() (WorldObject* go)
         {
-            return m_pObject->IsWithinDist(go, m_fRange, false);
+            return m_pObject->IsWithinDist(go, m_fRange, false) && m_pObject->InSamePhase(go);
         }
     private:
         const WorldObject* m_pObject;
@@ -1325,9 +1349,14 @@ namespace Trinity
     {
         public:
             UnitAuraCheck(bool present, uint32 spellId, uint64 casterGUID = 0) : _present(present), _spellId(spellId), _casterGUID(casterGUID) {}
-            bool operator()(Unit* unit)
+            bool operator()(Unit* unit) const
             {
                 return unit->HasAura(_spellId, _casterGUID) == _present;
+            }
+
+            bool operator()(WorldObject* object) const
+            {
+                return object->ToUnit() && object->ToUnit()->HasAura(_spellId, _casterGUID) == _present;
             }
 
         private:

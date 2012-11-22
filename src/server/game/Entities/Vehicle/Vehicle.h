@@ -23,9 +23,12 @@
 #include "VehicleDefines.h"
 
 struct VehicleEntry;
+struct Position;
 class Unit;
 
-class Vehicle
+typedef std::set<uint64> GuidSet;
+
+class Vehicle : public TransportBase
 {
     public:
         explicit Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
@@ -53,7 +56,9 @@ class Vehicle
         void RelocatePassengers(float x, float y, float z, float ang);
         void RemoveAllPassengers();
         void Dismiss();
+        void TeleportVehicle(float x, float y, float z, float ang);
         bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
+		void Relocate(Position pos);
 
         SeatMap Seats;
 
@@ -63,8 +68,15 @@ class Vehicle
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         void InitMovementInfoForBase();
 
+        /// This method transforms supplied transport offsets into global coordinates
+        void CalculatePassengerPosition(float& x, float& y, float& z, float& o);
+
+        /// This method transforms supplied global coordinates into local offsets
+        void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
+
         Unit* _me;
         VehicleEntry const* _vehicleInfo;
+        GuidSet vehiclePlayers;
         uint32 _usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
         uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
 };

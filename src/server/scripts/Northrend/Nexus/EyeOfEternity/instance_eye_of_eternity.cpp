@@ -15,7 +15,9 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "eye_of_eternity.h"
 #include "WorldPacket.h"
 
@@ -266,7 +268,7 @@ class instance_eye_of_eternity : public InstanceMapScript
                             if (Unit* pDisk = pPlayer->GetVehicleBase())
                             {
                                 pPlayer->ExitVehicle();
-                                pDisk->ToCreature()->ForcedDespawn();
+                                pDisk->ToCreature()->DespawnOrUnsummon();
                             }
                         }
                     }

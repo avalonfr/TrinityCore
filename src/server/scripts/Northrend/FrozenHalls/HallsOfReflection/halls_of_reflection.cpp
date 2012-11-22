@@ -203,7 +203,7 @@ public:
         {
             if(!m_pInstance)
                 return
-            sLog->outString("EventMGR: creature %u received signal %u ",me->GetEntry(),m_pInstance->GetData(TYPE_EVENT));
+            sLog->outError(LOG_FILTER_UNITS,"EventMGR: creature %u received signal %u ",me->GetEntry(),m_pInstance->GetData(TYPE_EVENT));
             m_pInstance->SetData(TYPE_PHASE, 1);
             m_pInstance->SetData(TYPE_EVENT, 0);
             Step = 1;

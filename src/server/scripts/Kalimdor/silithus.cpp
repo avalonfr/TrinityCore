@@ -29,7 +29,9 @@ npcs_rutgar_and_frankal
 quest_a_pawn_on_the_eternal_pawn
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "Group.h"
 
 /*###
@@ -125,9 +127,11 @@ public:
 #define GOSSIP_ITEM14 "I should ask the monkey about this"
 #define GOSSIP_ITEM15 "Then what..."
 
-//trigger creatures to kill
-#define TRIGGER_RUTGAR 15222
-#define TRIGGER_FRANKAL 15221
+enum RutgarAndFrankal //trigger creatures to kill
+{
+    TRIGGER_FRANKAL     = 15221,
+    TRIGGER_RUTGAR      = 15222
+};
 
 class npcs_rutgar_and_frankal : public CreatureScript
 {
@@ -223,7 +227,7 @@ public:
 /*####
 # quest_a_pawn_on_the_eternal_board (Defines)
 ####*/
-enum eEternalBoard
+enum EternalBoard
 {
     QUEST_A_PAWN_ON_THE_ETERNAL_BOARD = 8519,
 
@@ -290,7 +294,6 @@ TO DO: get correct spell IDs and timings for spells cast upon dragon transformat
 TO DO: Dragons should use the HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF) after transformation, but for some unknown reason it doesnt work.
 EndContentData */
 
-#define QUEST_A_PAWN_ON_THE_ETERNAL_BOARD 8519
 #define EVENT_AREA_RADIUS 65 //65yds
 #define EVENT_COOLDOWN 500000 //in ms. appear after event completed or failed (should be = Adds despawn time)
 
@@ -374,7 +377,7 @@ static QuestCinematic EventAnim[]=
 };
 
 //Cordinates for Spawns
-static const Position SpawnLocation[]=
+Position const SpawnLocation[] =
 {
     {-8085.0f, 1528.0f, 2.61f, 3.141592f}, //Kaldorei Infantry
     {-8080.0f, 1526.0f, 2.61f, 3.141592f}, //Kaldorei Infantry
@@ -455,7 +458,7 @@ struct WaveData
     int32 WaveTextId;
 };
 
-static WaveData WavesInfo[] =
+static WaveData WavesInfo[5] =
 {
     {30,  0, 15423, 0, 0, 24000, 0},    // Kaldorei Soldier
     { 3, 35, 15424, 0, 0, 24000, 0},    // Anubisath Conqueror
@@ -470,7 +473,7 @@ struct SpawnSpells
     uint32 Timer1, Timer2, SpellId;
 };
 
-static SpawnSpells SpawnCast[]=//
+static SpawnSpells SpawnCast[4] =
 {
     {100000, 2000, 33652},   // Stop Time
     {38500, 300000, 28528},  // Poison Cloud
@@ -485,9 +488,9 @@ class npc_anachronos_the_ancient : public CreatureScript
 public:
     npc_anachronos_the_ancient() : CreatureScript("npc_anachronos_the_ancient") { }
 
-    CreatureAI* GetAI(Creature* c) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_anachronos_the_ancientAI(c);
+        return new npc_anachronos_the_ancientAI(creature);
     }
 
     struct npc_anachronos_the_ancientAI : public ScriptedAI
@@ -534,7 +537,6 @@ public:
             if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
                 return;
 
-            Unit* mob = NULL;
             AnimationTimer = EventAnim[AnimationCount].Timer;
             if (eventEnd == false)
             {
@@ -717,6 +719,7 @@ public:
                     case 51:
                     {
                         uint32 entries[4] = { 15423, 15424, 15414, 15422 };
+                        Unit* mob = NULL;
                         for (uint8 i = 0; i < 4; ++i)
                         {
                             mob = player->FindNearestCreature(entries[i], 50, me);
@@ -813,9 +816,9 @@ class mob_qiraj_war_spawn : public CreatureScript
 public:
     mob_qiraj_war_spawn() : CreatureScript("mob_qiraj_war_spawn") { }
 
-    CreatureAI* GetAI(Creature* c) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_qiraj_war_spawnAI(c);
+        return new mob_qiraj_war_spawnAI(creature);
     }
 
     struct mob_qiraj_war_spawnAI : public ScriptedAI
@@ -841,9 +844,6 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            Unit* target = NULL;
-            //Player* player = me->GetPlayer(PlayerGUID);
-
             if (!Timers)
             {
                 if (me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414) //all but Kaldorei Soldiers
@@ -887,6 +887,7 @@ public:
             }
             if (!hasTarget)
             {
+                Unit* target = NULL;
                 if (me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
                     target = me->FindNearestCreature(15423, 20, true);
                 if (me->GetEntry() == 15423)
@@ -928,9 +929,9 @@ class npc_anachronos_quest_trigger : public CreatureScript
 public:
     npc_anachronos_quest_trigger() : CreatureScript("npc_anachronos_quest_trigger") { }
 
-    CreatureAI* GetAI(Creature* c) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_anachronos_quest_triggerAI(c);
+        return new npc_anachronos_quest_triggerAI(creature);
     }
 
     struct npc_anachronos_quest_triggerAI : public ScriptedAI
@@ -967,16 +968,15 @@ public:
 
         void SummonNextWave()
         {
-            //uint8 count = WavesInfo[WaveCount].SpawnCount;
             uint8 locIndex = WavesInfo[WaveCount].UsedSpawnPoint;
-            //uint8 KaldoreiSoldierCount = 0;
-            //uint8 AnubisathConquerorCount = 0;
-            //uint8 QirajiWaspCount = 0;
-            for (uint8 i = 0; i < 67; ++i)
+            uint8 count = locIndex + WavesInfo[WaveCount].SpawnCount;
+
+            for (uint8 i = locIndex; i <= count; ++i)
             {
-                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[locIndex + i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, WavesInfo[WaveCount].DespTimer))
+                uint32 desptimer = WavesInfo[WaveCount].DespTimer;
+
+                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
                 {
-                    spawn->LoadCreaturesAddon();
                     if (spawn->GetEntry() == 15423)
                         spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15427+rand()%4);
                     if (i >= 30) WaveCount = 1;
@@ -986,12 +986,15 @@ public:
 
                     if (WaveCount < 5) //1-4 Wave
                     {
-                        mob_qiraj_war_spawn::mob_qiraj_war_spawnAI* spawnAI = CAST_AI(mob_qiraj_war_spawn::mob_qiraj_war_spawnAI, spawn->AI());
-                        spawnAI->MobGUID = me->GetGUID();
-                        spawnAI->PlayerGUID = PlayerGUID;
+                        if (mob_qiraj_war_spawn::mob_qiraj_war_spawnAI* spawnAI = CAST_AI(mob_qiraj_war_spawn::mob_qiraj_war_spawnAI, spawn->AI()))
+                        {
+                            spawnAI->MobGUID = me->GetGUID();
+                            spawnAI->PlayerGUID = PlayerGUID;
+                        }
                     }
                 }
             }
+
             WaveTimer = WavesInfo[WaveCount].SpawnTimer;
             AnnounceTimer = WavesInfo[WaveCount].YellTimer;
         }
@@ -1005,27 +1008,27 @@ public:
 
             if (Group* EventGroup = player->GetGroup())
             {
-                Player* GroupMember;
+                Player* groupMember;
 
                 uint8 GroupMemberCount = 0;
                 uint8 DeadMemberCount = 0;
                 uint8 FailedMemberCount = 0;
 
-                const Group::MemberSlotList members = EventGroup->GetMemberSlots();
+                Group::MemberSlotList const members = EventGroup->GetMemberSlots();
 
                 for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                 {
-                    GroupMember = (Unit::GetPlayer(*me, itr->guid));
-                    if (!GroupMember)
+                    groupMember = (Unit::GetPlayer(*me, itr->guid));
+                    if (!groupMember)
                         continue;
-                    if (!GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
+                    if (!groupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && groupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
                     {
-                         GroupMember->FailQuest(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD);
+                         groupMember->FailQuest(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD);
                         ++FailedMemberCount;
                     }
                     ++GroupMemberCount;
 
-                    if (GroupMember->isDead())
+                    if (groupMember->isDead())
                         ++DeadMemberCount;
                 }
 
@@ -1069,8 +1072,13 @@ public:
 void mob_qiraj_war_spawn::mob_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
 {
     me->RemoveCorpse();
-    if (Creature* Mob = (Unit::GetCreature(*me, MobGUID)))
-        CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, Mob->AI())->LiveCounter();
+
+    if (!MobGUID)
+        return;
+
+    if (Creature* mob = Unit::GetCreature(*me, MobGUID))
+        if (npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI* triggerAI = CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, mob->AI()))
+            triggerAI->LiveCounter();
 
 };
 
@@ -1087,15 +1095,13 @@ public:
     {
         if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
         {
-
-            if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, player))
+            if (Creature* trigger = go->FindNearestCreature(15454, 100, player))
             {
-
-                Unit* Merithra = Anachronos_Quest_Trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Arygos = Anachronos_Quest_Trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                /* Unit* Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Creature* Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Merithra = trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Caelestrasz = trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Arygos = trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                /* Unit* Fandral = */ trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Creature* Anachronos = trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
 
                 if (Merithra)
                 {
@@ -1123,11 +1129,16 @@ public:
 
                 if (Anachronos)
                 {
-                    CAST_AI(npc_anachronos_the_ancient::npc_anachronos_the_ancientAI, Anachronos->AI())->PlayerGUID = player->GetGUID();
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Failed=false;
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = player->GetGUID();
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->EventStarted=true;
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Announced=true;
+                    if (npc_anachronos_the_ancient::npc_anachronos_the_ancientAI* anachronosAI = CAST_AI(npc_anachronos_the_ancient::npc_anachronos_the_ancientAI, Anachronos->AI()))
+                        anachronosAI->PlayerGUID = player->GetGUID();
+
+                    if (npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI* triggerAI = CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, trigger->AI()))
+                    {
+                        triggerAI->Failed = false;
+                        triggerAI->PlayerGUID = player->GetGUID();
+                        triggerAI->EventStarted = true;
+                        triggerAI->Announced = true;
+                    }
                 }
             }
         }

@@ -24,6 +24,7 @@ set(scripts_STAT_SRCS
   Spells/spell_paladin.cpp
   Spells/spell_item.cpp
   Spells/spell_holiday.cpp
+  Spells/spell_pet.cpp
 )
 SOURCE_GROUP(Spells REGULAR_EXPRESSION .*/Spells/.*)
 message("  -> Prepared: Spells")

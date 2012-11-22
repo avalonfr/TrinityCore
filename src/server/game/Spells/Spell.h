@@ -618,7 +618,6 @@ class Spell
 
         // spell execution log
         void InitEffectExecuteData(uint8 effIndex);
-        void CleanupEffectExecuteData();
         void CheckEffectExecuteData();
 
         // Scripting system
@@ -632,13 +631,22 @@ class Spell
         void CallScriptBeforeHitHandlers();
         void CallScriptOnHitHandlers();
         void CallScriptAfterHitHandlers();
-        void CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTargets, SpellEffIndex effIndex);
+        void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex);
+        void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex);
         std::list<SpellScript*> m_loadedScripts;
 
-        bool CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* spellInfo = NULL) const;
+        struct HitTriggerSpell
+        {
+            SpellInfo const* triggeredSpell;
+            SpellInfo const* triggeredByAura;
+            // uint8 triggeredByEffIdx          This might be needed at a later stage - No need known for now
+            int32 chance;
+        };
+
+        bool CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura = NULL) const;
         void PrepareTriggersExecutedOnHit();
-        typedef std::list< std::pair<SpellInfo const*, int32> > HitTriggerSpells;
-        HitTriggerSpells m_hitTriggerSpells;
+        typedef std::list<HitTriggerSpell> HitTriggerSpellList;
+        HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers
         void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);

@@ -61,7 +61,7 @@ void PetAI::_stopAttack()
 {
     if (!me->isAlive())
     {
-        sLog->outStaticDebug("Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
+        sLog->outDebug(LOG_FILTER_GENERAL, "Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
@@ -100,7 +100,7 @@ void PetAI::UpdateAI(const uint32 diff)
 
         if (_needToStop())
         {
-            sLog->outStaticDebug("Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
+            sLog->outDebug(LOG_FILTER_GENERAL, "Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
             _stopAttack();
             return;
         }
@@ -109,17 +109,25 @@ void PetAI::UpdateAI(const uint32 diff)
     }
     else if (owner && me->GetCharmInfo()) //no victim
     {
-        Unit* nextTarget = SelectNextTarget();
+        // Only aggressive pets do target search every update.
+        // Defensive pets do target search only in these cases:
+        //  * Owner attacks something - handled by OwnerAttacked()
+        //  * Owner receives damage - handled by OwnerDamagedBy()
+        //  * Pet is in combat and current target dies - handled by KilledUnit()
+        if (me->HasReactState(REACT_AGGRESSIVE))
+        {
+            Unit* nextTarget = SelectNextTarget();
 
-        if (me->HasReactState(REACT_PASSIVE))
-            _stopAttack();
-        else if (nextTarget)
-            AttackStart(nextTarget);
+            if (nextTarget)
+                AttackStart(nextTarget);
+            else
+                HandleReturnMovement();
+        }
         else
             HandleReturnMovement();
     }
     else if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW)) // no charm info and no victim
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        HandleReturnMovement();
 
     if (!me->GetCharmInfo())
         return;
@@ -145,40 +153,56 @@ void PetAI::UpdateAI(const uint32 diff)
 
             if (spellInfo->IsPositive())
             {
-                // non combat spells allowed
-                // only pet spells have IsNonCombatSpell and not fit this reqs:
-                // Consume Shadows, Lesser Invisibility, so ignore checks for its
                 if (spellInfo->CanBeUsedInCombat())
                 {
-                    // allow only spell without spell cost or with spell cost but not duration limit
-                    int32 duration = spellInfo->GetDuration();
-                    if ((spellInfo->ManaCost || spellInfo->ManaCostPercentage || spellInfo->ManaPerSecond) && duration > 0)
+                    // check spell cooldown
+                    if (me->HasSpellCooldown(spellInfo->Id))
                         continue;
 
-                    // allow only spell without cooldown > duration
-                    int32 cooldown = spellInfo->GetRecoveryTime();
-                    if (cooldown >= 0 && duration >= 0 && cooldown > duration)
+                    // Check if we're in combat or commanded to attack
+                    if (!me->isInCombat() && !me->GetCharmInfo()->IsCommandAttack())
                         continue;
                 }
 
                 Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, 0);
-
                 bool spellUsed = false;
-                for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+
+                // Some spells can target enemy or friendly (DK Ghoul's Leap)
+                // Check for enemy first (pet then owner)
+                Unit* target = me->getAttackerForHelper();
+                if (!target && owner)
+                    target = owner->getAttackerForHelper();
+
+                if (target)
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, *tar);
-
-                    //only buff targets that are in combat, unless the spell can only be cast while out of combat
-                    if (!target)
-                        continue;
-
-                    if (spell->CanAutoCast(target))
+                    if (CanAttack(target) && spell->CanAutoCast(target))
                     {
                         targetSpellStore.push_back(std::make_pair(target, spell));
                         spellUsed = true;
-                        break;
                     }
                 }
+
+                // No enemy, check friendly
+                if (!spellUsed)
+                {
+                    for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+                    {
+                        Unit* ally = ObjectAccessor::GetUnit(*me, *tar);
+
+                        //only buff targets that are in combat, unless the spell can only be cast while out of combat
+                        if (!ally)
+                            continue;
+
+                        if (spell->CanAutoCast(ally))
+                        {
+                            targetSpellStore.push_back(std::make_pair(ally, spell));
+                            spellUsed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // No valid targets at all
                 if (!spellUsed)
                     delete spell;
             }
@@ -302,6 +326,47 @@ void PetAI::AttackStart(Unit* target)
     DoAttack(target, true);
 }
 
+void PetAI::OwnerDamagedBy(Unit* attacker)
+{
+    // Called when owner takes damage. Allows defensive pets to know
+    //  that their owner might need help
+
+    if (!attacker)
+        return;
+
+    // Passive pets don't do anything
+    if (me->HasReactState(REACT_PASSIVE))
+        return;
+
+    // Prevent pet from disengaging from current target
+    if (me->getVictim() && me->getVictim()->isAlive())
+        return;
+
+    // Continue to evaluate and attack if necessary
+    AttackStart(attacker);
+}
+
+void PetAI::OwnerAttacked(Unit* target)
+{
+    // Called when owner attacks something. Allows defensive pets to know
+    //  that they need to assist
+
+    // Target might be NULL if called from spell with invalid cast targets
+    if (!target)
+        return;
+
+    // Passive pets don't do anything
+    if (me->HasReactState(REACT_PASSIVE))
+        return;
+
+    // Prevent pet from disengaging from current target
+    if (me->getVictim() && me->getVictim()->isAlive())
+        return;
+
+    // Continue to evaluate and attack if necessary
+    AttackStart(target);
+}
+
 Unit* PetAI::SelectNextTarget()
 {
     // Provides next target selection after current target death
@@ -365,7 +430,6 @@ void PetAI::HandleReturnMovement()
             }
         }
     }
-
 }
 
 void PetAI::DoAttack(Unit* target, bool chase)
@@ -466,4 +530,20 @@ bool PetAI::CanAttack(Unit* target)
 
     // default, though we shouldn't ever get here
     return false;
+}
+
+void PetAI::ReceiveEmote(Player* player, uint32 emote)
+{
+    if (me->GetOwnerGUID() && me->GetOwnerGUID() == player->GetGUID())
+        switch (emote)
+        {
+            case TEXT_EMOTE_COWER:
+                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                break;
+            case TEXT_EMOTE_ANGRY:
+                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_COWER);
+                break;
+        }
 }

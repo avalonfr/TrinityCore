@@ -326,7 +326,7 @@ public:
         void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
         {
             if (spell->Id == SPELL_HARPOON_DAMAGE)
-                sLog->outBasic("Skadi esta detectando de nuevo los SpellHits, deberia eliminarse el workarround de Souler");
+                sLog->outError(LOG_FILTER_UNITS,"Skadi esta detectando de nuevo los SpellHits, deberia eliminarse el workarround de Souler");
                 //DoAction(1);
         }
 

@@ -23,7 +23,9 @@ SDComment: Need to implement molten punch
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "PassiveAI.h"
 #include "black_temple.h"
 
 #define EMOTE_NEW_TARGET            -1564010
@@ -134,7 +136,8 @@ public:
             if (!phase || phase == PHASE_CHASE)
             {
                 phase = PHASE_STRIKE;
-                summons.DoAction(EVENT_VOLCANO, 0);
+                DummyEntryCheckPredicate pred;
+                summons.DoAction(EVENT_VOLCANO, pred);
                 events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
                 me->SetSpeed(MOVE_RUN, 1.2f);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);

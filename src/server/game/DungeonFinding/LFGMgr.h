@@ -29,9 +29,9 @@ class Player;
 
 enum LFGenum
 {
-    LFG_TIME_ROLECHECK                           = 40,
-    LFG_TIME_BOOT                                = 40,
-    LFG_TIME_PROPOSAL                            = 40,
+    LFG_TIME_ROLECHECK                           = 40*IN_MILLISECONDS,
+    LFG_TIME_BOOT                                = 2*MINUTE,
+    LFG_TIME_PROPOSAL                            = 2*MINUTE,
     LFG_TANKS_NEEDED                             = 1,
     LFG_HEALERS_NEEDED                           = 1,
     LFG_DPS_NEEDED                               = 3,
@@ -68,6 +68,7 @@ enum LfgTeleportError
     LFG_TELEPORTERROR_OK                         = 0,      // Internal use
     LFG_TELEPORTERROR_PLAYER_DEAD                = 1,
     LFG_TELEPORTERROR_FALLING                    = 2,
+    LFG_TELEPORTERROR_DONT_REPORT                = 3,
     LFG_TELEPORTERROR_FATIGUE                    = 4,
     LFG_TELEPORTERROR_INVALID_LOCATION           = 6
 };

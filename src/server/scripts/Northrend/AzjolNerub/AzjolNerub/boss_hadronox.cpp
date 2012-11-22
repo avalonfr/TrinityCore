@@ -109,12 +109,10 @@ class boss_hadronox : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
-me->GetMotionMaster()->Clear();
-me->GetMotionMaster()->MovePoint(50,me->GetHomePosition());
-sLog->outError("RESET *******************************************");
-
-_WaveCount = 0;
-                _wpCount = 0;
+				me->GetMotionMaster()->Clear();
+				me->GetMotionMaster()->MovePoint(50,me->GetHomePosition());
+				_WaveCount = 0;
+				_wpCount = 0;
                 _wpReached = false;
                 _movementStarted = false;
                 _engaged = false;
@@ -136,7 +134,6 @@ _WaveCount = 0;
             {
                 if (type != POINT_MOTION_TYPE || id != _wpCount)
                     return;
-sLog->outError("point id %u *************************",id);
                 if (id == 10)
                 {
                     // TODO: web doors
@@ -220,7 +217,7 @@ sLog->outError("point id %u *************************",id);
                     _events.ScheduleEvent(EVENT_CLOUD, urand(5, 10) *IN_MILLISECONDS);
                     _events.ScheduleEvent(EVENT_LEECH, urand(7, 12) *IN_MILLISECONDS);
                     _events.ScheduleEvent(EVENT_UNSTUCK, 3*IN_MILLISECONDS);
-                    _events.ScheduleEvent(EVENT_SPAWN, 1.5*IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_SPAWN, 3*IN_MILLISECONDS);
                 }
 
                 if (_wpReached)
@@ -269,9 +266,9 @@ sLog->outError("point id %u *************************",id);
                             break;
                         case EVENT_SPAWN:
                             me->SummonCreature(RAND(NPC_ADD_CHAMPION, NPC_ADD_CRYPT_FIEND, NPC_ADD_NECROMANCER), AddWaypoints[0]);
-_WaveCount++;
-if (_WaveCount <= 50 ) //prevent too much spawn & freeze serv
-_events.ScheduleEvent(EVENT_SPAWN, urand(1500, 3000));
+							_WaveCount++;
+							if (_WaveCount <= 50 ) //prevent too much spawn & freeze serv
+								_events.ScheduleEvent(EVENT_SPAWN, urand(6000, 9000));
                             break;
                         case EVENT_FORCEMOVE:
                             me->SetReactState(REACT_PASSIVE);
@@ -301,7 +298,7 @@ _events.ScheduleEvent(EVENT_SPAWN, urand(1500, 3000));
             EventMap _events;
             Position _home;
             uint8 _wpCount;
-uint8 _WaveCount;
+			uint8 _WaveCount;
             bool _wpReached;
             bool _movementStarted;
             bool _engaged;
@@ -329,12 +326,11 @@ class npc_anubar_crusher : public CreatureScript
             void Reset()
             {
                 _smashTimer = urand(7, 10) *IN_MILLISECONDS;
-
                 if (_instance)
                     _instance->SetData(DATA_HADRONOX_EVENT, NOT_STARTED);
 
-if (Creature* Hadronox = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HADRONOX)))
-Hadronox->AI()->Reset();
+				if (Creature* Hadronox = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HADRONOX)))
+					Hadronox->AI()->Reset();
 
                 if (Creature* champion = GetClosestCreatureWithEntry(me, NPC_ANUBAR_CHAMPION, 200.0f, false))
                     champion->Respawn();
@@ -345,7 +341,9 @@ Hadronox->AI()->Reset();
             void EnterCombat(Unit* /*who*/)
             {
                 if (_instance)
+				{
                     _instance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
+				}
             }
 
             void UpdateAI(uint32 const diff)

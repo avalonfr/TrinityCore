@@ -164,6 +164,7 @@ class Pet : public Guardian
         bool HaveInDiet(ItemTemplate const* item) const;
         uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel);
         void SetDuration(int32 dur) { m_duration = dur; }
+        int32 GetDuration() { return m_duration; }
 
         /*
         bool UpdateStats(Stats stat);
@@ -199,6 +200,7 @@ class Pet : public Guardian
         bool unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
+        virtual void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
 
         PetSpellMap     m_spells;
         AutoSpellList   m_autospells;

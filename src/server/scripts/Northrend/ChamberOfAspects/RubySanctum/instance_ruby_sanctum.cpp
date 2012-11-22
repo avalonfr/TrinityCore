@@ -1,41 +1,35 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
-#include "Map.h"
-#include "MapManager.h"
-
-#include "ScriptPCH.h"
 #include "ruby_sanctum.h"
 
 
 DoorData const doorData[] =
 {
-    {GO_FIRE_FIELD,     DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE,  BOUNDARY_E   },
-    {0,                 0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {GO_FIRE_FIELD, DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE, BOUNDARY_E },
+    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE},
 };
 
 class instance_ruby_sanctum : public InstanceMapScript
 {
     public:
-        instance_ruby_sanctum() : InstanceMapScript("instance_ruby_sanctum", 724) { }
+        instance_ruby_sanctum() : InstanceMapScript(RSScriptName, 724) { }
 
         struct instance_ruby_sanctum_InstanceMapScript : public InstanceScript
         {
@@ -43,20 +37,20 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                BaltharusTheWarbornGUID  = 0;
-                GeneralZarithrianGUID    = 0;
-                SavianaRagefireGUID      = 0;
-                HalionGUID               = 0;
-                TwilightHalionGUID       = 0;
-                OrbCarrierGUID           = 0;
-                OrbRotationFocusGUID     = 0;
-                HalionControllerGUID     = 0;
-                CombatStalkerGUID        = 0;
+                BaltharusTheWarbornGUID = 0;
+                GeneralZarithrianGUID = 0;
+                SavianaRagefireGUID = 0;
+                HalionGUID = 0;
+                TwilightHalionGUID = 0;
+                OrbCarrierGUID = 0;
+                OrbRotationFocusGUID = 0;
+                HalionControllerGUID = 0;
+                CombatStalkerGUID = 0;
                 CrystalChannelTargetGUID = 0;
-                XerestraszaGUID          = 0;
-                BaltharusSharedHealth    = 0;
-                FlameWallsGUID           = 0;
-                FlameRingGUID            = 0;
+                XerestraszaGUID = 0;
+                BaltharusSharedHealth = 0;
+                FlameWallsGUID = 0;
+                FlameRingGUID = 0;
 
                 memset(ZarithrianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
@@ -148,7 +142,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                         if (GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                             HandleGameObject(BurningTreeGUID[3], true);
                         break;
-					default:
+                    default:
                         break;
                 }
             }
@@ -210,10 +204,17 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return 0;
             }
 
-			bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state)
             {
                 if (!InstanceScript::SetBossState(type, state))
+                {
+                    // Summon Halion on instance loading if conditions are met. Without those lines,
+                    // InstanceScript::SetBossState returns false, thus preventing the switch from being called.
+                    if (type == DATA_HALION && state != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE && !GetData64(DATA_HALION_CONTROLLER))
+                        if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                            halionController->AI()->DoAction(ACTION_INTRO_HALION);
                     return false;
+                }
 
                 switch (type)
                 {
@@ -238,25 +239,28 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     }
                     case DATA_GENERAL_ZARITHRIAN:
-					{
+                    {
                         if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                             HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
-                        if (state == DONE)
+
+                        // Not called at instance loading, no big deal.
+                        if (state == DONE && GetBossState(DATA_HALION) != DONE)
                             if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
                                 halionController->AI()->DoAction(ACTION_INTRO_HALION);
                         break;
-					}
+                    }
                     case DATA_HALION:
                     {
-                        if (state == IN_PROGRESS)
-                            break;
-
                         DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
                         DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 0);
                         DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, 0);
 
-                        HandleGameObject(FlameRingGUID, true);
-                        HandleGameObject(TwilightFlameRingGUID, true);
+                        // Reopen rings on wipe or success
+                        if (state == DONE || state == FAIL)
+                        {
+                            HandleGameObject(FlameRingGUID, true);
+                            HandleGameObject(TwilightFlameRingGUID, true);
+                        }
                         break;
                     }
                     default:
@@ -317,19 +321,19 @@ class instance_ruby_sanctum : public InstanceMapScript
 
                 if (dataHead1 == 'R' && dataHead2 == 'S')
                 {
-					uint32 tmpState[4];
-                    for (uint8 i = 0; i < 4; ++i)
+					uint32 tmpState[EncounterCount];
+                    for (uint8 i = 0; i < EncounterCount; ++i)
                     {
-						
                         
-                        loadStream >> tmpState[i];
-                        if (tmpState[i] == IN_PROGRESS || tmpState[i] > SPECIAL)
-                            tmpState[i] = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState[i]));
-                    }
-					if (tmpState[0] == DONE && tmpState[1] == DONE && tmpState[2] == DONE)
-						 if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-                                halionController->AI()->DoAction(ACTION_INTRO_HALION);
+						loadStream >> tmpState[i];
+						if (tmpState[i] == IN_PROGRESS || tmpState[i] > SPECIAL)
+							tmpState[i] = NOT_STARTED;
+						SetBossState(i, EncounterState(tmpState[i]));
+					}
+					
+					/*if (tmpState[0] == DONE && tmpState[1] == DONE && tmpState[2] == DONE)
+						if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+							halionController->AI()->DoAction(ACTION_INTRO_HALION);*/
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;
@@ -358,9 +362,9 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint32 BaltharusSharedHealth;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_ruby_sanctum_InstanceMapScript(pMap);
+            return new instance_ruby_sanctum_InstanceMapScript(map);
         }
 };
 

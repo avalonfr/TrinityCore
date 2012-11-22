@@ -976,7 +976,6 @@ class npc_muradin_gunship : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-					sLog->outError("MURADIN EVENT %u ***************************",eventId);
                     switch (eventId)
                     {
                         case EVENT_WIPE_CHECK:
@@ -1125,7 +1124,6 @@ class npc_muradin_gunship : public CreatureScript
                             if (UpdateVictim())
                                 if (me->getVictim()->HasAura(SPELL_ON_SKYBREAKERS_DECK)) // Todo: Fix the distance
                                 {
-									sLog->outError("cast de SPELL_RENDING_THROW ******************************************");
                                     //DoCastVictim(SPELL_RENDING_THROW);
                                     EventScheduled = false;
                                 }
@@ -2183,7 +2181,6 @@ class npc_saurfang_gunship : public CreatureScript
 					
                     switch (eventId)
                     {
-						sLog->outError("SUARFANG EVENT %u ***************************",eventId);
                         case EVENT_WIPE_CHECK:
                             DoCheckFallingPlayer(me);
                             if (DoWipeCheck(orgrimmar))
@@ -3053,11 +3050,9 @@ class transport_gunship : public TransportScript
             switch (transport->GetEntry())
             {
                 case GO_THE_SKYBREAKER_ALLIANCE_ICC:
-					sLog->outError("SPELL_ON_SKYBREAKERS_DECK **************************************");
                     player->AddAura(SPELL_ON_SKYBREAKERS_DECK, player);
                     break;
                 case GO_ORGRIM_S_HAMMER_HORDE_ICC:
-					sLog->outError("SPELL_ON_ORGRIMS_HAMMERS_DECK **************************************");
                     player->AddAura(SPELL_ON_ORGRIMS_HAMMERS_DECK, player);
                     break;
                 default:

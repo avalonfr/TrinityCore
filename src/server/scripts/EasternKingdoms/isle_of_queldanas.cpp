@@ -28,7 +28,8 @@ npc_converted_sentry
 npc_greengill_slave
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 /*######
 ## npc_converted_sentry
@@ -129,8 +130,8 @@ public:
                 PlayerGUID = caster->GetGUID();
                 if (PlayerGUID)
                 {
-                    Unit* player = Unit::GetUnit(*me, PlayerGUID);
-                    if (player && CAST_PLR(player)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
+                    Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                    if (player && player->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
                         DoCast(player, 45110, true);
                 }
                 DoCast(me, ENRAGE);

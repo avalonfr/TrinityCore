@@ -442,7 +442,7 @@ class PetAura
         typedef UNORDERED_MAP<uint32, uint32> PetAuraMap;
 
     public:
-        PetAura()
+        PetAura() : removeOnChangePet(false), damage(0)
         {
             auras.clear();
         }
@@ -606,7 +606,7 @@ class SpellMgr
 
     // Accessors (const or static functions)
     public:
-        // Spell correctess for client using
+        // Spell correctness for client using
         static bool IsSpellValid(SpellInfo const* spellInfo, Player* player = NULL, bool msg = true);
 
         // Spell difficulty

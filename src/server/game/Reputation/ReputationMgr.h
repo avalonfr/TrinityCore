@@ -65,7 +65,7 @@ class ReputationMgr
 {
     public:                                                 // constructors and global modifiers
         explicit ReputationMgr(Player* owner) : _player(owner),
-            _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0) {}
+            _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) {}
         ~ReputationMgr() {}
 
         void SaveToDB(SQLTransaction& trans);
@@ -132,6 +132,9 @@ class ReputationMgr
 
         void ApplyForceReaction(uint32 faction_id, ReputationRank rank, bool apply);
 
+        //! Public for chat command needs
+        bool SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
+
     public:                                                 // senders
         void SendInitialReputations();
         void SendForceReactions();
@@ -142,7 +145,6 @@ class ReputationMgr
         void Initialize();
         uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
         bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
-        bool SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
         void SetVisible(FactionState* faction);
         void SetAtWar(FactionState* faction, bool atWar) const;
         void SetInactive(FactionState* faction, bool inactive) const;

@@ -162,7 +162,7 @@ class FrostwyrmLandEvent : public BasicEvent
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
         {
-            _owner.GetMotionMaster()->MoveLand(POINT_FROSTWYRM_LAND, _dest, 8.247422f);
+            _owner.GetMotionMaster()->MoveLand(POINT_FROSTWYRM_LAND, _dest);
             return true;
         }
 
@@ -345,7 +345,8 @@ class boss_sindragosa : public CreatureScript
 							//DoStartMovement(me->getVictim());
 							_isInAirPhase = false;
 							// trigger Asphyxiation
-							summons.DoAction(NPC_ICE_TOMB, ACTION_TRIGGER_ASPHYXIATION);
+							EntryCheckPredicate pred(NPC_ICE_TOMB);
+							summons.DoAction(ACTION_TRIGGER_ASPHYXIATION,pred);
 							break;
 						}
                     default:
@@ -542,7 +543,7 @@ class boss_sindragosa : public CreatureScript
                             Position pos;
                             pos.Relocate(me);
                             pos.m_positionZ += 17.0f;
-                            me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos, 8.30078125f);
+                            me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos);
                             events.DelayEvents(45000, EVENT_GROUP_LAND_PHASE);
 							events.RescheduleEvent(EVENT_ICY_GRIP, urand(70000, 75000), EVENT_GROUP_LAND_PHASE);
                             events.RescheduleEvent(EVENT_UNCHAINED_MAGIC, urand(55000, 60000), EVENT_GROUP_LAND_PHASE);
@@ -1118,7 +1119,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
                 return true;
             }
 
-            void CountTargets(std::list<Unit*>& unitList)
+            void CountTargets(std::list<WorldObject*>& unitList)
             {
                 _targetCount = unitList.size();
             }
@@ -1145,7 +1146,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sindragosa_s_fury_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_s_fury_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
             }
 
             uint32 _targetCount;
@@ -1162,9 +1163,9 @@ class UnchainedMagicTargetSelector
     public:
         UnchainedMagicTargetSelector() { }
 
-        bool operator()(Unit* unit)
+        bool operator()(WorldObject* unit)
         {
-            return unit->getPowerType() != POWER_MANA;
+            return unit->ToUnit()->getPowerType() != POWER_MANA;
         }
 };
 
@@ -1177,17 +1178,17 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sindragosa_unchained_magic_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if (UnchainedMagicTargetSelector());
                 uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 5 : 2);
                 if (unitList.size() > maxSize)
-                    Trinity::RandomResizeList(unitList, maxSize);
+                    Trinity::Containers::RandomResizeList(unitList, maxSize);
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sindragosa_unchained_magic_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_unchained_magic_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1332,7 +1333,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
         }
 };
 
-class FrostBombTargetSelector
+/*class FrostBombTargetSelector
 {
     public:
         FrostBombTargetSelector(Unit* caster, std::list<Creature*> const& collisionList) : _caster(caster), _collisionList(collisionList) { }
@@ -1353,8 +1354,8 @@ class FrostBombTargetSelector
         Unit* _caster;
         std::list<Creature*> const& _collisionList;
 };
-
-class spell_sindragosa_collision_filter : public SpellScriptLoader
+*/
+/*class spell_sindragosa_collision_filter : public SpellScriptLoader
 {
     public:
         spell_sindragosa_collision_filter() : SpellScriptLoader("spell_sindragosa_collision_filter") { }
@@ -1363,14 +1364,14 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sindragosa_collision_filter_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* spell)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ICE_TOMB_DAMAGE))
                     return false;
                 return true;
             }
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 std::list<Creature*> tombs;
                 GetCreatureListWithEntryInGrid(tombs, GetCaster(), NPC_ICE_TOMB, 200.0f);
@@ -1379,7 +1380,7 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sindragosa_collision_filter_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_collision_filter_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1388,7 +1389,7 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
             return new spell_sindragosa_collision_filter_SpellScript();
         }
 };
-
+*/
 class spell_sindragosa_icy_grip : public SpellScriptLoader
 {
     public:
@@ -1442,7 +1443,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
             void HandleTriggerMissile(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                if (Position const* pos = GetTargetDest())
+                if (Position const* pos = GetExplTargetDest())
                     if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
                         summon->CastSpell(summon, SPELL_ICY_BLAST_AREA, true);
             }
@@ -1491,22 +1492,22 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
                     if ((*itr)->GetTypeId() != TYPEID_PLAYER)
-                        unitList.erase(itr++);
+                        targets.erase(itr++);
                     else
                         ++itr;
                 }
 
-                if (unitList.empty())
+                if (targets.empty())
                     return;
 
-                Unit* target = SelectRandomContainerElement(unitList);
-                unitList.clear();
-                unitList.push_back(target);
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(target);
             }
 
             void HandleForcedCast(SpellEffIndex effIndex)
@@ -1521,13 +1522,13 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                 if (unitList.empty())
                     return;
 
-                SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+                Trinity::Containers::SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_frostwarden_handler_order_whelp_SpellScript::HandleForcedCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_frostwarden_handler_order_whelp_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frostwarden_handler_order_whelp_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
@@ -1648,7 +1649,7 @@ void AddSC_boss_sindragosa()
     new spell_sindragosa_instability();
     new spell_sindragosa_frost_beacon();
     new spell_sindragosa_ice_tomb();
-    new spell_sindragosa_collision_filter();
+//    new spell_sindragosa_collision_filter();
     new spell_sindragosa_icy_grip();
     new spell_rimefang_icy_blast();
     new spell_frostwarden_handler_order_whelp();

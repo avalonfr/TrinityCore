@@ -54,22 +54,36 @@ void AddSC_SmartSCripts();
 void AddSC_anticheat_commandscript();
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
+void AddSC_ban_commandscript();
+void AddSC_bf_commandscript();
+void AddSC_cast_commandscript();
+void AddSC_character_commandscript();
+void AddSC_cheat_commandscript();
 void AddSC_debug_commandscript();
+void AddSC_disable_commandscript();
 void AddSC_event_commandscript();
 void AddSC_gm_commandscript();
 void AddSC_go_commandscript();
 void AddSC_gobject_commandscript();
+void AddSC_guild_commandscript();
 void AddSC_honor_commandscript();
+void AddSC_instance_commandscript();
 void AddSC_learn_commandscript();
+void AddSC_list_commandscript();
+void AddSC_lookup_commandscript();
+void AddSC_message_commandscript();
 void AddSC_misc_commandscript();
 void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
+void AddSC_questbug_commandscript();
 void AddSC_reload_commandscript();
+void AddSC_reset_commandscript();
+void AddSC_server_commandscript();
 void AddSC_tele_commandscript();
+void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
-void AddSC_gps_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -130,6 +144,7 @@ void AddSC_boss_mr_smite();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_gnomeregan();                     //Gnomeregan
+void AddSC_operation_gnomeregan();           //Operation Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
@@ -322,6 +337,7 @@ void AddSC_bug_trio();
 void AddSC_boss_sartura();
 void AddSC_boss_skeram();
 void AddSC_boss_twinemperors();
+void AddSC_boss_ouro();
 void AddSC_mob_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
 void AddSC_wailing_caverns();                //Wailing caverns
@@ -423,23 +439,23 @@ void AddSC_boss_krystallus();
 void AddSC_boss_sjonnir();
 void AddSC_instance_halls_of_stone();
 void AddSC_halls_of_stone();
-void AddSC_boss_auriaya();               //Ulduar Ulduar
+void AddSC_boss_auriaya(); //Ulduar Ulduar
 void AddSC_boss_flame_leviathan();
 void AddSC_boss_ignis();
 void AddSC_boss_razorscale();
 void AddSC_boss_xt002();
 void AddSC_boss_kologarn();
 void AddSC_boss_assembly_of_iron();
-void AddSC_boss_thorim();
 void AddSC_boss_general_vezax();
-void AddSC_boss_yoggsaron();
-void AddSC_boss_algalon();
 void AddSC_ulduar_teleporter();
+void AddSC_ulduar_trash();
 void AddSC_boss_mimiron();
 void AddSC_boss_hodir();
+void AddSC_boss_thorim();
 void AddSC_boss_freya();
+void AddSC_boss_yoggsaron();
+void AddSC_boss_algalon_the_observer();
 void AddSC_instance_ulduar();
-void AddSC_ulduar();
 void AddSC_boss_keleseth();              //Utgarde Keep
 void AddSC_boss_skarvald_dalronn();
 void AddSC_boss_ingvar_the_plunderer();
@@ -673,22 +689,36 @@ void AddCommandScripts()
 	AddSC_anticheat_commandscript();
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
+    AddSC_ban_commandscript();
+    AddSC_bf_commandscript();
+    AddSC_cast_commandscript();
+    AddSC_character_commandscript();
+    AddSC_cheat_commandscript();
     AddSC_debug_commandscript();
+    AddSC_disable_commandscript();
     AddSC_event_commandscript();
     AddSC_gm_commandscript();
     AddSC_go_commandscript();
     AddSC_gobject_commandscript();
+    AddSC_guild_commandscript();
     AddSC_honor_commandscript();
+    AddSC_instance_commandscript();
     AddSC_learn_commandscript();
+    AddSC_lookup_commandscript();
+    AddSC_list_commandscript();
+    AddSC_message_commandscript();
     AddSC_misc_commandscript();
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
     AddSC_quest_commandscript();
+	AddSC_questbug_commandscript();
     AddSC_reload_commandscript();
+    AddSC_reset_commandscript();
+    AddSC_server_commandscript();
     AddSC_tele_commandscript();
+    AddSC_ticket_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
-    AddSC_gps_commandscript();
 }
 
 void AddWorldScripts()
@@ -756,6 +786,7 @@ void AddEasternKingdomsScripts()
     AddSC_deadmines();                      //Deadmines
     AddSC_instance_deadmines();
     AddSC_gnomeregan();                     //Gnomeregan
+	AddSC_operation_gnomeregan();           //Operation Gnomeregan
     AddSC_instance_gnomeregan();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
@@ -952,6 +983,7 @@ void AddKalimdorScripts()
     AddSC_boss_sartura();
     AddSC_boss_skeram();
     AddSC_boss_twinemperors();
+    AddSC_boss_ouro();
     AddSC_mob_anubisath_sentinel();
     AddSC_instance_temple_of_ahnqiraj();
     AddSC_wailing_caverns();                //Wailing caverns
@@ -1145,7 +1177,7 @@ void AddNorthrendScripts()
     AddSC_boss_sjonnir();
     AddSC_instance_halls_of_stone();
     AddSC_halls_of_stone();
-    AddSC_boss_auriaya();               //Ulduar Ulduar
+    AddSC_boss_auriaya(); //Ulduar Ulduar
     AddSC_boss_flame_leviathan();
     AddSC_boss_ignis();
     AddSC_boss_razorscale();
@@ -1153,15 +1185,15 @@ void AddNorthrendScripts()
     AddSC_boss_general_vezax();
     AddSC_boss_assembly_of_iron();
     AddSC_boss_kologarn();
-	AddSC_boss_thorim();
-	AddSC_boss_yoggsaron();
-	AddSC_boss_algalon();
     AddSC_ulduar_teleporter();
+    AddSC_ulduar_trash();
     AddSC_boss_mimiron();
     AddSC_boss_hodir();
+    AddSC_boss_thorim();
     AddSC_boss_freya();
+    AddSC_boss_yoggsaron();
+    AddSC_boss_algalon_the_observer();
     AddSC_instance_ulduar();
-	AddSC_ulduar();
     AddSC_boss_keleseth();              //Utgarde Keep
     AddSC_boss_skarvald_dalronn();
     AddSC_boss_ingvar_the_plunderer();
@@ -1236,10 +1268,10 @@ void AddNorthrendScripts()
     AddSC_icecrown();
     AddSC_sholazar_basin();
     AddSC_storm_peaks();
+    AddSC_wintergrasp();
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
-	AddSC_wintergrasp();
 	AddSC_Argent_Tournament();
 #endif
 }

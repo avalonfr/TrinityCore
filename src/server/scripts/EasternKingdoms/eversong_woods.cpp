@@ -31,7 +31,9 @@ npc_kelerun_bloodmourn
 go_harbinger_second_trial
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -490,14 +492,14 @@ public:
         {
             if (PlayerGUID)
                 if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
-                    CAST_PLR(player)->FailQuest(QUEST_UNEXPECTED_RESULT);
+                    player->FailQuest(QUEST_UNEXPECTED_RESULT);
         }
 
         void UpdateAI(const uint32 /*diff*/)
         {
             if (KillCount >= 3 && PlayerGUID)
                 if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
-                    CAST_PLR(player)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
+                    player->CompleteQuest(QUEST_UNEXPECTED_RESULT);
 
             if (Summon)
             {

@@ -15,7 +15,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "PassiveAI.h"
 #include "eye_of_eternity.h"
 #include "WorldPacket.h"
 #include "ObjectAccessor.h"
@@ -300,7 +304,7 @@ public:
             }
             else
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
 
             me->SetCanFly(true);
@@ -654,7 +658,7 @@ pWho->DisappearAndDie();
                     Creature* pVortex = GetClosestCreatureWithEntry(me, NPC_VORTEX, 100.0f);
                     if(pVortex)
                     {
-                        pVortex->ForcedDespawn();
+                        pVortex->DespawnOrUnsummon();
                     }
                     
                     m_uiSubPhase = 0;
@@ -834,7 +838,7 @@ pWho->DisappearAndDie();
                     Creature* pDisk = ObjectAccessor::GetCreatureOrPetOrVehicle(*me,*iter);
                     if(pDisk)
                     {
-                        pDisk->ForcedDespawn();
+                        pDisk->DespawnOrUnsummon();
                     }
                 }
                     
@@ -852,7 +856,7 @@ pWho->DisappearAndDie();
      
             for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
             {
-                (*iter)->ForcedDespawn();
+                (*iter)->DespawnOrUnsummon();
             }
         }
                 
@@ -1008,7 +1012,7 @@ pWho->DisappearAndDie();
                             Creature* pTrigger = GetClosestCreatureWithEntry(me, 30494, 100.0f);
                             if(pTrigger)
                             {
-                                pTrigger->ForcedDespawn();
+                                pTrigger->DespawnOrUnsummon();
                             }
                                                         
                             me->AI()->EnterEvadeMode();
@@ -1626,7 +1630,7 @@ public:
                 me->SetHealth(1);
                 me->AddAura(SPELL_POWER_SPARK_PLAYERS, me);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->ForcedDespawn(60000);
+                me->DespawnOrUnsummon(60000);
             }
         }
         
@@ -1676,14 +1680,14 @@ public:
                 {
                     if(!pMalygos->isAlive())
                     {
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                         return;
                     }
 
                     if(me->IsWithinDist3d(pMalygos->GetPositionX(), pMalygos->GetPositionY(), pMalygos->GetPositionZ(), 5.0f))
                     {
                         pMalygos->AddAura(SPELL_POWER_SPARK, pMalygos);
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                     }else
                     {
                         me->GetMotionMaster()->MoveChase(pMalygos, 1.0f, 0.0f);
@@ -1800,7 +1804,7 @@ void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
             {
                 if(m_pInstance->GetData(TYPE_MALYGOS) == NOT_STARTED)
                 {
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 }
 
                 m_uiMoveTimer = 10000;
@@ -1962,7 +1966,7 @@ public:
             }
             if(m_pInstance->GetData(TYPE_MALYGOS) == NOT_STARTED)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
 
             if(m_uiArcaneShockTimer <= uiDiff)

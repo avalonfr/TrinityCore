@@ -28,6 +28,7 @@
 #include "ZoneScript.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "MoveSplineInit.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) : _me(unit), _vehicleInfo(vehInfo), _usableSeatNum(0), _creatureEntry(creatureEntry)
 {
@@ -286,9 +287,6 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         //    return;         // Something went wrong in the spellsystem
         //}
 
-        // This is not good, we have to send update twice
-        accessory->SendMovementFlagUpdate();
-
         if (GetBase()->GetTypeId() == TYPEID_UNIT)
             sScriptMgr->OnInstallAccessory(this, accessory);
     }
@@ -342,7 +340,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         }
     }
 
-    if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK1))
+    if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING))
         unit->AddUnitState(UNIT_STATE_ONVEHICLE);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
@@ -353,6 +351,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     unit->m_movementInfo.t_pos.m_orientation = 0;
     unit->m_movementInfo.t_time = 0; // 1 for player
     unit->m_movementInfo.t_seat = seat->first;
+    unit->m_movementInfo.t_guid = _me->GetGUID();
 
     if (_me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
@@ -367,7 +366,12 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         unit->SendClearTarget();                                // SMSG_BREAK_TARGET
         unit->SetControlled(true, UNIT_STATE_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
                                                                 // also adds MOVEMENTFLAG_ROOT
-        unit->SendMonsterMoveTransport(_me);                     // SMSG_MONSTER_MOVE_TRANSPORT
+        Movement::MoveSplineInit init(*unit);
+        init.DisableTransportPathTransformations();
+        init.MoveTo(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ);
+        init.SetFacing(0.0f);
+        init.SetTransportEnter();
+        init.Launch();
 
         if (_me->GetTypeId() == TYPEID_UNIT)
         {
@@ -375,7 +379,8 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
                 _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, true);
 
             // update all passenger's positions
-            RelocatePassengers(_me->GetPositionX(), _me->GetPositionY(), _me->GetPositionZ(), _me->GetOrientation());
+            //Passenger's spline OR vehicle movement will update positions
+            //RelocatePassengers(_me->GetPositionX(), _me->GetPositionY(), _me->GetPositionZ(), _me->GetOrientation());
         }
     }
 
@@ -443,28 +448,29 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
     ASSERT(_me->GetMap());
 
-    // not sure that absolute position calculation is correct, it must depend on vehicle orientation and pitch angle
+    // not sure that absolute position calculation is correct, it must depend on vehicle pitch angle
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
+    {
         if (Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.Passenger))
         {
             ASSERT(passenger->IsInWorld());
 
-            float px = x + passenger->m_movementInfo.t_pos.m_positionX;
-            float py = y + passenger->m_movementInfo.t_pos.m_positionY;
-            float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
-            float po = ang + passenger->m_movementInfo.t_pos.m_orientation;
-
+            float px, py, pz, po;
+            passenger->m_movementInfo.t_pos.GetPosition(px, py, pz, po);
+            CalculatePassengerPosition(px, py, pz, po);
             passenger->UpdatePosition(px, py, pz, po);
         }
+    }
 }
 
 void Vehicle::Dismiss()
 {
+    if (GetBase()->GetTypeId() != TYPEID_UNIT)
+        return;
+
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Dismiss Entry: %u, GuidLow %u", _creatureEntry, _me->GetGUIDLow());
     Uninstall();
-    _me->DestroyForNearbyPlayers();
-    _me->CombatStop();
-    _me->AddObjectToRemoveList();
+    GetBase()->ToCreature()->DespawnOrUnsummon();
 }
 
 void Vehicle::InitMovementInfoForBase()
@@ -513,3 +519,50 @@ uint8 Vehicle::GetAvailableSeatCount() const
 
     return ret;
 }
+
+void Vehicle::Relocate(Position pos)
+{
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Relocate %u", _me->GetEntry());
+
+    std::set<Unit*> vehiclePlayers;
+    for (int8 i = 0; i < 8; i++)
+        vehiclePlayers.insert(GetPassenger(i));
+
+    // passengers should be removed or they will have movement stuck
+    RemoveAllPassengers();
+
+    for (std::set<Unit*>::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
+    {
+        if (Unit* plr = (*itr))
+        {
+            // relocate/setposition doesn't work for player
+            plr->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+            //plr->TeleportTo(pPlayer->GetMapId(), triggerPos.GetPositionX(), triggerPos.GetPositionY(), triggerPos.GetPositionZ(), triggerPos.GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT);
+        }
+    }
+
+    _me->UpdatePosition(pos, true);
+    // problems, and impossible to do delayed enter
+    //pPlayer->EnterVehicle(veh);
+}
+
+void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
+{
+    float inx = x, iny = y, inz = z, ino = o;
+    o = GetBase()->GetOrientation() + ino;
+    x = GetBase()->GetPositionX() + inx * cos(GetBase()->GetOrientation()) - iny * sin(GetBase()->GetOrientation());
+    y = GetBase()->GetPositionY() + iny * cos(GetBase()->GetOrientation()) + inx * sin(GetBase()->GetOrientation());
+    z = GetBase()->GetPositionZ() + inz;
+}
+
+void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
+{
+    o -= GetBase()->GetOrientation();
+    z -= GetBase()->GetPositionZ();
+    y -= GetBase()->GetPositionY();    // y = searchedY * cos(o) + searchedX * sin(o)
+    x -= GetBase()->GetPositionX();    // x = searchedX * cos(o) + searchedY * sin(o + pi)
+    float inx = x, iny = y;
+    y = (iny - inx * tan(GetBase()->GetOrientation())) / (cos(GetBase()->GetOrientation()) + sin(GetBase()->GetOrientation()) * tan(GetBase()->GetOrientation()));
+    x = (inx + iny * tan(GetBase()->GetOrientation())) / (cos(GetBase()->GetOrientation()) + sin(GetBase()->GetOrientation()) * tan(GetBase()->GetOrientation()));
+}
+
