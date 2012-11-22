@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "naxxramas.h"
 
 #define SPELL_MORTAL_WOUND      25646
@@ -25,6 +26,10 @@
 #define SPELL_INFECTED_WOUND    29306
 
 #define MOB_ZOMBIE  16360
+
+#define EMOTE_CUSTOM_DEVOUR             -1999979
+#define EMOTE_CUSTOM_ENRAGE             -1999980
+#define EMOTE_CUSTOM_DECIMATE           -1999981
 
 const Position PosSummon[3] =
 {
@@ -42,8 +47,6 @@ enum Events
     EVENT_BERSERK,
     EVENT_SUMMON,
 };
-
-#define EMOTE_NEARBY    " spots a nearby zombie to devour!"
 
 class boss_gluth : public CreatureScript
 {
@@ -67,9 +70,9 @@ public:
         {
             if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
-                SetGazeOn(who);
-                // TODO: use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
+                AttackStart(who);
+                me->SetReactState(REACT_PASSIVE);
+                DoScriptText(EMOTE_CUSTOM_DEVOUR, me);
             }
             else
                 BossAI::MoveInLineOfSight(who);
@@ -88,7 +91,12 @@ public:
         void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == MOB_ZOMBIE)
+            {
                 summon->AI()->AttackStart(me);
+
+                if (me->isInCombat())
+                    DoZoneInCombat(summon);
+            }
             summons.Summon(summon);
         }
 
@@ -108,11 +116,12 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-                        // TODO : Add missing text
+                        DoScriptText(EMOTE_CUSTOM_ENRAGE, me);
                         DoCast(me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
+                        DoScriptText(EMOTE_CUSTOM_DECIMATE, me);
                         DoCastAOE(SPELL_DECIMATE);
 
                         for(SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)

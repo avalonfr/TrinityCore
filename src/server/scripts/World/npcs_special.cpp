@@ -4817,21 +4817,6 @@ void AddSC_npcs_special()
     new npc_experience();
     new npc_fire_elemental();
     new npc_earth_elemental();
-	new npc_wild_turkey();
-	new npc_ghost_of_azuregos; // update creature_template set scriptname = 'npc_ghost_of_azuregos' where entry = 15481;
-	new vehicle_knight_gryphon; //UPDATE `creature_template` SET `speed_walk`='2',`spell1`='57403',`VehicleId`='200',`RegenHealth`='0',`ScriptName`='vehicle_knight_gryphon', `npcflag` = 0 WHERE (`entry`='33519');
-	new npc_torch_tossing_bunny();
-	new npc_apple_trap_bunny();
-    new npc_keg_delivery();
-    new npc_bark_bunny();
-    new npc_brew_vendor();
-	new npc_dark_iron_herald();
-    new npc_dark_iron_guzzler();
-	new npc_kali_remik;
-    new npc_hallowend();
-    new npc_headless_horseman_fire();
-    new npc_shade_of_the_horseman();
-    new npc_wickerman_guardian;
     new npc_firework();
     new npc_spring_rabbit();
 }
