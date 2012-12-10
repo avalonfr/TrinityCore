@@ -4323,49 +4323,6 @@ public:
     };
 };
 
-// Item: Turkey Caller
-enum LonelyTurkey
-{
-    SPELL_STINKER_BROKEN_HEART = 62004,
-};
-
-class npc_lonely_turkey : public CreatureScript
-{
-    public:
-        npc_lonely_turkey() : CreatureScript("npc_lonely_turkey") { }
-
-        struct npc_lonely_turkeyAI : public ScriptedAI
-        {
-            npc_lonely_turkeyAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                if (me->isSummon())
-                    if (Unit* owner = me->ToTempSummon()->GetSummoner())
-                        me->GetMotionMaster()->MovePoint(0, owner->GetPositionX() + 25 * cos(owner->GetOrientation()), owner->GetPositionY() + 25 * cos(owner->GetOrientation()), owner->GetPositionZ());
-
-                _StinkerBrokenHeartTimer = 3.5 * IN_MILLISECONDS;
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (_StinkerBrokenHeartTimer <= diff)
-                {
-                    DoCast(SPELL_STINKER_BROKEN_HEART);
-                    me->setFaction(31);
-                }
-                _StinkerBrokenHeartTimer -= diff;
-            }
-        private:
-            uint32 _StinkerBrokenHeartTimer;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_lonely_turkeyAI(creature);
-        }
-};
-
 enum Fireworks
 {
     NPC_OMEN                = 15467,
